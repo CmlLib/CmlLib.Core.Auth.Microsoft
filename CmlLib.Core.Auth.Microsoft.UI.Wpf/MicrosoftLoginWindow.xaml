@@ -1,0 +1,16 @@
+﻿<Window x:Name="window" x:Class="CmlLib.Core.Auth.Microsoft.UI.Wpf.MicrosoftLoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CmlLib.Core.Auth.Microsoft.UI.Wpf" xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        mc:Ignorable="d"
+        FontSize="16"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing"
+        Title="MicrosoftLoginWindow" Height="600" Width="800">
+
+    <Grid x:Name="grid">
+        <Label x:Name="lbLoading" Content="{Binding LoadingText, ElementName=window}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+</Window>
