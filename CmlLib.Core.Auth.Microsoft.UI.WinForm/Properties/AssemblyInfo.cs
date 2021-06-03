@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // 제어됩니다. 어셈블리와 관련된 정보를 수정하려면
 // 이러한 특성 값을 변경하세요.
 [assembly: AssemblyTitle("CmlLib.Core.Auth.Microsoft.UI.WinForm")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("UI library for minecraft login with Xbox account")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("CmlLib.Core.Auth.Microsoft.UI.WinForm")]
