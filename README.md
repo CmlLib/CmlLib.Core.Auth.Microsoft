@@ -30,6 +30,10 @@ MicrosoftLoginForm loginForm = new MicrosoftLoginForm();
 loginForm.ShowLogoutDialog();
 ```
 
+#### Example
+
+[WinFormTest project](https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft.UI/blob/master/WinFormTest/Form1.cs)
+
 ## WPF
 
 #### Import namespaces
@@ -53,3 +57,7 @@ else
 MicrosoftLoginWindow loginForm = new MicrosoftLoginWindow();
 loginWindow.ShowLogoutDialog();
 ```
+
+#### Example
+
+[WpfTest project](https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft.UI/blob/master/WpfTest/MainWindow.xaml.cs)
