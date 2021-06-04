@@ -6,6 +6,10 @@ UI library for minecraft login with Microsoft Xbox account
 ## Install
 Install nuget package [CmlLib.Core.Auth.Microsoft.UI](https://www.nuget.org/packages/CmlLib.Core.Auth.Microsoft.UI/)
 
+## [Microsoft.Web.WebView2](https://docs.microsoft.com/en-us/microsoft-edge/webview2/)
+
+**Important!!!** All users (including end-user) using this library should install [WebView2 runtime](https://go.microsoft.com/fwlink/p/?LinkId=2124703)
+
 ## WinForm
 
 #### Import namespaces
