@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormTest", "WinFormTest\
 		{A7AF65E5-BC6F-49DE-B32B-707199B03089} = {A7AF65E5-BC6F-49DE-B32B-707199B03089}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CmlLib.Core.Auth.Microsoft", "CmlLib.Core.Auth.Microsoft.UI\CmlLib.Core.Auth.Microsoft.csproj", "{F040B03A-30EE-4D49-A1BE-2237A647B255}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CmlLib.Core.Auth.Microsoft", "CmlLib.Core.Auth.Microsoft\CmlLib.Core.Auth.Microsoft.csproj", "{F040B03A-30EE-4D49-A1BE-2237A647B255}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
