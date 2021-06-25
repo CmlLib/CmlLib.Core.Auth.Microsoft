@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormTest", "WinFormTest\
 		{A7AF65E5-BC6F-49DE-B32B-707199B03089} = {A7AF65E5-BC6F-49DE-B32B-707199B03089}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CmlLib.Core.Auth.Microsoft", "CmlLib.Core.Auth.Microsoft.UI\CmlLib.Core.Auth.Microsoft.csproj", "{F040B03A-30EE-4D49-A1BE-2237A647B255}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{8979F5B0-F6B5-4B6C-8DE7-1E915FD12B46}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8979F5B0-F6B5-4B6C-8DE7-1E915FD12B46}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8979F5B0-F6B5-4B6C-8DE7-1E915FD12B46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F040B03A-30EE-4D49-A1BE-2237A647B255}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F040B03A-30EE-4D49-A1BE-2237A647B255}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F040B03A-30EE-4D49-A1BE-2237A647B255}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F040B03A-30EE-4D49-A1BE-2237A647B255}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -91,7 +91,7 @@ namespace WinFormTest
 
         private void Launcher_FileChanged(CmlLib.Core.Downloader.DownloadFileChangedEventArgs e)
         {
-            progressBar1.Value = e.TotalFileCount;
+            progressBar1.Maximum = e.TotalFileCount;
             progressBar1.Value = e.ProgressedFileCount;
             lbStatus.Text = e.FileName;
         }
