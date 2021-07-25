@@ -70,8 +70,8 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="XboxAuthNet, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\XboxAuthNet.1.3.0\lib\net452\XboxAuthNet.dll</HintPath>
+    <Reference Include="XboxAuthNet, Version=1.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\XboxAuthNet.1.4.0\lib\net452\XboxAuthNet.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
