@@ -12,8 +12,8 @@
         <Label Content="AccessToken : " Canvas.Left="10" Canvas.Top="218"/>
         <Label Content="Username : " Canvas.Left="10" Canvas.Top="248"/>
         <Label Content="UUID : " Canvas.Left="10" Canvas.Top="279"/>
-        <Label x:Name="lbAccessToken" Content="Label" Canvas.Left="104" Canvas.Top="218" Width="280"/>
-        <Label x:Name="lbUsername" Content="Label" Canvas.Left="104" Canvas.Top="248" Width="280"/>
-        <Label x:Name="lbUUID" Content="Label" Canvas.Left="104" Canvas.Top="279" Width="280"/>
+        <Label x:Name="lbAccessToken" Content="AccessToken" Canvas.Left="104" Canvas.Top="218" Width="280"/>
+        <Label x:Name="lbUsername" Content="Username" Canvas.Left="104" Canvas.Top="248" Width="280"/>
+        <Label x:Name="lbUUID" Content="UUID" Canvas.Left="104" Canvas.Top="279" Width="280"/>
     </Canvas>
 </Window>

@@ -35,9 +35,13 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
         public Dictionary<string, string> MessageStrings = new Dictionary<string, string>
         {
             ["mslogin_fail"] = "Failed to microsoft login",
+            ["mclogin_fail"] = "Failed to minecraft login",
             ["xbox_error_child"] = "Your account seems like a child. Verify your age or add your account into a Family.",
             ["xbox_error_noaccount"] = "Your account doens't have an Xbox account",
-            ["mojang_nogame"] = "You don't have a Minecraft JE"
+            ["mojang_nogame"] = "You don't have a Minecraft JE",
+            ["empty_token"] = "Token was empty",
+            ["empty_userhash"] = "UserHash was empty",
+            ["no_error_msg"] = "No error message"
         };
 
         public static DependencyProperty LoadingTextProperty = 
@@ -53,51 +57,51 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
             set => SetValue(LoadingTextProperty, value);
         }
         
-        private MSession Session;
-        private string ActionName;
-        private LoginHandler loginHandler;
+        private MSession session;
+        private string actionName;
+        private readonly LoginHandler loginHandler;
 
         public MSession ShowLoginDialog()
         {
-            ActionName = "login";
+            actionName = "login";
             this.ShowDialog();
-            return this.Session;
+            return this.session;
         }
 
         public void ShowLogoutDialog()
         {
-            ActionName = "logout";
+            actionName = "logout";
             this.ShowDialog();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(ActionName))
+            if (string.IsNullOrEmpty(actionName))
             {
                 throw new InvalidOperationException("Use ShowLoginDialog() or ShowLogoutDialog()");
             }
-            else if (ActionName == "login")
+            else if (actionName == "login")
             {
                 login();
             }
-            else if (ActionName == "logout")
+            else if (actionName == "logout")
             {
                 signout();
             }
             else
             {
-                throw new NotImplementedException(ActionName);
+                throw new InvalidOperationException(actionName);
             }
 
-            ActionName = null;
-            Session = null;
+            actionName = null;
+            session = null;
         }
 
         WebView2 wv;
         #region Create/Remove WebView2 control
 
         // Show webview on form
-        private void CreateWV()
+        private void createWv()
         {
             wv = new WebView2();
             wv.NavigationStarting += Wv_NavigationStarting;
@@ -105,7 +109,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
         }
 
         // Remove webview on form
-        private void RemoveWV()
+        private void removeWv()
         {
             if (wv != null)
             {
@@ -123,13 +127,13 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
             {
                 try
                 {
-                    this.Session = loginHandler.LoginFromCache();
+                    this.session = loginHandler.LoginFromCache();
                     Dispatcher.Invoke(() =>
                     {
-                        if (this.Session == null)
+                        if (this.session == null)
                         {
                             var url = loginHandler.CreateOAuthUrl(); // oauth
-                            CreateWV();
+                            createWv();
                             wv.Source = new Uri(url);
                         }
                         else
@@ -147,13 +151,13 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
         {
             if (e.IsRedirected && loginHandler.CheckOAuthLoginSuccess(e.Uri)) // microsoft browser login success
             {
-                RemoveWV(); // remove webview control
+                removeWv(); // remove webview control
 
                 new Thread(() =>
                 {
                     try
                     {
-                        this.Session = loginHandler.LoginFromOAuth();
+                        this.session = loginHandler.LoginFromOAuth();
                         Dispatcher.Invoke(() =>
                         {
                             this.Close();
@@ -171,7 +175,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
         {
             loginHandler.ClearCache();
 
-            CreateWV(); // show webview control
+            createWv(); // show webview control
             wv.Source = new Uri(MicrosoftOAuth.GetSignOutUrl());
         }
 
@@ -180,7 +184,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 MessageBox.Show(msg);
-                this.Session = null;
+                this.session = null;
                 this.Close();
             }));
         }
@@ -212,7 +216,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
                 }
                 
                 MessageBox.Show(msg);
-                this.Session = null;
+                this.session = null;
                 this.Close();
             }));
         }
@@ -227,7 +231,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            RemoveWV(); // remove webview control
+            removeWv(); // remove webview control
         }
     }
 }
