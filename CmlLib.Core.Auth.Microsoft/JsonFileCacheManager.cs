@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace CmlLib.Core.Auth.Microsoft
@@ -41,9 +38,9 @@ namespace CmlLib.Core.Auth.Microsoft
             {
                 File.WriteAllText(CacheFilePath, JsonConvert.SerializeObject(obj));
             }
-            catch
+            catch (Exception ex)
             {
-
+                Debug.WriteLine(ex);
             }
         }
     }

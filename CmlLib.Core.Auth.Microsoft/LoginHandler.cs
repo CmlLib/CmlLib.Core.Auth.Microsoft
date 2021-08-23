@@ -159,7 +159,7 @@ namespace CmlLib.Core.Auth.Microsoft
             else if (string.IsNullOrEmpty(xsts.Token))
                 msg = "empty_token";
 
-            string errorCode = "";
+            string errorCode;
             try
             {
                 var errorCodeStr = xsts.Error?.Trim();

@@ -1,17 +1,7 @@
-﻿using CmlLib.Core.Mojang;
-using Microsoft.Web.WebView2.WinForms;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using Microsoft.Web.WebView2.WinForms;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using XboxAuthNet.OAuth;
 using XboxAuthNet.XboxLive;
@@ -50,11 +40,11 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
             set => lbLoading.Text = value;
         }
         
-        private MSession session;
-        private string actionName;
+        private MSession? session;
+        private string? actionName;
         private readonly LoginHandler loginHandler;
 
-        public MSession ShowLoginDialog()
+        public MSession? ShowLoginDialog()
         {
             actionName = "login";
             this.ShowDialog();
@@ -90,7 +80,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
             session = null;
         }
 
-        WebView2 wv;
+        WebView2? wv;
         #region Create/Remove WebView2 control
 
         // Show webview on form
@@ -224,12 +214,12 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
             }));
         }
 
-        private string l(string key)
+        private string l(string? key)
         {
-            if (MessageStrings.TryGetValue(key, out string value))
+            if (MessageStrings.TryGetValue(key ?? "", out string? value))
                 return value;
             else
-                return key;
+                return key ?? "";
         }
 
         private void MicrosoftLoginForm_FormClosing(object sender, FormClosingEventArgs e)

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CmlLib.Core.Auth.Microsoft;
-using XboxAuthNet.OAuth;
+﻿using XboxAuthNet.OAuth;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
