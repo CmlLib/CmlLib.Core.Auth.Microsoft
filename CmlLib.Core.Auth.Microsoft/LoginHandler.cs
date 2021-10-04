@@ -202,7 +202,8 @@ namespace CmlLib.Core.Auth.Microsoft
             {
                 AccessToken = mcToken.AccessToken,
                 UUID = profile.UUID,
-                Username = profile.Name
+                Username = profile.Name,
+                UserType = "msa"
             };
         }
     }
