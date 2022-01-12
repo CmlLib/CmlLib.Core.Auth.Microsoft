@@ -24,31 +24,43 @@ namespace CmlLib.Core.Auth.Microsoft
             this.OAuth = oAuth;
         }
 
-        public LoginHandler(ICacheManager<SessionCache> cacheManager)
+        public LoginHandler(ICacheManager<SessionCache>? cacheManager)
         {
             this.cacheManager = cacheManager;
             this.OAuth = new MicrosoftOAuth(DefaultClientId, XboxAuth.XboxScope);
         }
 
-        public LoginHandler(MicrosoftOAuth oAuth, ICacheManager<SessionCache> cacheManager)
+        public LoginHandler(MicrosoftOAuth oAuth, ICacheManager<SessionCache>? cacheManager)
         {
             this.cacheManager = cacheManager;
             this.OAuth = oAuth;
         }
 
         public MicrosoftOAuth OAuth { get; private set; }
-        private readonly ICacheManager<SessionCache> cacheManager;
+        private readonly ICacheManager<SessionCache>? cacheManager;
 
         private SessionCache? sessionCache;
 
         private void readSessionCache()
         {
-            sessionCache = cacheManager.ReadCache();
+            sessionCache = cacheManager?.ReadCache();
         }
 
         private void saveSessionCache()
         {
-            cacheManager.SaveCache(sessionCache ?? new SessionCache());
+            cacheManager?.SaveCache(sessionCache ?? new SessionCache());
+        }
+
+        public void ClearCache()
+        {
+            if (sessionCache != null)
+            {
+                sessionCache.XboxSession = null;
+                sessionCache.GameSession = null;
+                sessionCache.MicrosoftOAuthSession = null;
+            }
+
+            saveSessionCache();
         }
 
         public MSession? LoginFromCache()
@@ -64,7 +76,8 @@ namespace CmlLib.Core.Auth.Microsoft
                     return null;
                 
                 // success to refresh ms
-                mcToken = mcLogin(msToken);
+                var xsts = LoginXbox(msToken);
+                mcToken = LoginMinecraft(xsts.UserHash!, xsts.Token!); // LoginXbox method checks if UserHash and Token is null
             }
 
             return getGameSession(msToken, mcToken);
@@ -78,10 +91,16 @@ namespace CmlLib.Core.Auth.Microsoft
         public MSession LoginFromOAuth()
         {
             var result = OAuth.TryGetTokens(out MicrosoftOAuthResponse? msToken); // get token
-            if (!result)
+            if (msToken == null || !result)
                 throw new MicrosoftOAuthException(msToken);
 
-            var mcToken = mcLogin(msToken);
+            return LoginFromOAuth(msToken);
+        }
+
+        public MSession LoginFromOAuth(MicrosoftOAuthResponse msToken)
+        {
+            var xboxToken = LoginXbox(msToken);
+            var mcToken = LoginMinecraft(xboxToken.UserHash!, xboxToken.Token!); // LoginXbox method checks if UserHash and Token is null
             return getGameSession(msToken, mcToken);
         }
 
@@ -90,24 +109,13 @@ namespace CmlLib.Core.Auth.Microsoft
             return OAuth.CreateUrl();
         }
 
-        public void ClearCache()
-        {
-            if (sessionCache != null)
-            {
-                sessionCache.XboxSession = null;
-                sessionCache.GameSession = null;
-                sessionCache.MicrosoftOAuthSession = null;
-            }
-
-            saveSessionCache();
-        }
-
         private MSession getGameSession(MicrosoftOAuthResponse? msToken, AuthenticationResponse mcToken)
         {
             if (sessionCache == null)
                 sessionCache = new SessionCache();
             
-            sessionCache.GameSession ??= getSession(mcToken);
+            sessionCache.GameSession ??= CreateMinecraftSession(mcToken);
+            sessionCache.GameSession.AccessToken = mcToken.AccessToken;
             sessionCache.XboxSession = mcToken;
             sessionCache.MicrosoftOAuthSession = msToken;
 
@@ -115,7 +123,7 @@ namespace CmlLib.Core.Auth.Microsoft
             return sessionCache.GameSession;
         }
 
-        private AuthenticationResponse mcLogin(MicrosoftOAuthResponse? msToken)
+        public XboxAuthResponse LoginXbox(MicrosoftOAuthResponse? msToken)
         {
             if (msToken == null)
                 throw new ArgumentNullException(nameof(msToken));
@@ -142,9 +150,7 @@ namespace CmlLib.Core.Auth.Microsoft
                 throw createXboxException(xsts);
             }
 
-            var mcLogin = new XboxMinecraftLogin();
-            var mcToken = mcLogin.LoginWithXbox(xsts.UserHash, xsts.Token);
-            return mcToken;
+            return xsts;
         }
 
         private Exception createXboxException(XboxAuthResponse xsts)
@@ -185,22 +191,29 @@ namespace CmlLib.Core.Auth.Microsoft
             //return new XboxAuthException(msg, null);
         }
 
-        private MSession getSession(AuthenticationResponse mcToken)
+        public AuthenticationResponse LoginMinecraft(string userHash, string xsts)
+        {
+            var mcLogin = new XboxMinecraftLogin();
+            var mcToken = mcLogin.LoginWithXbox(userHash, xsts);
+            return mcToken;
+        }
+
+        public MSession CreateMinecraftSession(AuthenticationResponse xboxToken)
         {
             // 6. get minecraft profile (username, uuid)
 
-            if (mcToken == null)
-                throw new ArgumentNullException(nameof(mcToken));
-            if (mcToken.AccessToken == null)
-                throw new ArgumentNullException(nameof(mcToken.AccessToken));
+            if (xboxToken == null)
+                throw new ArgumentNullException(nameof(xboxToken));
+            if (xboxToken.AccessToken == null)
+                throw new ArgumentNullException(nameof(xboxToken.AccessToken));
 
-            if (!MojangAPI.CheckGameOwnership(mcToken.AccessToken))
+            if (!MojangAPI.CheckGameOwnership(xboxToken.AccessToken))
                 throw new InvalidOperationException("mojang_nogame");
 
-            var profile = MojangAPI.GetProfileUsingToken(mcToken.AccessToken);
+            var profile = MojangAPI.GetProfileUsingToken(xboxToken.AccessToken);
             return new MSession
             {
-                AccessToken = mcToken.AccessToken,
+                AccessToken = xboxToken.AccessToken,
                 UUID = profile.UUID,
                 Username = profile.Name,
                 UserType = "msa"

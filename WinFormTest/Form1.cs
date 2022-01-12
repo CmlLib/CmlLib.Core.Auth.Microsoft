@@ -79,7 +79,7 @@ namespace WinFormTest
             launcher.ProgressChanged += Launcher_ProgressChanged;
 
             // check and download game files
-            var process = await launcher.CreateProcessAsync("1.16.5", new MLaunchOption
+            var process = await launcher.CreateProcessAsync("1.18.1", new MLaunchOption
             {
                 Session = this.Session,
                 MaximumRamMb = 1024
