@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30907.101
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CmlLib.Core.Auth.Microsoft.UI.WinForm", "CmlLib.Core.Auth.Microsoft.UI.WinForm\CmlLib.Core.Auth.Microsoft.UI.WinForm.csproj", "{A7AF65E5-BC6F-49DE-B32B-707199B03089}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CmlLib.Core.Auth.Microsoft.UI.WinForm", "CmlLib.Core.Auth.Microsoft.UI.WinForm\CmlLib.Core.Auth.Microsoft.UI.WinForm.csproj", "{A7AF65E5-BC6F-49DE-B32B-707199B03089}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CmlLib.Core.Auth.Microsoft.UI.Wpf", "CmlLib.Core.Auth.Microsoft.UI.Wpf\CmlLib.Core.Auth.Microsoft.UI.Wpf.csproj", "{FAD8E33F-E392-4CDC-9F8E-CBA60BB51120}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CmlLib.Core.Auth.Microsoft.UI.Wpf", "CmlLib.Core.Auth.Microsoft.UI.Wpf\CmlLib.Core.Auth.Microsoft.UI.Wpf.csproj", "{FAD8E33F-E392-4CDC-9F8E-CBA60BB51120}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfTest", "WpfTest\WpfTest.csproj", "{BE91328A-4B44-4C56-AB07-5B0D4A4F05E7}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -19,9 +19,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormTest", "WinFormTest\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CmlLib.Core.Auth.Microsoft", "CmlLib.Core.Auth.Microsoft\CmlLib.Core.Auth.Microsoft.csproj", "{F040B03A-30EE-4D49-A1BE-2237A647B255}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CmlLib.Core.Auth.Microsoft.OAuthServer", "CmlLib.Core.Auth.Microsoft.OAuthServer\CmlLib.Core.Auth.Microsoft.OAuthServer.csproj", "{80E44782-7D1F-47E2-AE30-D6771D3147F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MsalClientTest", "MsalClientTest\MsalClientTest.csproj", "{B00D1011-90A5-4AC2-BB5D-3D7DF3156D02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerTest", "ServerTest\ServerTest.csproj", "{FCDDFE8E-3A54-401C-9B27-46ACDF0EED98}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CmlLib.Core.Auth.Microsoft.MsalClient", "CmlLib.Core.Auth.Microsoft.MsalClient\CmlLib.Core.Auth.Microsoft.MsalClient.csproj", "{8982D8B5-A1F1-4DC9-A715-B589A74467D2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,14 +49,14 @@ Global
 		{F040B03A-30EE-4D49-A1BE-2237A647B255}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F040B03A-30EE-4D49-A1BE-2237A647B255}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F040B03A-30EE-4D49-A1BE-2237A647B255}.Release|Any CPU.Build.0 = Release|Any CPU
-		{80E44782-7D1F-47E2-AE30-D6771D3147F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{80E44782-7D1F-47E2-AE30-D6771D3147F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{80E44782-7D1F-47E2-AE30-D6771D3147F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{80E44782-7D1F-47E2-AE30-D6771D3147F2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FCDDFE8E-3A54-401C-9B27-46ACDF0EED98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FCDDFE8E-3A54-401C-9B27-46ACDF0EED98}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FCDDFE8E-3A54-401C-9B27-46ACDF0EED98}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FCDDFE8E-3A54-401C-9B27-46ACDF0EED98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B00D1011-90A5-4AC2-BB5D-3D7DF3156D02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B00D1011-90A5-4AC2-BB5D-3D7DF3156D02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B00D1011-90A5-4AC2-BB5D-3D7DF3156D02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B00D1011-90A5-4AC2-BB5D-3D7DF3156D02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8982D8B5-A1F1-4DC9-A715-B589A74467D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8982D8B5-A1F1-4DC9-A715-B589A74467D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8982D8B5-A1F1-4DC9-A715-B589A74467D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8982D8B5-A1F1-4DC9-A715-B589A74467D2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
