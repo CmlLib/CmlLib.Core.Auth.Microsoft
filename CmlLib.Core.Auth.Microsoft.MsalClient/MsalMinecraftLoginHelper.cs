@@ -2,6 +2,7 @@
 using Microsoft.Identity.Client.Extensions.Msal;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -45,77 +46,6 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
         {
             var storageProperties = cacheSettings.ToStorageCreationPropertiesBuilder().Build();
             return await BuildApplicationWithCache(cid, storageProperties);
-        }
-
-        public async static Task<MSession> LoginSilent(IPublicClientApplication app)
-        {
-            var accounts = await app.GetAccountsAsync();
-            var result = await app.AcquireTokenSilent(DefaultScopes, accounts.FirstOrDefault())
-                .ExecuteAsync();
-            return LoginWithMsalResult(result);
-        }
-
-        public static Task<MSession> Login(IPublicClientApplication app,
-            bool trySilent = true, bool useEmbeddedWebView = false)
-            => Login(app, null, trySilent, useEmbeddedWebView);
-
-        public async static Task<MSession> Login(IPublicClientApplication app, CancellationToken? cancellationToken,
-            bool trySilent=true, bool useEmbeddedWebView=false)
-        {
-            var accounts = await app.GetAccountsAsync();
-
-            AuthenticationResult result;
-            try
-            {
-                if (trySilent)
-                {
-                    var t = app.AcquireTokenSilent(DefaultScopes, accounts.FirstOrDefault());
-
-                    if (cancellationToken.HasValue)
-                        result = await t.ExecuteAsync(cancellationToken.Value);
-                    else
-                        result = await t.ExecuteAsync();
-                }
-                else
-                    throw new MsalUiRequiredException("", "trySilent option was false");
-            }
-            catch (MsalUiRequiredException)
-            {
-                var t = app.AcquireTokenInteractive(DefaultScopes)
-                    .WithUseEmbeddedWebView(useEmbeddedWebView);
-
-                if (cancellationToken.HasValue)
-                    result = await t.ExecuteAsync(cancellationToken.Value);
-                else
-                    result = await t.ExecuteAsync();
-            }
-
-            return LoginWithMsalResult(result);
-        }
-
-        public static MSession LoginWithMsalResult(AuthenticationResult result)
-        {
-            var handler = new LoginHandler(cacheManager: null);
-            var session = handler.LoginFromOAuth(new MicrosoftOAuthResponse
-            {
-                AccessToken = "d=" + result.AccessToken,
-                UserId = result.UniqueId,
-                TokenType = result.TokenType,
-                Scope = string.Join(",", result.Scopes)
-            });
-
-            return session;
-        }
-
-        public static async Task RemoveAccounts(IPublicClientApplication app)
-        {
-            var accounts = await app.GetAccountsAsync();
-            while (accounts.Any())
-            {
-                var first = accounts.First();
-                await app.RemoveAsync(first);
-                accounts = await app.GetAccountsAsync();
-            }
         }
     }
 }
