@@ -186,32 +186,38 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
         {
             BeginInvoke(new Action(() =>
             {
-                string msg = "";
-
-                switch (ex)
-                {
-                    case MicrosoftOAuthException msEx:
-                        msg =
-                            $"{l("mslogin_fail")} : {l(msEx.Error)}\n" +
-                            $"ErrorDescription : {l(msEx.ErrorDescription)}\n" +
-                            $"ErrorCodes : {string.Join(",", msEx.ErrorCodes)}";
-                        break;
-                    case XboxAuthException xboxEx:
-                        msg =
-                            $"{l("mclogin_fail")} : {l(xboxEx.Message)}";
-                        break;
-                    case ArgumentNullException _:
-                        msg = ex.Message + " was null";
-                        break;
-                    default:
-                        msg = l(ex.Message);
-                        break;
-                }
-                
-                MessageBox.Show(msg);
-                this.session = null;
-                this.Close();
+                OnException(ex);
             }));
+        }
+
+        protected virtual void OnException(Exception ex)
+        {
+            string msg = "";
+
+            switch (ex)
+            {
+                case MicrosoftOAuthException msEx:
+                    msg =
+                        $"{l("mslogin_fail")} : {msEx.Error}\n" +
+                        $"ErrorDescription : {msEx.ErrorDescription}\n" +
+                        $"ErrorCodes : {string.Join(",", msEx.ErrorCodes)}";
+                    break;
+                case XboxAuthException xboxEx:
+                    msg =
+                        $"{l("mclogin_fail")} : {xboxEx.Message}";
+                    break;
+                case ArgumentNullException _:
+                    msg = ex.Message + " was null";
+                    break;
+                default:
+                    //msg = l(ex.Message);
+                    //break;
+                    throw ex;
+            }
+
+            MessageBox.Show(msg);
+            this.session = null;
+            this.Close();
         }
 
         private string l(string? key)
