@@ -2,6 +2,7 @@ using CmlLib.Core;
 using CmlLib.Core.Auth;
 using CmlLib.Core.Auth.Microsoft.MsalClient;
 using Microsoft.Identity.Client;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace MsalClientTest
@@ -13,73 +14,142 @@ namespace MsalClientTest
             InitializeComponent();
         }
 
-        IPublicClientApplication? app;
+        MsalMinecraftLoginHandler? handler;
         MSession? session;
         CancellationTokenSource? loginCancel;
 
-        private async void Form1_Load(object sender, EventArgs e)
+        private void setLoginButtonEnabled(bool value)
         {
-            btnLogin.Enabled = false;
+            btnLoginDeviceCode.Enabled = value;
+            btnLoginInteractive.Enabled = value;
+            btnLoginInteractiveEmb.Enabled = value;
+        }
+
+        private async void Form1_Shown(object sender, EventArgs e)
+        {
+            setLoginButtonEnabled(false);
             btnStart.Enabled = false;
 
             lbStatus.Text = "Building Application";
-            app = await MsalMinecraftLoginHelper.BuildApplicationWithCache("499c8d36-be2a-4231-9ebd-ef291b7bb64c");
+
+            if (handler == null)
+            {
+                var app = await MsalMinecraftLoginHelper.BuildApplicationWithCache("499c8d36-be2a-4231-9ebd-ef291b7bb64c");
+                handler = new MsalMinecraftLoginHandler(app);
+            }
 
             lbStatus.Text = "LoginSilent()";
             try
             {
-                var session = await MsalMinecraftLoginHelper.LoginSilent(app);
+                var session = await handler.LoginSilent();
                 loginSuccess(session);
             }
             catch (Exception)
             {
                 lbStatus.Text = "Login Required";
-                btnLogin.Enabled = true;
+                setLoginButtonEnabled(true);
             }
         }
 
-        private async void btnLogin_Click(object sender, EventArgs e)
+        private async void btnLoginInteractive_Click(object sender, EventArgs e)
         {
-            lbStatus.Text = "Start login";
-            btnLogin.Enabled = false;
+            if (handler == null)
+                return;
+            setLoginButtonEnabled(false);
+
+            lbStatus.Text = "LoginInteractive()";
             try
             {
-                loginCancel = new CancellationTokenSource();
-                var session = await MsalMinecraftLoginHelper.Login(app, loginCancel.Token, useEmbeddedWebView: true);
+                var session = await handler.LoginInteractive(loginCancel?.Token);
                 loginSuccess(session);
             }
             catch (Exception ex)
             {
-                btnLogin.Enabled = true;
-                lbStatus.Text = "Login failed";
+                lbStatus.Text += ": Fail";
+                MessageBox.Show(ex.ToString());
+                setLoginButtonEnabled(true);
+            }
+        }
 
-                if (ex is MsalClientException msalEx)
-                    MessageBox.Show("MsalClientException: " + msalEx.ErrorCode);
-                else if (ex.InnerException is MsalClientException msalInEx)
-                    MessageBox.Show("MsalClientException: " + msalInEx.ErrorCode);
-                else
-                    MessageBox.Show(ex.ToString());
+        private async void btnLoginInteractiveEmb_Click(object sender, EventArgs e)
+        {
+            if (handler == null)
+                return;
+            setLoginButtonEnabled(false);
+
+            lbStatus.Text = "LoginInteractive(useEmbeddedWebView: true)";
+            try
+            {
+                var session = await handler.LoginInteractive(loginCancel?.Token, useEmbeddedWebView: true);
+                loginSuccess(session);
+            }
+            catch (Exception ex)
+            {
+                lbStatus.Text += ": Fail";
+                MessageBox.Show(ex.ToString());
+                setLoginButtonEnabled(true);
+            }
+        }
+
+        private async void btnLoginDeviceCode_Click(object sender, EventArgs e)
+        {
+            if (handler == null)
+                return;
+            setLoginButtonEnabled(false);
+
+            lbStatus.Text = "LoginDeviceCode()";
+            try
+            {
+                var deviceCodeForm = new DeviceCodeForm();
+                var session = await handler.LoginDeviceCode(result =>
+                {
+                    Invoke(() =>
+                    {
+                        deviceCodeForm.SetDeviceCodeResult(result);
+                        deviceCodeForm.Show();
+                    });
+                    
+                    return Task.CompletedTask;
+                });
+
+                try
+                {
+                    deviceCodeForm.Close();
+                }
+                catch { }
+
+                loginSuccess(session);
+            }
+            catch (Exception ex)
+            {
+                lbStatus.Text += ": Fail";
+                MessageBox.Show(ex.ToString());
+                setLoginButtonEnabled(true);
             }
         }
 
         private void btnCancelLogin_Click(object sender, EventArgs e)
         {
             loginCancel?.Cancel();
-
         }
 
         private async void btnLogout_Click(object sender, EventArgs e)
         {
             lbStatus.Text = "Removing accounts";
-            await MsalMinecraftLoginHelper.RemoveAccounts(app);
+            if (handler != null)
+                await handler.RemoveAccounts();
+
             txtAccessToken.Clear();
             txtUUID.Clear();
             txtUsername.Clear();
-            btnLogin.Enabled = true;
+
+            setLoginButtonEnabled(true);
+
             btnStart.Enabled = false;
             session = null;
 
             lbStatus.Text = "Logout success";
+            MessageBox.Show("Logout success");
         }
 
         private void loginSuccess(MSession session)
@@ -91,10 +161,9 @@ namespace MsalClientTest
             txtUsername.Text = session.Username;
 
             btnStart.Enabled = true;
-            btnLogin.Enabled = false;
 
-            this.Focus();
-            MessageBox.Show("Login success!");
+            this.BringToFront();
+            this.Activate();
         }
 
         private async void btnStart_Click(object sender, EventArgs e)
