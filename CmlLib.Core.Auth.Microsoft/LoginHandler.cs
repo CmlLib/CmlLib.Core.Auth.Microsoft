@@ -63,7 +63,7 @@ namespace CmlLib.Core.Auth.Microsoft
             saveSessionCache();
         }
 
-        public MSession? LoginFromCache()
+        public virtual MSession? LoginFromCache()
         {
             readSessionCache();
 
@@ -83,12 +83,12 @@ namespace CmlLib.Core.Auth.Microsoft
             return getGameSession(msToken, mcToken);
         }
 
-        public bool CheckOAuthLoginSuccess(string url)
+        public virtual bool CheckOAuthLoginSuccess(string url)
         {
             return OAuth.CheckLoginSuccess(url);
         }
 
-        public MSession LoginFromOAuth()
+        public virtual MSession LoginFromOAuth()
         {
             var result = OAuth.TryGetTokens(out MicrosoftOAuthResponse? msToken); // get token
             if (msToken == null || !result)
@@ -97,14 +97,14 @@ namespace CmlLib.Core.Auth.Microsoft
             return LoginFromOAuth(msToken);
         }
 
-        public MSession LoginFromOAuth(MicrosoftOAuthResponse msToken)
+        public virtual MSession LoginFromOAuth(MicrosoftOAuthResponse msToken)
         {
             var xboxToken = LoginXbox(msToken);
             var mcToken = LoginMinecraft(xboxToken.UserHash!, xboxToken.Token!); // LoginXbox method checks if UserHash and Token is null
             return getGameSession(msToken, mcToken);
         }
 
-        public string CreateOAuthUrl()
+        public virtual string CreateOAuthUrl()
         {
             return OAuth.CreateUrl();
         }
@@ -123,7 +123,7 @@ namespace CmlLib.Core.Auth.Microsoft
             return sessionCache.GameSession;
         }
 
-        public XboxAuthResponse LoginXbox(MicrosoftOAuthResponse? msToken)
+        public virtual XboxAuthResponse LoginXbox(MicrosoftOAuthResponse? msToken)
         {
             if (msToken == null)
                 throw new ArgumentNullException(nameof(msToken));
@@ -191,14 +191,14 @@ namespace CmlLib.Core.Auth.Microsoft
             //return new XboxAuthException(msg, null);
         }
 
-        public AuthenticationResponse LoginMinecraft(string userHash, string xsts)
+        public virtual AuthenticationResponse LoginMinecraft(string userHash, string xsts)
         {
             var mcLogin = new XboxMinecraftLogin();
             var mcToken = mcLogin.LoginWithXbox(userHash, xsts);
             return mcToken;
         }
 
-        public MSession CreateMinecraftSession(AuthenticationResponse xboxToken)
+        public virtual MSession CreateMinecraftSession(AuthenticationResponse xboxToken)
         {
             // 6. get minecraft profile (username, uuid)
 
