@@ -39,7 +39,7 @@
             // label1
             // 
             this.label1.Font = new System.Drawing.Font("맑은 고딕", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label1.Location = new System.Drawing.Point(58, 70);
+            this.label1.Location = new System.Drawing.Point(12, 18);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(689, 79);
             this.label1.TabIndex = 0;
@@ -50,7 +50,7 @@
             // lbCode
             // 
             this.lbCode.Font = new System.Drawing.Font("맑은 고딕", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lbCode.Location = new System.Drawing.Point(58, 243);
+            this.lbCode.Location = new System.Drawing.Point(12, 159);
             this.lbCode.Name = "lbCode";
             this.lbCode.Size = new System.Drawing.Size(689, 56);
             this.lbCode.TabIndex = 1;
@@ -60,7 +60,7 @@
             // lbExpire
             // 
             this.lbExpire.Font = new System.Drawing.Font("맑은 고딕", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lbExpire.Location = new System.Drawing.Point(58, 299);
+            this.lbExpire.Location = new System.Drawing.Point(12, 215);
             this.lbExpire.Name = "lbExpire";
             this.lbExpire.Size = new System.Drawing.Size(689, 56);
             this.lbExpire.TabIndex = 2;
@@ -69,7 +69,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(314, 171);
+            this.button1.Location = new System.Drawing.Point(266, 103);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(174, 45);
             this.button1.TabIndex = 3;
@@ -86,7 +86,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(722, 299);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.lbExpire);
             this.Controls.Add(this.lbCode);

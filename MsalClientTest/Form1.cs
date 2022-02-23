@@ -14,16 +14,12 @@ namespace MsalClientTest
             InitializeComponent();
         }
 
+        // Use your own client id
+        private readonly string ClientID = "499c8d36-be2a-4231-9ebd-ef291b7bb64c";
+
         MsalMinecraftLoginHandler? handler;
         MSession? session;
         CancellationTokenSource? loginCancel;
-
-        private void setLoginButtonEnabled(bool value)
-        {
-            btnLoginDeviceCode.Enabled = value;
-            btnLoginInteractive.Enabled = value;
-            btnLoginInteractiveEmb.Enabled = value;
-        }
 
         private async void Form1_Shown(object sender, EventArgs e)
         {
@@ -32,9 +28,10 @@ namespace MsalClientTest
 
             lbStatus.Text = "Building Application";
 
+            // Initialize login handler
             if (handler == null)
             {
-                var app = await MsalMinecraftLoginHelper.BuildApplicationWithCache("499c8d36-be2a-4231-9ebd-ef291b7bb64c");
+                var app = await MsalMinecraftLoginHelper.BuildApplicationWithCache(ClientID);
                 handler = new MsalMinecraftLoginHandler(app);
             }
 
@@ -60,6 +57,7 @@ namespace MsalClientTest
             lbStatus.Text = "LoginInteractive()";
             try
             {
+                loginCancel = new CancellationTokenSource();
                 var session = await handler.LoginInteractive(loginCancel?.Token);
                 loginSuccess(session);
             }
@@ -80,6 +78,7 @@ namespace MsalClientTest
             lbStatus.Text = "LoginInteractive(useEmbeddedWebView: true)";
             try
             {
+                loginCancel = new CancellationTokenSource();
                 var session = await handler.LoginInteractive(loginCancel?.Token, useEmbeddedWebView: true);
                 loginSuccess(session);
             }
@@ -166,6 +165,12 @@ namespace MsalClientTest
             this.Activate();
         }
 
+        private void setLoginButtonEnabled(bool value)
+        {
+            btnLoginDeviceCode.Enabled = value;
+            btnLoginInteractive.Enabled = value;
+            btnLoginInteractiveEmb.Enabled = value;
+        }
         private async void btnStart_Click(object sender, EventArgs e)
         {
             lbStatus.Text = "Starting game";
