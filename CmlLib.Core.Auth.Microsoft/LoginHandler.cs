@@ -36,6 +36,7 @@ namespace CmlLib.Core.Auth.Microsoft
             this.OAuth = oAuth;
         }
 
+        public bool CheckGameOwnership { get; set; } = false;
         public MicrosoftOAuth OAuth { get; private set; }
         private readonly ICacheManager<SessionCache>? cacheManager;
 
@@ -139,7 +140,7 @@ namespace CmlLib.Core.Auth.Microsoft
                 throw new XboxAuthException($"ExchangeRpsTicketForUserToken\n{rps.Error}\n{rps.Message}", null);
             
             var xsts = xbox.ExchangeTokensForXstsIdentity(
-                rps.Token, 
+                rps.Token, // not null 
                 null, 
                 null, 
                 XboxMinecraftLogin.RelyingParty, 
@@ -188,7 +189,6 @@ namespace CmlLib.Core.Auth.Microsoft
                 msg = errorCode;
 
             return new XboxAuthException(msg, errorCode, xsts.Message ?? "no_error_msg");
-            //return new XboxAuthException(msg, null);
         }
 
         public virtual AuthenticationResponse LoginMinecraft(string userHash, string xsts)
@@ -207,14 +207,27 @@ namespace CmlLib.Core.Auth.Microsoft
             if (xboxToken.AccessToken == null)
                 throw new ArgumentNullException(nameof(xboxToken.AccessToken));
 
-            if (!MojangAPI.CheckGameOwnership(xboxToken.AccessToken))
-                throw new InvalidOperationException("mojang_nogame");
+            if (CheckGameOwnership && !MojangAPI.CheckGameOwnership(xboxToken.AccessToken))
+                throw new MinecraftAuthException("mojang_nogame");
 
-            var profile = MojangAPI.GetProfileUsingToken(xboxToken.AccessToken);
+            UserProfile? profile = null;
+            try
+            {
+                // throw 404 exception if profile is not exists
+                profile = MojangAPI.GetProfileUsingToken(xboxToken.AccessToken);
+            }
+            catch (System.Net.WebException ex)
+            {
+                throw new MinecraftAuthException("mojang_noprofile", ex);
+            }
+
+            if (profile == null || string.IsNullOrEmpty(profile?.UUID) || string.IsNullOrEmpty(profile?.Name))
+                throw new MinecraftAuthException("mojang_noprofile");
+
             return new MSession
             {
                 AccessToken = xboxToken.AccessToken,
-                UUID = profile.UUID,
+                UUID = profile.UUID, // not null
                 Username = profile.Name,
                 UserType = "msa"
             };
