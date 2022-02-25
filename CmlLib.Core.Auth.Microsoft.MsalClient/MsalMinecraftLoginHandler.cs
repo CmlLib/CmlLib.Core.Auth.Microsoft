@@ -10,35 +10,36 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
 {
     public class MsalMinecraftLoginHandler
     {
+        public LoginHandler LoginHandler { get; private set; }
+
         IPublicClientApplication app;
         ICacheManager<SessionCache> cacheManager;
-        LoginHandler loginHandler;
 
         public MsalMinecraftLoginHandler(IPublicClientApplication application)
         {
             var defaultPath = Path.Combine(MinecraftPath.GetOSDefaultPath(), "cml_msalsession.json");
             this.app = application;
             this.cacheManager = new MsalSessionCacheManager(defaultPath);
-            this.loginHandler = new LoginHandler(cacheManager);
+            this.LoginHandler = new LoginHandler(cacheManager);
         }
 
         public MsalMinecraftLoginHandler(IPublicClientApplication application, string cacheFilePath)
         { 
             this.app = application;
             this.cacheManager = new MsalSessionCacheManager(cacheFilePath);
-            this.loginHandler = new LoginHandler(cacheManager);
+            this.LoginHandler = new LoginHandler(cacheManager);
         }
 
         public MsalMinecraftLoginHandler(IPublicClientApplication application, ICacheManager<SessionCache> _cacheManager)
         {
             this.app = application;
             this.cacheManager = _cacheManager;
-            this.loginHandler = new LoginHandler(cacheManager);
+            this.LoginHandler = new LoginHandler(cacheManager);
         }
 
         public async Task<MSession> LoginSilent()
         {
-            var cachedSession = loginHandler.LoginFromCache();
+            var cachedSession = LoginHandler.LoginFromCache();
             if (cachedSession != null)
                 return cachedSession;
 
@@ -74,7 +75,7 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
 
         public MSession LoginWithMsalResult(AuthenticationResult result)
         {
-            var session = loginHandler.LoginFromOAuth(new MicrosoftOAuthResponse
+            var session = LoginHandler.LoginFromOAuth(new MicrosoftOAuthResponse
             {
                 AccessToken = "d=" + result.AccessToken, // token prefix
                 UserId = result.UniqueId,

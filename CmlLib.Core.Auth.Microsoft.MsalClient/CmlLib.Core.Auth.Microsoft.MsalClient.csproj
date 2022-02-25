@@ -14,7 +14,7 @@
 	  <RepositoryUrl>https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft</RepositoryUrl>
 	  <Authors>ksi123456ab</Authors>
 	  <PackageTags>CmlLib Minecraft Login Auth Authentication Microsoft Xbox Live XboxLive MSAL</PackageTags>
-	  <Version>1.1.0</Version>
+	  <Version>1.1.1</Version>
 	  <PackageIcon>icon.png</PackageIcon>
 	  <RepositoryType>git</RepositoryType>
 	  <PackageId>CmlLib.Core.Auth.Microsoft.MsalClient</PackageId>
@@ -25,8 +25,8 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Identity.Client" Version="4.40.0" />
-		<PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="2.19.3" />
+		<PackageReference Include="Microsoft.Identity.Client" Version="4.41.0" />
+		<PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="2.19.5" />
 	</ItemGroup>
 
 	<ItemGroup>
