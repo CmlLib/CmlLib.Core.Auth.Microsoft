@@ -21,17 +21,19 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
 
         public MicrosoftLoginWindow(LoginHandler handler)
         {
-            this.loginHandler = handler;
+            this.LoginHandler = handler;
             InitializeComponent();
         }
 
-        public Dictionary<string, string> MessageStrings = new Dictionary<string, string>
+        public Dictionary<string, string> MessageStrings { get; set; } = new Dictionary<string, string>
         {
-            ["mslogin_fail"] = "Failed to microsoft login",
-            ["mclogin_fail"] = "Failed to minecraft login",
+            ["mslogin_fail"] = "Failed to Microsoft login",
+            ["xboxlogin_fail"] = "Failed to Xbox login",
+            ["mclogin_fail"] = "Failed to Minecraft login",
             ["xbox_error_child"] = "Your account seems like a child. Verify your age or add your account into a Family.",
             ["xbox_error_noaccount"] = "Your account doens't have an Xbox account",
             ["mojang_nogame"] = "You don't have a Minecraft JE",
+            ["mojang_noprofile"] = "No Minecraft JE profile",
             ["empty_token"] = "Token was empty",
             ["empty_userhash"] = "UserHash was empty",
             ["no_error_msg"] = "No error message"
@@ -49,45 +51,45 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
             get => (string)GetValue(LoadingTextProperty);
             set => SetValue(LoadingTextProperty, value);
         }
-        
-        private MSession? session;
-        private string? actionName;
-        private readonly LoginHandler loginHandler;
+
+        protected MSession? Session { get; set; }
+        protected string? ActionName { get; private set; }
+        protected LoginHandler LoginHandler { get; private set; }
 
         public MSession? ShowLoginDialog()
         {
-            actionName = "login";
+            ActionName = "login";
             this.ShowDialog();
-            return this.session;
+            return this.Session;
         }
 
         public void ShowLogoutDialog()
         {
-            actionName = "logout";
+            ActionName = "logout";
             this.ShowDialog();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(actionName))
+            if (string.IsNullOrEmpty(ActionName))
             {
                 throw new InvalidOperationException("Use ShowLoginDialog() or ShowLogoutDialog()");
             }
-            else if (actionName == "login")
+            else if (ActionName == "login")
             {
                 login();
             }
-            else if (actionName == "logout")
+            else if (ActionName == "logout")
             {
                 signout();
             }
             else
             {
-                throw new InvalidOperationException(actionName);
+                throw new InvalidOperationException(ActionName);
             }
 
-            actionName = null;
-            session = null;
+            ActionName = null;
+            Session = null;
         }
 
         WebView2? wv;
@@ -120,12 +122,12 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
             {
                 try
                 {
-                    this.session = loginHandler.LoginFromCache();
+                    this.Session = LoginHandler.LoginFromCache();
                     Dispatcher.Invoke(() =>
                     {
-                        if (this.session == null)
+                        if (this.Session == null)
                         {
-                            var url = loginHandler.CreateOAuthUrl(); // oauth
+                            var url = LoginHandler.CreateOAuthUrl(); // oauth
                             createWv();
                             wv.Source = new Uri(url);
                         }
@@ -135,14 +137,20 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
                 }
                 catch (Exception ex)
                 {
-                    ErrorClose(ex);
+                    bool result = true;
+                    Dispatcher.Invoke(() =>
+                    {
+                        result = OnException(ex);
+                    });
+                    if (!result)
+                        throw;
                 }
             }).Start();
         }
 
-        private void Wv_NavigationStarting(object sender, global::Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs e)
+        private void Wv_NavigationStarting(object? sender, global::Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs e)
         {
-            if (e.IsRedirected && loginHandler.CheckOAuthLoginSuccess(e.Uri)) // microsoft browser login success
+            if (e.IsRedirected && LoginHandler.CheckOAuthLoginSuccess(e.Uri)) // microsoft browser login success
             {
                 removeWv(); // remove webview control
 
@@ -150,7 +158,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
                 {
                     try
                     {
-                        this.session = loginHandler.LoginFromOAuth();
+                        this.Session = LoginHandler.LoginFromOAuth();
                         Dispatcher.Invoke(() =>
                         {
                             this.Close();
@@ -158,7 +166,13 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
                     }
                     catch (Exception ex)
                     {
-                        ErrorClose(ex);
+                        bool result = true;
+                        Dispatcher.Invoke(() =>
+                        {
+                            result = OnException(ex);
+                        });
+                        if (!result)
+                            throw;
                     }
                 }).Start();
             }
@@ -166,31 +180,13 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
 
         private void signout()
         {
-            loginHandler.ClearCache();
+            LoginHandler.ClearCache();
 
             createWv(); // show webview control
             wv.Source = new Uri(MicrosoftOAuth.GetSignOutUrl());
         }
 
-        private void ErrorClose(string msg)
-        {
-            Dispatcher.BeginInvoke(new Action(() =>
-            {
-                MessageBox.Show(msg);
-                this.session = null;
-                this.Close();
-            }));
-        }
-
-        private void ErrorClose(Exception ex)
-        {
-            Dispatcher.BeginInvoke(new Action(() =>
-            {
-                OnException(ex);
-            }));
-        }
-
-        protected virtual void OnException(Exception ex)
+        protected virtual bool OnException(Exception ex)
         {
             string msg = "";
 
@@ -198,29 +194,32 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
             {
                 case MicrosoftOAuthException msEx:
                     msg =
-                        $"{l("mslogin_fail")} : {msEx.Error}\n" +
+                        $"{GetMessage("mslogin_fail")} : {msEx.Error}\n" +
                         $"ErrorDescription : {msEx.ErrorDescription}\n" +
-                        $"ErrorCodes : {string.Join(",", msEx.ErrorCodes)}";
+                        $"ErrorCodes : {string.Join(",", msEx.ErrorCodes ?? new int[0])}";
                     break;
                 case XboxAuthException xboxEx:
                     msg =
-                        $"{l("mclogin_fail")} : {xboxEx.Message}";
+                        $"{GetMessage("xboxlogin_fail")} : {GetMessage(xboxEx.Message)}";
+                    break;
+                case MinecraftAuthException mcEx:
+                    msg =
+                        $"{GetMessage("mclogin_fail")} : {GetMessage(mcEx.Message)}";
                     break;
                 case ArgumentNullException _:
                     msg = ex.Message + " was null";
                     break;
                 default:
-                    //msg = l(ex.Message);
-                    //break;
-                    throw ex;
+                    return false;
             }
 
             MessageBox.Show(msg);
-            this.session = null;
+            this.Session = null;
             this.Close();
+            return true;
         }
 
-        private string l(string? key)
+        protected string GetMessage(string? key)
         {
             if (MessageStrings.TryGetValue(key ?? "", out string? value))
                 return value;
