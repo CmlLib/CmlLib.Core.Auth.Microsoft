@@ -1,7 +1,9 @@
-﻿using Microsoft.Web.WebView2.Wpf;
+﻿using Microsoft.Web.WebView2.Core;
+using Microsoft.Web.WebView2.Wpf;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using XboxAuthNet.OAuth;
 using XboxAuthNet.XboxLive;
@@ -52,6 +54,8 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
             set => SetValue(LoadingTextProperty, value);
         }
 
+        public CoreWebView2Environment? WebView2Environment { get; set; }
+
         protected MSession? Session { get; set; }
         protected string? ActionName { get; private set; }
         protected LoginHandler LoginHandler { get; private set; }
@@ -69,7 +73,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
             this.ShowDialog();
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(ActionName))
             {
@@ -81,7 +85,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
             }
             else if (ActionName == "logout")
             {
-                signout();
+                await signout();
             }
             else
             {
@@ -96,9 +100,16 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
         #region Create/Remove WebView2 control
 
         // Show webview on form
-        private void createWv()
+        protected virtual async Task<WebView2> InitializeWebView2()
         {
-            wv = new WebView2();
+            var wv = new WebView2();
+            await wv.EnsureCoreWebView2Async(WebView2Environment);
+            return wv;
+        }
+
+        private async Task createWv()
+        {
+            wv = await InitializeWebView2();
             wv.NavigationStarting += Wv_NavigationStarting;
             grid.Children.Add(wv);
         }
@@ -123,12 +134,12 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
                 try
                 {
                     this.Session = LoginHandler.LoginFromCache();
-                    Dispatcher.Invoke(() =>
+                    Dispatcher.Invoke(async () =>
                     {
                         if (this.Session == null)
                         {
                             var url = LoginHandler.CreateOAuthUrl(); // oauth
-                            createWv();
+                            await createWv();
                             wv.Source = new Uri(url);
                         }
                         else
@@ -148,7 +159,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
             }).Start();
         }
 
-        private void Wv_NavigationStarting(object? sender, global::Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs e)
+        private void Wv_NavigationStarting(object? sender, CoreWebView2NavigationStartingEventArgs e)
         {
             if (e.IsRedirected && LoginHandler.CheckOAuthLoginSuccess(e.Uri)) // microsoft browser login success
             {
@@ -178,11 +189,11 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
             }
         }
 
-        private void signout()
+        private async Task signout()
         {
             LoginHandler.ClearCache();
 
-            createWv(); // show webview control
+            await createWv(); // show webview control
             wv.Source = new Uri(MicrosoftOAuth.GetSignOutUrl());
         }
 
