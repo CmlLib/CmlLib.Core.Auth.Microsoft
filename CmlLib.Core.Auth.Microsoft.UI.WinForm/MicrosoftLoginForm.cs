@@ -89,21 +89,20 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
         WebView2? wv;
         #region Create/Remove WebView2 control
 
-        protected virtual async Task<WebView2> InitializeWebView2()
+        protected virtual async Task InitializeWebView2(WebView2 wv)
         {
-            var wv = new WebView2();
             await wv.EnsureCoreWebView2Async(WebView2Environment);
-            return wv;
         }
 
         // Show webview on form
         private async Task createWv()
         {
-            wv = await InitializeWebView2();
+            wv = new WebView2();
             wv.NavigationStarting += Wv_NavigationStarting;
             wv.Dock = DockStyle.Fill;
             this.Controls.Add(wv);
             this.Controls.SetChildIndex(wv, 0);
+            await InitializeWebView2(wv);
         }
 
         // Remove webview on form

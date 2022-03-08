@@ -100,18 +100,17 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
         #region Create/Remove WebView2 control
 
         // Show webview on form
-        protected virtual async Task<WebView2> InitializeWebView2()
+        protected virtual async Task InitializeWebView2(WebView2 wv)
         {
-            var wv = new WebView2();
             await wv.EnsureCoreWebView2Async(WebView2Environment);
-            return wv;
         }
 
         private async Task createWv()
         {
-            wv = await InitializeWebView2();
-            wv.NavigationStarting += Wv_NavigationStarting;
+            wv = new WebView2();
             grid.Children.Add(wv);
+            wv.NavigationStarting += Wv_NavigationStarting;
+            await InitializeWebView2(wv);
         }
 
         // Remove webview on form
