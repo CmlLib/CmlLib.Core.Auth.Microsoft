@@ -1,4 +1,4 @@
-﻿namespace CmlLib.Core.Auth.Microsoft
+﻿namespace CmlLib.Core.Auth.Microsoft.Cache
 {
     public interface ICacheManager<T>
     {

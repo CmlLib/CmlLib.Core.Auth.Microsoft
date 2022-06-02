@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace CmlLib.Core.Auth.Microsoft
+namespace CmlLib.Core.Auth.Microsoft.Mojang
 {
     public class MojangXboxApi
     {

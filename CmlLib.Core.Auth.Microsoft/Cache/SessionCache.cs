@@ -1,8 +1,9 @@
 ﻿using XboxAuthNet.OAuth;
 using XboxAuthNet.XboxLive;
 using System.Text.Json.Serialization;
+using CmlLib.Core.Auth.Microsoft.Mojang;
 
-namespace CmlLib.Core.Auth.Microsoft
+namespace CmlLib.Core.Auth.Microsoft.Cache
 {
     public class SessionCache
     {

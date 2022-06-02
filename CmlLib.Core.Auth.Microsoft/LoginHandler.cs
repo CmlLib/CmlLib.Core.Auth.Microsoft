@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
 using XboxAuthNet.XboxLive;
 using Microsoft.Extensions.Logging;
+using CmlLib.Core.Auth.Microsoft.Mojang;
+using CmlLib.Core.Auth.Microsoft.Cache;
 
 namespace CmlLib.Core.Auth.Microsoft
 {

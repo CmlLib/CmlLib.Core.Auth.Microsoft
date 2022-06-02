@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CmlLib.Core.Auth.Microsoft
+namespace CmlLib.Core.Auth.Microsoft.Mojang
 {
     public class MinecraftAuthException : Exception
     {

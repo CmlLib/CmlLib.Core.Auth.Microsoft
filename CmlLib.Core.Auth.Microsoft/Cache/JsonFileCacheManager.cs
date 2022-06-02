@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using Newtonsoft.Json;
 
-namespace CmlLib.Core.Auth.Microsoft
+namespace CmlLib.Core.Auth.Microsoft.Cache
 {
     public class JsonFileCacheManager<T> : ICacheManager<T>
     {
