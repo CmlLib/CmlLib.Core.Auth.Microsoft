@@ -3,7 +3,7 @@
     <OutputType>Library</OutputType>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>8.0</LangVersion>
@@ -15,7 +15,7 @@
     <RepositoryUrl>https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft.UI</RepositoryUrl>
     <Authors>ksi123456ab</Authors>
     <PackageTags>CmlLib Minecraft Login Auth Authentication Microsoft Xbox Live XboxLive</PackageTags>
-    <Version>1.0.4</Version>
+    <Version>1.1.0-beta1</Version>
     <PackageIcon>icon.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
     <PackageId>CmlLib.Core.Auth.Microsoft</PackageId>
@@ -24,8 +24,9 @@
     <PackageReference Include="CmlLib.Core">
       <Version>3.3.5</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
     <PackageReference Include="XboxAuthNet">
-      <Version>1.4.2</Version>
+      <Version>2.0.0-beta3</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
