@@ -1,45 +1,70 @@
 ﻿using System;
 using System.IO;
-using CmlLib.Core.Mojang;
+using System.Net.Http;
+using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
 using XboxAuthNet.XboxLive;
+using Microsoft.Extensions.Logging;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
     public class LoginHandler
     {
         public static readonly string DefaultClientId = "00000000402B5328";
+        private static readonly Lazy<HttpClient> defaultHttpClient
+            = new Lazy<HttpClient>(() => new HttpClient());
+
+        public static ICacheManager<SessionCache> CreateDefaultCacheManager()
+        {
+            var defaultPath = Path.Combine(MinecraftPath.GetOSDefaultPath(), "cml_xsession.json");
+            return new JsonFileCacheManager<SessionCache>(defaultPath);
+        }
+
+        private readonly ILoggerFactory? loggerFactory;
+        private readonly ILogger<LoginHandler>? logger;
+        private readonly HttpClient httpClient;
+        private readonly MojangXboxApi mojangXboxApi;
+        private readonly ICacheManager<SessionCache>? cacheManager;
+
+        public string RelyingParty { get; set; } = MojangXboxApi.RelyingParty;
 
         public LoginHandler() :
-            this(new MicrosoftOAuth(DefaultClientId, XboxAuth.XboxScope))
+            this(new MicrosoftOAuth(DefaultClientId, XboxAuth.XboxScope, defaultHttpClient.Value))
         {
 
         }
 
         public LoginHandler(MicrosoftOAuth oAuth)
         {
-            var defaultPath = Path.Combine(MinecraftPath.GetOSDefaultPath(), "cml_xsession.json");
-
-            this.cacheManager = new JsonFileCacheManager<SessionCache>(defaultPath);
+            this.cacheManager = CreateDefaultCacheManager();
             this.OAuth = oAuth;
+            this.httpClient = defaultHttpClient.Value;
+            this.mojangXboxApi = new MojangXboxApi(httpClient);
         }
 
-        public LoginHandler(ICacheManager<SessionCache>? cacheManager)
+        public LoginHandler(ICacheManager<SessionCache>? cacheManager, ILoggerFactory? logFactory = null)
         {
+            this.loggerFactory = logFactory;
+            this.logger = logFactory?.CreateLogger<LoginHandler>();
             this.cacheManager = cacheManager;
-            this.OAuth = new MicrosoftOAuth(DefaultClientId, XboxAuth.XboxScope);
+            this.httpClient = defaultHttpClient.Value;
+            this.OAuth = new MicrosoftOAuth(DefaultClientId, XboxAuth.XboxScope, httpClient, logFactory);
+            this.mojangXboxApi = new MojangXboxApi(httpClient, logFactory);
         }
 
-        public LoginHandler(MicrosoftOAuth oAuth, ICacheManager<SessionCache>? cacheManager)
+        public LoginHandler(MicrosoftOAuth oAuth, ICacheManager<SessionCache>? cacheManager, HttpClient client, ILoggerFactory? logFactory = null)
         {
+            this.loggerFactory = logFactory;
+            this.logger = logFactory?.CreateLogger<LoginHandler>();
             this.cacheManager = cacheManager;
             this.OAuth = oAuth;
+            this.httpClient = client;
+            this.mojangXboxApi = new MojangXboxApi(httpClient, logFactory);
         }
 
         public bool CheckGameOwnership { get; set; } = false;
-        public MicrosoftOAuth OAuth { get; private set; }
-        private readonly ICacheManager<SessionCache>? cacheManager;
-
+        public MicrosoftOAuth OAuth { get; }
+        public MicrosoftOAuthAuthCode? AuthCode { get; private set; }
         private SessionCache? sessionCache;
 
         private void readSessionCache()
@@ -56,7 +81,8 @@ namespace CmlLib.Core.Auth.Microsoft
         {
             if (sessionCache != null)
             {
-                sessionCache.XboxSession = null;
+                sessionCache.MojangSession = null;
+                sessionCache.XboxAuthSession = null;
                 sessionCache.GameSession = null;
                 sessionCache.MicrosoftOAuthSession = null;
             }
@@ -64,67 +90,92 @@ namespace CmlLib.Core.Auth.Microsoft
             saveSessionCache();
         }
 
-        public virtual MSession? LoginFromCache()
+        public virtual async Task<MSession?> LoginFromCache()
         {
             readSessionCache();
 
-            var mcToken = sessionCache?.XboxSession;
+            var mcToken = sessionCache?.MojangSession;
             var msToken = sessionCache?.MicrosoftOAuthSession;
+            var xboxToken = sessionCache?.XboxAuthSession;
 
             if (mcToken == null || DateTime.Now > mcToken.ExpiresOn) // invalid mc session
             {
-                if (!OAuth.TryGetTokens(out msToken, msToken?.RefreshToken)) // failed to refresh ms
+                logger?.LogTrace("MojangSession was expired");
+
+                if (string.IsNullOrEmpty(msToken?.RefreshToken)) // failed to refresh ms
                     return null;
-                
+
+                logger?.LogTrace("Try to refresh OAuth token");
+
+                var refreshResult = await OAuth.RefreshToken(msToken?.RefreshToken);
+                if (!refreshResult.IsSuccess)
+                    return null;
+
+                logger?.LogTrace("Try to refresh Game token");
+
                 // success to refresh ms
-                var xsts = LoginXbox(msToken);
-                mcToken = LoginMinecraft(xsts.UserHash!, xsts.Token!); // LoginXbox method checks if UserHash and Token is null
-            }
+                var xsts = await LoginXbox(msToken);
+                mcToken = await LoginMinecraft(xsts);
+            } 
 
-            return getGameSession(msToken, mcToken);
-        }
-
-        public virtual bool CheckOAuthLoginSuccess(string url)
-        {
-            return OAuth.CheckLoginSuccess(url);
-        }
-
-        public virtual MSession LoginFromOAuth()
-        {
-            var result = OAuth.TryGetTokens(out MicrosoftOAuthResponse? msToken); // get token
-            if (msToken == null || !result)
-                throw new MicrosoftOAuthException(msToken);
-
-            return LoginFromOAuth(msToken);
-        }
-
-        public virtual MSession LoginFromOAuth(MicrosoftOAuthResponse msToken)
-        {
-            var xboxToken = LoginXbox(msToken);
-            var mcToken = LoginMinecraft(xboxToken.UserHash!, xboxToken.Token!); // LoginXbox method checks if UserHash and Token is null
-            return getGameSession(msToken, mcToken);
+            return await getGameSession(msToken, xboxToken, mcToken);
         }
 
         public virtual string CreateOAuthUrl()
         {
-            return OAuth.CreateUrl();
+            return OAuth.CreateUrlForOAuth();
         }
 
-        private MSession getGameSession(MicrosoftOAuthResponse? msToken, AuthenticationResponse mcToken)
+        public virtual bool CheckOAuthLoginSuccess(string url)
+        {
+            var result = OAuth.CheckLoginSuccess(url, out var authCode);
+            this.AuthCode = authCode;
+            return result;
+        }
+
+        public Task<MSession> LoginFromOAuth()
+        {
+            if (this.AuthCode == null)
+                throw new InvalidOperationException("authCode was null");
+            return LoginFromOAuth(this.AuthCode);
+        }
+
+        public async Task<MSession> LoginFromOAuth(MicrosoftOAuthAuthCode oauthCode)
+        {
+            var msToken = await OAuth.GetTokens(oauthCode);
+            if (msToken == null || !msToken.IsSuccess)
+                throw new MicrosoftOAuthException("mslogin_fail", msToken?.Error, msToken?.ErrorDescription, msToken?.ErrorCodes);
+
+            return await LoginFromOAuth(msToken);
+        }
+
+        public virtual async Task<MSession> LoginFromOAuth(MicrosoftOAuthResponse msToken)
+        {
+            var xboxToken = await LoginXbox(msToken);
+            var mcToken = await LoginMinecraft(xboxToken);
+            return await getGameSession(msToken, xboxToken, mcToken);
+        }
+
+        private async Task<MSession> getGameSession(MicrosoftOAuthResponse? msToken, XboxAuthResponse? xboxToken, MojangXboxLoginResponse mcToken)
         {
             if (sessionCache == null)
                 sessionCache = new SessionCache();
             
-            sessionCache.GameSession ??= CreateMinecraftSession(mcToken);
+            sessionCache.GameSession ??= await CreateMinecraftSession(mcToken);
             sessionCache.GameSession.AccessToken = mcToken.AccessToken;
-            sessionCache.XboxSession = mcToken;
+
+            //if (!string.IsNullOrEmpty(xboxToken?.UserXUID)) // XUID is not necessary
+            //    sessionCache.GameSession.XUID = xboxToken.UserXUID;
+
+            sessionCache.XboxAuthSession = xboxToken;
+            sessionCache.MojangSession = mcToken;
             sessionCache.MicrosoftOAuthSession = msToken;
 
             saveSessionCache();
             return sessionCache.GameSession;
         }
 
-        public virtual XboxAuthResponse LoginXbox(MicrosoftOAuthResponse? msToken)
+        public virtual async Task<XboxAuthResponse> LoginXbox(MicrosoftOAuthResponse? msToken)
         {
             if (msToken == null)
                 throw new ArgumentNullException(nameof(msToken));
@@ -133,29 +184,32 @@ namespace CmlLib.Core.Auth.Microsoft
             if (msToken.AccessToken == null)
                 throw new ArgumentNullException(nameof(msToken.AccessToken));
 
-            var xbox = new XboxAuth();
-            var rps = xbox.ExchangeRpsTicketForUserToken(msToken.AccessToken);
+            var xbox = new XboxAuth(httpClient, loggerFactory);
+            var rps = await xbox.ExchangeRpsTicketForUserToken(msToken.AccessToken);
 
             if (!rps.IsSuccess || string.IsNullOrEmpty(rps.Token))
-                throw new XboxAuthException($"ExchangeRpsTicketForUserToken\n{rps.Error}\n{rps.Message}", null);
+                throw new XboxAuthException("ExchangeRpsTicketForUserToken", rps.Error, rps.Message);
             
-            var xsts = xbox.ExchangeTokensForXstsIdentity(
+            var xsts = await xbox.ExchangeTokensForXstsIdentity(
                 rps.Token, // not null 
                 null, 
-                null, 
-                XboxMinecraftLogin.RelyingParty, 
+                null,
+                RelyingParty, 
                 null);
 
             if (!xsts.IsSuccess || string.IsNullOrEmpty(xsts.UserHash) || string.IsNullOrEmpty(xsts.Token))
             {
-                throw createXboxException(xsts);
+                throw CreateXboxException(xsts);
             }
 
             return xsts;
         }
 
-        private Exception createXboxException(XboxAuthResponse xsts)
+        protected Exception CreateXboxException(XboxAuthResponse xsts)
         {
+            logger?.LogError("XboxAuthException Error: {Error}, Message: {ErrorCode}, Redirect: {Redirect}",
+                xsts.Error, xsts.Message, xsts.Redirect);
+
             string msg = "";
             if (xsts.Error == XboxAuthResponse.ChildError || xsts.Error == "2148916236")
                 msg = "xbox_error_child";
@@ -191,14 +245,18 @@ namespace CmlLib.Core.Auth.Microsoft
             return new XboxAuthException(msg, errorCode, xsts.Message ?? "no_error_msg");
         }
 
-        public virtual AuthenticationResponse LoginMinecraft(string userHash, string xsts)
+        public virtual async Task<MojangXboxLoginResponse> LoginMinecraft(XboxAuthResponse xsts)
         {
-            var mcLogin = new XboxMinecraftLogin();
-            var mcToken = mcLogin.LoginWithXbox(userHash, xsts);
+            if (string.IsNullOrEmpty(xsts.UserHash))
+                throw new ArgumentException("xsts.UserHash was null");
+            if (string.IsNullOrEmpty(xsts.Token))
+                throw new ArgumentException("xsts.Token was null");
+
+            var mcToken = await mojangXboxApi.LoginWithXbox(xsts.UserHash, xsts.Token); // not null
             return mcToken;
         }
 
-        public virtual MSession CreateMinecraftSession(AuthenticationResponse xboxToken)
+        public virtual async Task<MSession> CreateMinecraftSession(MojangXboxLoginResponse xboxToken)
         {
             // 6. get minecraft profile (username, uuid)
 
@@ -207,30 +265,24 @@ namespace CmlLib.Core.Auth.Microsoft
             if (xboxToken.AccessToken == null)
                 throw new ArgumentNullException(nameof(xboxToken.AccessToken));
 
-            if (CheckGameOwnership && !MojangAPI.CheckGameOwnership(xboxToken.AccessToken))
+            if (CheckGameOwnership && !await mojangXboxApi.CheckGameOwnership(xboxToken.AccessToken))
                 throw new MinecraftAuthException("mojang_nogame");
 
-            UserProfile? profile = null;
+            MSession session;
             try
             {
                 // throw 404 exception if profile is not exists
-                profile = MojangAPI.GetProfileUsingToken(xboxToken.AccessToken);
+                session = await mojangXboxApi.GetProfileUsingToken(xboxToken.AccessToken);
+
+                if (!session.CheckIsValid())
+                    throw new MinecraftAuthException("mojang_noprofile");
+
+                return session;
             }
             catch (System.Net.WebException ex)
             {
                 throw new MinecraftAuthException("mojang_noprofile", ex);
             }
-
-            if (profile == null || string.IsNullOrEmpty(profile?.UUID) || string.IsNullOrEmpty(profile?.Name))
-                throw new MinecraftAuthException("mojang_noprofile");
-
-            return new MSession
-            {
-                AccessToken = xboxToken.AccessToken,
-                UUID = profile.UUID, // not null
-                Username = profile.Name,
-                UserType = "msa"
-            };
         }
     }
 }
