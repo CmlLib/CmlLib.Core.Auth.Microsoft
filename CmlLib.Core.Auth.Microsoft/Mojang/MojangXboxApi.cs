@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CmlLib.Core.Auth.Microsoft.Mojang
 {
-    public class MojangXboxApi
+    public class MojangXboxApi : IMojangXboxApi
     {
         public static readonly string RelyingParty = "rp://api.minecraftservices.com/";
         private readonly HttpClient httpClient;
@@ -38,8 +38,14 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
 
             var resContent = await res.Content.ReadAsStringAsync();
             logger?.LogTrace(resContent);
-            var resObj = JsonSerializer.Deserialize<MojangXboxLoginResponse>(resContent)
-                ?? new MojangXboxLoginResponse();
+            var resObj = JsonSerializer.Deserialize<MojangXboxLoginResponse>(resContent);
+
+            if (resObj == null)
+                throw new MinecraftAuthException("Response was null");
+
+            if (!string.IsNullOrEmpty(resObj.Error) || !res.IsSuccessStatusCode)
+                throw new MinecraftAuthException(resObj.Error);
+
             resObj.ExpiresOn = DateTime.Now.AddSeconds(resObj.ExpiresIn);
             return resObj;
         }
@@ -63,14 +69,21 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
                 return false;
             var resBody = await res.Content.ReadAsStringAsync();
             logger?.LogTrace(resBody);
-            
-            using var jsonDocument = JsonDocument.Parse(resBody);
-            var root = jsonDocument.RootElement;
 
-            if (root.TryGetProperty("items", out var items))
-                return items.EnumerateArray().Any();
-            else
+            try
+            {
+                using var jsonDocument = JsonDocument.Parse(resBody);
+                var root = jsonDocument.RootElement;
+
+                if (root.TryGetProperty("items", out var items))
+                    return items.EnumerateArray().Any();
+                else
+                    return false;
+            }
+            catch (JsonException)
+            {
                 return false;
+            }
         }
 
         public async Task<MSession> GetProfileUsingToken(string bearerToken)
@@ -89,20 +102,29 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
             var res = await httpClient.SendAsync(req);
             var resBody = await res.Content.ReadAsStringAsync();
             logger?.LogTrace(resBody);
-            res.EnsureSuccessStatusCode();
 
-            using var jsonDocument = JsonDocument.Parse(resBody);
-            var root = jsonDocument.RootElement;
+            try
+            {
+                using var jsonDocument = JsonDocument.Parse(resBody);
+                var root = jsonDocument.RootElement;
 
-            var session = new MSession();
-            if (root.TryGetProperty("id", out var id))
-                session.UUID = id.GetString();
-            if (root.TryGetProperty("name", out var name))
-                session.Username = name.GetString();
+                var session = new MSession();
+                if (root.TryGetProperty("id", out var id))
+                    session.UUID = id.GetString();
+                if (root.TryGetProperty("name", out var name))
+                    session.Username = name.GetString();
 
-            session.AccessToken = bearerToken;
-            session.UserType = "msa";
-            return session;
+                session.AccessToken = bearerToken;
+                session.UserType = "msa";
+                return session;
+            }
+            catch (JsonException)
+            {
+                if (res.IsSuccessStatusCode)
+                    throw new MinecraftAuthException(resBody);
+                else
+                    throw new MinecraftAuthException($"Status code: {res.StatusCode}");
+            }
         }
     }
 }
