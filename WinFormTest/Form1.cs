@@ -1,32 +1,61 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using CmlLib.Core;
+using CmlLib.Core.Auth;
+using CmlLib.Core.Auth.Microsoft;
+using CmlLib.Core.Auth.Microsoft.UI.WinForm;
+using Microsoft.Extensions.Logging;
+using Microsoft.Web.WebView2.Core;
+using Newtonsoft.Json;
+using System;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
+using System.IO;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
-using CmlLib.Core;
-using CmlLib.Core.Auth;
-using CmlLib.Core.Auth.Microsoft.UI.WinForm;
+using XboxAuthNet.OAuth;
+using XboxAuthNet.XboxLive;
 
 namespace WinFormTest
 {
     public partial class Form1 : Form
     {
+        private readonly ILoggerFactory loggerFactory;
+        private readonly ILogger<Form1> logger;
+
         MSession Session;
 
         public Form1()
         {
+            loggerFactory = LoggerFactory.Create(conf =>
+            {
+                conf.AddFilter(level => level >= LogLevel.Trace);
+                conf.AddSimpleConsole();
+                conf.AddDebug();
+            });
+            logger = loggerFactory.CreateLogger<Form1>();
+            logger.LogTrace("LogTrace ready");
+
             InitializeComponent();
             btnStart.Enabled = false;
         }
 
-        private void btnLogin_Click(object sender, EventArgs e)
+        private async Task<MicrosoftLoginForm> CreateForm()
         {
-            MicrosoftLoginForm form = new MicrosoftLoginForm();
+            var loginHandler = new LoginHandler(builder =>
+            {
+                builder.SetLogger(loggerFactory);
+            });
+            MicrosoftLoginForm form = new MicrosoftLoginForm(loginHandler);
+
+            //var dataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CmlLib.Core.Auth.Microsoft.UI.WinForm.TestApp");
+            //form.WebView2Environment = await CoreWebView2Environment.CreateAsync(userDataFolder: dataPath);
+
+            return form;
+        }
+
+        private async void btnLogin_Click(object sender, EventArgs e)
+        {
+            var form = await CreateForm();
 
             // localize message
             // 한글화
@@ -40,7 +69,7 @@ namespace WinFormTest
             //    ["mojang_nogame"] = "Minecraft JE를 구매하지 않았습니다"
             //};
 
-            MSession session = form.ShowLoginDialog(); // show login form
+            MSession session = await form.ShowLoginDialog(); // show login form
 
             if (session != null) // login success
             {
@@ -57,9 +86,9 @@ namespace WinFormTest
             }
         }
 
-        private void btnLogout_Click(object sender, EventArgs e)
+        private async void btnLogout_Click(object sender, EventArgs e)
         {
-            MicrosoftLoginForm form = new MicrosoftLoginForm();
+            MicrosoftLoginForm form = await CreateForm();
             form.ShowLogoutDialog(); // show logout form
 
             MessageBox.Show("Done");
@@ -79,10 +108,10 @@ namespace WinFormTest
             launcher.ProgressChanged += Launcher_ProgressChanged;
 
             // check and download game files
-            var process = await launcher.CreateProcessAsync("1.18.1", new MLaunchOption
+            var process = await launcher.CreateProcessAsync("1.18.2", new MLaunchOption
             {
                 Session = this.Session,
-                MaximumRamMb = 1024
+                MaximumRamMb = 4096
             });
 
             // start game
