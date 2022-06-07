@@ -1,4 +1,5 @@
-﻿using Microsoft.Web.WebView2.Core;
+﻿using CmlLib.Core.Auth.Microsoft.Mojang;
+using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 using System;
 using System.Collections.Generic;
@@ -50,11 +51,25 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
         protected string? ActionName { get; private set; }
         protected LoginHandler LoginHandler { get; private set; }
 
-        public MSession? ShowLoginDialog()
+        public async Task<MSession?> ShowLoginDialog()
         {
-            ActionName = "login";
-            this.ShowDialog();
-            return this.Session;
+            try
+            {
+                // try to get session without UI
+                var session = await LoginHandler.LoginFromCache();
+                if (session == null)
+                {
+                    ActionName = "login"; // need UI
+                    this.ShowDialog();
+                }
+
+                return session;
+            }
+            catch (Exception ex)
+            {
+                if (!OnException(ex)) throw;
+                return null;
+            }
         }
 
         public void ShowLogoutDialog()
@@ -71,7 +86,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
             }
             else if (ActionName == "login")
             {
-                login();
+                await login();
             }
             else if (ActionName == "logout")
             {
@@ -126,65 +141,27 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
         #endregion
 
 
-        private void login()
+        private async Task login()
         {
-            new Thread(() =>
-            {
-                try
-                {
-                    this.Session = LoginHandler.LoginFromCache();
-                    Invoke(new Action(async () =>
-                    {
-                        if (this.Session == null)
-                        {
-                            var url = LoginHandler.CreateOAuthUrl(); // oauth
-                            await createWv();
-                            wv.Source = new Uri(url);
-                        }
-                        else
-                            this.Close();
-                    }));
-                }
-                catch (Exception ex)
-                {
-                    bool result = true;
-                    Invoke(new Action(() =>
-                    {
-                        result = OnException(ex);
-                    }));
-                    if (!result)
-                        throw;
-                }
-            }).Start();
+            var url = LoginHandler.CreateOAuthUrl(); // oauth
+            await createWv();
+            wv.Source = new Uri(url);
         }
 
-        private void Wv_NavigationStarting(object? sender, CoreWebView2NavigationStartingEventArgs e)
+        private async void Wv_NavigationStarting(object? sender, CoreWebView2NavigationStartingEventArgs e)
         {
             if (e.IsRedirected && LoginHandler.CheckOAuthLoginSuccess(e.Uri)) // microsoft browser login success
             {
                 removeWv(); // remove webview control
-
-                new Thread(() =>
+                try
                 {
-                    try
-                    {
-                        this.Session = LoginHandler.LoginFromOAuth();
-                        Invoke(new Action(() =>
-                        {
-                            this.Close();
-                        }));
-                    }
-                    catch (Exception ex)
-                    {
-                        bool result = true;
-                        Invoke(new Action(() =>
-                        {
-                            result = OnException(ex);
-                        }));
-                        if (!result)
-                            throw;
-                    }
-                }).Start();
+                    this.Session = await LoginHandler.LoginFromOAuth();
+                }
+                catch (Exception ex)
+                {
+                    if (!OnException(ex)) throw;
+                }
+                this.Close();
             }
         }
 
@@ -210,7 +187,8 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
                     break;
                 case XboxAuthException xboxEx:
                     msg =
-                        $"{GetMessage("xboxlogin_fail")} : {GetMessage(xboxEx.Message)}";
+                        $"{GetMessage("xboxlogin_fail")} : {xboxEx.ErrorCode}\n" +
+                        $"{GetMessage(xboxEx.Message)}";
                     break;
                 case MinecraftAuthException mcEx:
                     msg =
@@ -222,6 +200,8 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
                 default:
                     return false;
             }
+
+            msg += "\n" + ex.StackTrace;
 
             MessageBox.Show(msg);
             this.Session = null;
