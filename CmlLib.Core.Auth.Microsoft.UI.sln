@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CmlLib.Core.Auth.Microsoft.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CmlLib.Core.Auth.Microsoft.UI.Wpf", "CmlLib.Core.Auth.Microsoft.UI.Wpf\CmlLib.Core.Auth.Microsoft.UI.Wpf.csproj", "{FAD8E33F-E392-4CDC-9F8E-CBA60BB51120}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfTest", "WpfTest\WpfTest.csproj", "{BE91328A-4B44-4C56-AB07-5B0D4A4F05E7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfTest", "WpfTest\WpfTest.csproj", "{BE91328A-4B44-4C56-AB07-5B0D4A4F05E7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{FAD8E33F-E392-4CDC-9F8E-CBA60BB51120} = {FAD8E33F-E392-4CDC-9F8E-CBA60BB51120}
 	EndProjectSection
