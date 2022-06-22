@@ -1,12 +1,9 @@
 ﻿using CmlLib.Core.Auth.Microsoft.Cache;
 using CmlLib.Core.Auth.Microsoft.Mojang;
 using CmlLib.Core.Auth.Microsoft.XboxLive;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
-using System.Text;
 using XboxAuthNet.OAuth;
 using XboxAuthNet.XboxLive;
 
@@ -20,13 +17,12 @@ namespace CmlLib.Core.Auth.Microsoft
 
         internal LoginHandlerBuilder() 
         {
-            this.LoggerFactory = new Lazy<ILoggerFactory?>(() => null);
             this.HttpClient = new Lazy<HttpClient>(() => defaultHttpClient.Value);
             this.XboxLiveApi = new Lazy<IXboxLiveApi>(() => new XboxAuthNetApi(
-                new MicrosoftOAuth(DefaultClientId, XboxAuth.XboxScope, HttpClient.Value, LoggerFactory.Value),
-                new XboxAuth(this.HttpClient.Value, this.LoggerFactory.Value)));
+                new MicrosoftOAuth(DefaultClientId, XboxAuth.XboxScope, HttpClient.Value),
+                new XboxAuth(this.HttpClient.Value)));
             this.MojangXboxApi = new Lazy<IMojangXboxApi>(() => new MojangXboxApi(
-                this.HttpClient.Value, this.LoggerFactory.Value));
+                this.HttpClient.Value));
             this.CacheManager = new Lazy<ICacheManager<SessionCache>>(() =>
             {
                 var defaultPath = Path.Combine(MinecraftPath.GetOSDefaultPath(), "cml_xsession.json");
@@ -38,7 +34,6 @@ namespace CmlLib.Core.Auth.Microsoft
         internal Lazy<IXboxLiveApi> XboxLiveApi;
         internal Lazy<IMojangXboxApi> MojangXboxApi;
         internal Lazy<ICacheManager<SessionCache>> CacheManager;
-        internal Lazy<ILoggerFactory?> LoggerFactory;
 
         public LoginHandlerBuilder SetHttpClient(HttpClient client)
         {
@@ -49,8 +44,8 @@ namespace CmlLib.Core.Auth.Microsoft
         public LoginHandlerBuilder SetMicrosoftOAuthHandler(string id, string scope)
         {
             this.XboxLiveApi = new Lazy<IXboxLiveApi>(() => new XboxAuthNetApi(
-                new MicrosoftOAuth(id, scope, this.HttpClient.Value, this.LoggerFactory.Value),
-                new XboxAuth(HttpClient.Value, LoggerFactory.Value)));
+                new MicrosoftOAuth(id, scope, this.HttpClient.Value),
+                new XboxAuth(HttpClient.Value)));
             return this;
         }
 
@@ -58,7 +53,7 @@ namespace CmlLib.Core.Auth.Microsoft
         {
             this.XboxLiveApi = new Lazy<IXboxLiveApi>(() => new XboxAuthNetApi(
                 oAuth, 
-                new XboxAuth(HttpClient.Value, LoggerFactory.Value)));
+                new XboxAuth(HttpClient.Value)));
             return this;
         }
 
@@ -83,12 +78,6 @@ namespace CmlLib.Core.Auth.Microsoft
         public LoginHandlerBuilder SetJsonCacheManager(string path)
         {
             return SetCacheManager(new JsonFileCacheManager<SessionCache>(path));
-        }
-
-        public LoginHandlerBuilder SetLogger(ILoggerFactory loggerFactory)
-        {
-            this.LoggerFactory = new Lazy<ILoggerFactory?>(() => loggerFactory);
-            return this;
         }
     }
 }

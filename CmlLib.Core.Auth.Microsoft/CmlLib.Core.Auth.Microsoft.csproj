@@ -24,11 +24,8 @@
     <PackageReference Include="CmlLib.Core">
       <Version>3.3.5</Version>
     </PackageReference>
-    <PackageReference Include="ConfigureAwait.Fody" Version="3.3.1" PrivateAssets="All"/>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
-    <PackageReference Include="XboxAuthNet">
-      <Version>2.0.0-beta4</Version>
-    </PackageReference>
+    <PackageReference Include="ConfigureAwait.Fody" Version="3.3.1" PrivateAssets="All" />
+    <PackageReference Include="XboxAuthNet" Version="2.0.0-beta5" />
   </ItemGroup>
   <ItemGroup>
     <None Include="../icon.png" Pack="true" Visible="false" PackagePath="" />

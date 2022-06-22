@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -12,12 +11,10 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
     {
         public static readonly string RelyingParty = "rp://api.minecraftservices.com/";
         private readonly HttpClient httpClient;
-        private readonly ILogger<MojangXboxApi>? logger;
 
-        public MojangXboxApi(HttpClient client, ILoggerFactory? logFactory = null)
+        public MojangXboxApi(HttpClient client)
         {
             this.httpClient = client;
-            this.logger = logFactory?.CreateLogger<MojangXboxApi>();
         }
 
         public async Task<MojangXboxLoginResponse> LoginWithXbox(string uhs, string xstsToken)
@@ -27,8 +24,6 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
             if (xstsToken == null)
                 throw new ArgumentNullException(nameof(xstsToken));
 
-            logger?.LogTrace("LoginWithXbox");
-
             var res = await httpClient.SendAsync(new HttpRequestMessage
             {
                 Method = HttpMethod.Post,
@@ -37,7 +32,6 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
             });
 
             var resContent = await res.Content.ReadAsStringAsync();
-            logger?.LogTrace(resContent);
             var resObj = JsonSerializer.Deserialize<MojangXboxLoginResponse>(resContent);
 
             if (resObj == null)
@@ -62,13 +56,10 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
             };
             req.Headers.Add("Authorization", "Bearer " + bearerToken);
 
-            logger?.LogTrace("CheckGameOwnership");
-
             var res = await httpClient.SendAsync(req);
             if (!res.IsSuccessStatusCode)
                 return false;
             var resBody = await res.Content.ReadAsStringAsync();
-            logger?.LogTrace(resBody);
 
             try
             {
@@ -91,7 +82,6 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
             if (string.IsNullOrEmpty(bearerToken))
                 throw new ArgumentNullException(nameof(bearerToken));
 
-            logger?.LogTrace("GetProfileUsingToken");
             var req = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
@@ -101,7 +91,6 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
 
             var res = await httpClient.SendAsync(req);
             var resBody = await res.Content.ReadAsStringAsync();
-            logger?.LogTrace(resBody);
 
             try
             {

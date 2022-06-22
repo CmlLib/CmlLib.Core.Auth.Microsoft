@@ -1,20 +1,15 @@
-﻿using System;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+﻿using CmlLib.Core.Auth.Microsoft.Cache;
 using CmlLib.Core.Auth.Microsoft.Mojang;
-using CmlLib.Core.Auth.Microsoft.Cache;
 using CmlLib.Core.Auth.Microsoft.XboxLive;
-using XboxAuthNet.XboxLive;
+using System;
+using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
+using XboxAuthNet.XboxLive;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
     public class LoginHandler
     {
-        private readonly ILoggerFactory? loggerFactory;
-        private readonly ILogger<LoginHandler>? logger;
-
         private readonly IXboxLiveApi xboxLiveApi;
         private readonly IMojangXboxApi mojangXboxApi;
 
@@ -30,8 +25,6 @@ namespace CmlLib.Core.Auth.Microsoft
             var builderObj = new LoginHandlerBuilder();
             builder.Invoke(builderObj);
 
-            this.loggerFactory = builderObj.LoggerFactory.Value;
-            this.logger = this.loggerFactory?.CreateLogger<LoginHandler>();
             this.cacheManager = builderObj.CacheManager.Value;
             this.xboxLiveApi = builderObj.XboxLiveApi.Value;
             this.mojangXboxApi = builderObj.MojangXboxApi.Value;
@@ -74,16 +67,10 @@ namespace CmlLib.Core.Auth.Microsoft
 
             if (mcToken == null || DateTime.Now > mcToken.ExpiresOn) // invalid mc session
             {
-                logger?.LogTrace("MojangSession was expired");
-
                 if (string.IsNullOrEmpty(msToken?.RefreshToken)) // failed to refresh ms
                     return null;
 
-                logger?.LogTrace("Try to refresh OAuth token");
-
                 msToken = await xboxLiveApi.RefreshTokens(msToken?.RefreshToken); // not null
-
-                logger?.LogTrace("Try to refresh Game token");
 
                 // success to refresh ms
                 var xsts = await LoginXbox(msToken);
