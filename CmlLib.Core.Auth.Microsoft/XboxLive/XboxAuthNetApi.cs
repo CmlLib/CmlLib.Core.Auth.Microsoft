@@ -18,9 +18,9 @@ namespace CmlLib.Core.Auth.Microsoft.XboxLive
 
         private MicrosoftOAuthAuthCode? authCode;
 
-        public bool CheckOAuthLoginSuccess(string url)
+        public bool CheckOAuthCodeResult(Uri uri, out MicrosoftOAuthAuthCode code)
         {
-            var result = this.oAuth.CheckLoginSuccess(url, out var code);
+            var result = this.oAuth.CheckOAuthCodeResult(uri, out code);
             this.authCode = code;
             return result;
         }
@@ -49,7 +49,7 @@ namespace CmlLib.Core.Auth.Microsoft.XboxLive
                 .ConfigureAwait(false);
 
             var xsts = await xbox.ExchangeTokensForXstsIdentity(
-                userToken: rps.Token, // not null 
+                userToken: rps.Token, 
                 deviceToken,
                 titleToken,
                 xstsRelyingParty,

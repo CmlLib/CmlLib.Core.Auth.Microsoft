@@ -57,7 +57,7 @@ namespace CmlLib.Core.Auth.Microsoft
             saveSessionCache();
         }
 
-        public virtual async Task<MSession?> LoginFromCache()
+        public virtual async Task<MSession> LoginFromCache()
         {
             readSessionCache();
 
@@ -68,10 +68,10 @@ namespace CmlLib.Core.Auth.Microsoft
             if (mcToken == null || DateTime.Now > mcToken.ExpiresOn) // invalid mc session
             {
                 if (string.IsNullOrEmpty(msToken?.RefreshToken)) // failed to refresh ms
-                    return null;
+                    throw new MicrosoftOAuthException("no refresh token", 0);
 
-                msToken = await xboxLiveApi.RefreshTokens(msToken?.RefreshToken); // not null
-
+                msToken = await xboxLiveApi.RefreshTokens(msToken?.RefreshToken!); // not null
+                
                 // success to refresh ms
                 var xsts = await LoginXbox(msToken);
                 mcToken = await LoginMinecraft(xsts);
@@ -85,9 +85,9 @@ namespace CmlLib.Core.Auth.Microsoft
             return xboxLiveApi.CreateOAuthUrl();
         }
 
-        public virtual bool CheckOAuthLoginSuccess(string url)
+        public virtual bool CheckOAuthCodeResult(Uri uri, out MicrosoftOAuthAuthCode authCode)
         {
-            return xboxLiveApi.CheckOAuthLoginSuccess(url);
+            return xboxLiveApi.CheckOAuthCodeResult(uri, out authCode);
         }
 
         public async Task<MSession> LoginFromOAuth()
@@ -143,7 +143,7 @@ namespace CmlLib.Core.Auth.Microsoft
             if (string.IsNullOrEmpty(xsts.Token))
                 throw new ArgumentException("xsts.Token was null");
 
-            var mcToken = await mojangXboxApi.LoginWithXbox(xsts.UserHash, xsts.Token); // not null
+            var mcToken = await mojangXboxApi.LoginWithXbox(xsts.UserHash!, xsts.Token!); // not null
             return mcToken;
         }
 
