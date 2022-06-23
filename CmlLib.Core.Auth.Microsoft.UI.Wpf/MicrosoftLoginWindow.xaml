@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:CmlLib.Core.Auth.Microsoft.UI.Wpf" xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d"
         FontSize="16"
+        WindowStartupLocation="CenterScreen"
         Loaded="Window_Loaded"
         Closing="Window_Closing"
         Title="MicrosoftLoginWindow" Height="600" Width="800">
