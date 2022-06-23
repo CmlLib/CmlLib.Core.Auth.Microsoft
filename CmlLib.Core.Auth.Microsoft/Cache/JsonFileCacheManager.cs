@@ -14,7 +14,7 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
 
         public virtual T GetDefaultObject() => new T();
 
-        public T ReadCache()
+        public virtual T ReadCache()
         {
             if (!File.Exists(CacheFilePath))
                 return GetDefaultObject();
@@ -30,7 +30,7 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
             }
         }
 
-        public void SaveCache(T obj)
+        public virtual void SaveCache(T obj)
         {
             try
             {

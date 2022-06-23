@@ -1,4 +1,5 @@
-﻿using Microsoft.Identity.Client;
+﻿using CmlLib.Core.Auth.Microsoft.Cache;
+using Microsoft.Identity.Client;
 using System;
 using System.IO;
 using System.Linq;
@@ -13,40 +14,33 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
         public LoginHandler LoginHandler { get; private set; }
 
         IPublicClientApplication app;
-        ICacheManager<SessionCache> cacheManager;
 
         public MsalMinecraftLoginHandler(IPublicClientApplication application)
         {
             var defaultPath = Path.Combine(MinecraftPath.GetOSDefaultPath(), "cml_msalsession.json");
             this.app = application;
-            this.cacheManager = new MsalSessionCacheManager(defaultPath);
-            this.LoginHandler = new LoginHandler(cacheManager);
+            this.LoginHandler = new LoginHandler(builder =>
+            {
+                builder.SetCacheManager(new MsalSessionCacheManager(defaultPath));
+            });
         }
 
-        public MsalMinecraftLoginHandler(IPublicClientApplication application, string cacheFilePath)
-        { 
-            this.app = application;
-            this.cacheManager = new MsalSessionCacheManager(cacheFilePath);
-            this.LoginHandler = new LoginHandler(cacheManager);
-        }
-
-        public MsalMinecraftLoginHandler(IPublicClientApplication application, ICacheManager<SessionCache> _cacheManager)
+        public MsalMinecraftLoginHandler(IPublicClientApplication application, Action<LoginHandlerBuilder> builder)
         {
             this.app = application;
-            this.cacheManager = _cacheManager;
-            this.LoginHandler = new LoginHandler(cacheManager);
+            this.LoginHandler = new LoginHandler(builder);
         }
 
         public async Task<MSession> LoginSilent()
         {
-            var cachedSession = LoginHandler.LoginFromCache();
+            var cachedSession = await LoginHandler.LoginFromCache();
             if (cachedSession != null)
                 return cachedSession;
 
             var accounts = await app.GetAccountsAsync();
             var result = await app.AcquireTokenSilent(MsalMinecraftLoginHelper.DefaultScopes, accounts.FirstOrDefault())
                 .ExecuteAsync();
-            return LoginWithMsalResult(result);
+            return await LoginWithMsalResult(result);
         }
 
         public Task<MSession> LoginInteractive(bool useEmbeddedWebView = false)
@@ -63,19 +57,19 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
             else
                 result = await t.ExecuteAsync();
 
-            return LoginWithMsalResult(result);
+            return await LoginWithMsalResult(result);
         }
 
         public async Task<MSession> LoginDeviceCode(Func<DeviceCodeResult, Task> deviceCodeResultCallback)
         {
             var result = await app.AcquireTokenWithDeviceCode(MsalMinecraftLoginHelper.DefaultScopes, deviceCodeResultCallback)
                 .ExecuteAsync();
-            return LoginWithMsalResult(result);
+            return await LoginWithMsalResult(result);
         }
 
-        public MSession LoginWithMsalResult(AuthenticationResult result)
+        public async Task<MSession> LoginWithMsalResult(AuthenticationResult result)
         {
-            var session = LoginHandler.LoginFromOAuth(new MicrosoftOAuthResponse
+            var session = await LoginHandler.LoginFromOAuth(new MicrosoftOAuthResponse
             {
                 AccessToken = "d=" + result.AccessToken, // token prefix
                 UserId = result.UniqueId,
@@ -97,7 +91,7 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
             }
 
             // save empty session
-            cacheManager.SaveCache(new SessionCache());
+            LoginHandler.ClearCache();
         }
     }
 }
