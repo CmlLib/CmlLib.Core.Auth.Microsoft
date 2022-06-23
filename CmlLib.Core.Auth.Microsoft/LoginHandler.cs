@@ -85,7 +85,7 @@ namespace CmlLib.Core.Auth.Microsoft
             return xboxLiveApi.CreateOAuthUrl();
         }
 
-        public virtual bool CheckOAuthCodeResult(Uri uri, out MicrosoftOAuthAuthCode authCode)
+        public virtual bool CheckOAuthCodeResult(Uri uri, out MicrosoftOAuthCode authCode)
         {
             return xboxLiveApi.CheckOAuthCodeResult(uri, out authCode);
         }

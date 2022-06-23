@@ -16,9 +16,9 @@ namespace CmlLib.Core.Auth.Microsoft.XboxLive
             this.xbox = xl;
         }
 
-        private MicrosoftOAuthAuthCode? authCode;
+        private MicrosoftOAuthCode? authCode;
 
-        public bool CheckOAuthCodeResult(Uri uri, out MicrosoftOAuthAuthCode code)
+        public bool CheckOAuthCodeResult(Uri uri, out MicrosoftOAuthCode code)
         {
             var result = this.oAuth.CheckOAuthCodeResult(uri, out code);
             this.authCode = code;
