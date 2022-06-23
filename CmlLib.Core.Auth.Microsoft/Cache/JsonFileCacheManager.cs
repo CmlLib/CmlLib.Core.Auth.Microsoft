@@ -1,11 +1,9 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using Newtonsoft.Json;
+﻿using System.IO;
+using System.Text.Json;
 
 namespace CmlLib.Core.Auth.Microsoft.Cache
 {
-    public class JsonFileCacheManager<T> : ICacheManager<T>
+    public class JsonFileCacheManager<T> : ICacheManager<T> where T : new()
     {
         public string CacheFilePath { get; private set; }
 
@@ -14,9 +12,9 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
             this.CacheFilePath = filepath;
         }
 
-        public virtual T GetDefaultObject() => default(T);
+        public virtual T GetDefaultObject() => new T();
 
-        public virtual T ReadCache()
+        public T ReadCache()
         {
             if (!File.Exists(CacheFilePath))
                 return GetDefaultObject();
@@ -24,7 +22,7 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
             try
             {
                 string filecontent = File.ReadAllText(CacheFilePath);
-                return JsonConvert.DeserializeObject<T>(filecontent);
+                return JsonSerializer.Deserialize<T>(filecontent) ?? new T();
             }
             catch
             {
@@ -32,15 +30,18 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
             }
         }
 
-        public virtual void SaveCache(T obj)
+        public void SaveCache(T obj)
         {
             try
             {
-                File.WriteAllText(CacheFilePath, JsonConvert.SerializeObject(obj));
+                var dirPath = Path.GetDirectoryName(CacheFilePath);
+                if (!string.IsNullOrEmpty(dirPath))
+                    Directory.CreateDirectory(dirPath);
+                File.WriteAllText(CacheFilePath, JsonSerializer.Serialize(obj));
             }
-            catch (Exception ex)
+            catch
             {
-                Debug.WriteLine(ex);
+
             }
         }
     }
