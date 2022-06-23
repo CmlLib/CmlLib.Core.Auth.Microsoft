@@ -19,32 +19,17 @@ namespace WinFormTest
 {
     public partial class Form1 : Form
     {
-        private readonly ILoggerFactory loggerFactory;
-        private readonly ILogger<Form1> logger;
-
         MSession Session;
 
         public Form1()
         {
-            loggerFactory = LoggerFactory.Create(conf =>
-            {
-                conf.AddFilter(level => level >= LogLevel.Trace);
-                conf.AddSimpleConsole();
-                conf.AddDebug();
-            });
-            logger = loggerFactory.CreateLogger<Form1>();
-            logger.LogTrace("LogTrace ready");
-
             InitializeComponent();
             btnStart.Enabled = false;
         }
 
         private async Task<MicrosoftLoginForm> CreateForm()
         {
-            var loginHandler = new LoginHandler(builder =>
-            {
-                builder.SetLogger(loggerFactory);
-            });
+            var loginHandler = new LoginHandler();
             MicrosoftLoginForm form = new MicrosoftLoginForm(loginHandler);
 
             //var dataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CmlLib.Core.Auth.Microsoft.UI.WinForm.TestApp");
@@ -57,22 +42,9 @@ namespace WinFormTest
         {
             var form = await CreateForm();
 
-            // localize message
-            // 한글화
-            //form.MessageStrings = new Dictionary<string, string>
-            //{
-            //    ["mslogin_fail"] = "마이크로소프트 로그인 실패",
-            //    ["mstoken_null"] = "mstoken이 null입니다",
-            //    ["xbox_error_child"] = "미성년자 계정입니다. 성인인증을 하거나 가족 계정에 추가하세요",
-            //    ["xbox_error_noaccount"] = "Xbox 계정을 찾을 수 없습니다",
-            //    ["mctoken_null"] = "mctoken이 null입니다",
-            //    ["mojang_nogame"] = "Minecraft JE를 구매하지 않았습니다"
-            //};
-
-            MSession session = await form.ShowLoginDialog(); // show login form
-
-            if (session != null) // login success
+            try
             {
+                MSession session = await form.ShowLoginDialog(); // show login form
                 this.Session = session;
 
                 txtAccessToken.Text = session.AccessToken;
@@ -80,9 +52,9 @@ namespace WinFormTest
                 txtUUID.Text = session.UUID;
                 btnStart.Enabled = true;
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Failed to login");
+                MessageBox.Show(ex.ToString());
             }
         }
 
@@ -125,7 +97,7 @@ namespace WinFormTest
             lbStatus.Text = e.FileName;
         }
 
-        private void Launcher_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void Launcher_ProgressChanged(object? sender, ProgressChangedEventArgs e)
         {
             progressBar2.Value = e.ProgressPercentage;
         }
