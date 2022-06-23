@@ -31,17 +31,32 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
                 Content = new StringContent($"{{\"identityToken\": \"XBL3.0 x={uhs};{xstsToken}\"}}", Encoding.UTF8, "application/json"),
             });
 
-            var resContent = await res.Content.ReadAsStringAsync();
-            var resObj = JsonSerializer.Deserialize<MojangXboxLoginResponse>(resContent);
+            var resBody = await res.Content.ReadAsStringAsync();
 
-            if (resObj == null)
-                throw new MinecraftAuthException("Response was null");
+            try
+            {
+                res.EnsureSuccessStatusCode();
+                var resObj = JsonSerializer.Deserialize<MojangXboxLoginResponse>(resBody);
 
-            if (!string.IsNullOrEmpty(resObj.Error) || !res.IsSuccessStatusCode)
-                throw new MinecraftAuthException(resObj.Error);
+                if (resObj == null)
+                    throw new MinecraftAuthException("Response was null");
 
-            resObj.ExpiresOn = DateTime.Now.AddSeconds(resObj.ExpiresIn);
-            return resObj;
+                resObj.ExpiresOn = DateTime.Now.AddSeconds(resObj.ExpiresIn);
+                return resObj;
+            }
+            catch (Exception ex) when (
+                ex is JsonException || 
+                ex is HttpRequestException)
+            {
+                try
+                {
+                    throw MinecraftAuthException.FromResponseBody(resBody, (int)res.StatusCode);
+                }
+                catch (FormatException)
+                {
+                    throw new MinecraftAuthException($"{(int)res.StatusCode}: {res.ReasonPhrase}");
+                }
+            }
         }
 
         public async Task<bool> CheckGameOwnership(string bearerToken)
@@ -94,6 +109,7 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
 
             try
             {
+                res.EnsureSuccessStatusCode();
                 using var jsonDocument = JsonDocument.Parse(resBody);
                 var root = jsonDocument.RootElement;
 
@@ -107,12 +123,18 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
                 session.UserType = "msa";
                 return session;
             }
-            catch (JsonException)
+            catch (Exception ex) when (
+                ex is JsonException ||
+                ex is HttpRequestException)
             {
-                if (res.IsSuccessStatusCode)
-                    throw new MinecraftAuthException(resBody);
-                else
-                    throw new MinecraftAuthException($"Status code: {res.StatusCode}");
+                try
+                {
+                    throw MinecraftAuthException.FromResponseBody(resBody, (int)res.StatusCode);
+                }
+                catch (FormatException)
+                {
+                    throw new MinecraftAuthException($"{(int)res.StatusCode}: {res.ReasonPhrase}");
+                }
             }
         }
     }

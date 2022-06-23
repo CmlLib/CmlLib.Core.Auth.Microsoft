@@ -22,11 +22,5 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
 
         [JsonPropertyName("expires_on")]
         public DateTime ExpiresOn { get; set; }
-        
-        [JsonPropertyName("errorType")]
-        public string? ErrorType { get; set; }
-
-        [JsonPropertyName("error")]
-        public string? Error { get; set; }
     }
 }
