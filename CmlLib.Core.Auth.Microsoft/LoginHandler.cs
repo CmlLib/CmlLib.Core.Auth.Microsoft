@@ -109,14 +109,21 @@ namespace CmlLib.Core.Auth.Microsoft
                 sessionCache = new SessionCache();
 
             if (sessionCache.GameSession == null)
+                sessionCache.GameSession = new MSession();
+
+            if (string.IsNullOrEmpty(sessionCache.GameSession.Username) ||
+                string.IsNullOrEmpty(sessionCache.GameSession.UUID))
             {
                 sessionCache.GameSession = await CreateMinecraftSession(mcToken);
-                sessionCache.GameSession.AccessToken = mcToken.AccessToken;
-
-                //if (!string.IsNullOrEmpty(xboxToken?.UserXUID)) // XUID is not necessary
-                //    sessionCache.GameSession.XUID = xboxToken.UserXUID;
-                // TODO: you can get XUID from MojangXboxAccessTokenPayload
             }
+
+            //if (string.IsNullOrEmpty(sessionCache.GameSession.UserXUID))
+            //{
+            //    var payload = mcToken.DecodeAccesTokenPayload();
+            //    sessionCache.GameSession.UserXUID = payload.Xuid;
+            //}
+
+            sessionCache.GameSession.AccessToken = mcToken.AccessToken;
 
             sessionCache.XboxAuthSession = xboxToken;
             sessionCache.MojangSession = mcToken;
