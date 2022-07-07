@@ -32,7 +32,7 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
 
         public bool CheckValidation()
         {
-            if (this.ExpiresOn < DateTime.Now || string.IsNullOrEmpty(this.AccessToken))
+            if (this.ExpiresOn <= DateTime.UtcNow || string.IsNullOrEmpty(this.AccessToken))
                 return false;
 
             try
@@ -40,7 +40,7 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
                 var payload = DecodeAccesTokenPayload();
                 var exp = DateTimeOffset.FromUnixTimeSeconds(payload.Exp);
 
-                if (exp < DateTimeOffset.UtcNow)
+                if (exp <= DateTimeOffset.UtcNow)
                     return false;
             }
             catch (JsonException)

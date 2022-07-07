@@ -41,7 +41,7 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
                 if (resObj == null)
                     throw new MinecraftAuthException("Response was null");
 
-                resObj.ExpiresOn = DateTime.Now.AddSeconds(resObj.ExpiresIn);
+                resObj.ExpiresOn = DateTime.UtcNow.AddSeconds(resObj.ExpiresIn);
                 return resObj;
             }
             catch (Exception ex) when (
