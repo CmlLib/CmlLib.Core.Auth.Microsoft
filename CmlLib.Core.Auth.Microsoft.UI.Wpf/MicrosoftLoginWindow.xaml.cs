@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using XboxAuthNet.OAuth;
 using XboxAuthNet.XboxLive;
 
@@ -25,7 +26,18 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
         public MicrosoftLoginWindow(LoginHandler handler)
         {
             this.LoginHandler = handler;
+
+            browserTimeoutTimer = new DispatcherTimer();
+            browserTimeoutTimer.Tick += BrowserTimeoutTimer_Tick;
+
             InitializeComponent();
+        }
+
+        private void BrowserTimeoutTimer_Tick(object? sender, EventArgs e)
+        {
+            browserTimeoutTimer.Stop();
+            this.Error = new WebView2RuntimeNotFoundException();
+            this.Close();
         }
 
         public static DependencyProperty LoadingTextProperty = 
@@ -42,7 +54,9 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
         }
 
         public CoreWebView2Environment? WebView2Environment { get; set; }
+        public int BrowserTimeout { get; set; } = 10 * 1000;
 
+        private DispatcherTimer browserTimeoutTimer;
         private Exception? Error { get; set; }
         private MSession? Session { get; set; }
         private string? ActionName { get; set; }
@@ -116,6 +130,9 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
             grid.Children.Add(wv);
             wv.NavigationStarting += Wv_NavigationStarting;
             await InitializeWebView2(wv);
+
+            browserTimeoutTimer.Interval = TimeSpan.FromMilliseconds(BrowserTimeout);
+            browserTimeoutTimer.Start();
         }
 
         // Remove webview on form
@@ -140,6 +157,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
 
         private async void Wv_NavigationStarting(object? sender, CoreWebView2NavigationStartingEventArgs e)
         {
+            browserTimeoutTimer.Stop();
             if (e.IsRedirected && LoginHandler.CheckOAuthCodeResult(new Uri(e.Uri), out var authCode)) // microsoft browser login success
             {
                 removeWv(); // remove webview control

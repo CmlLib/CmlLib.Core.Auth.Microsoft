@@ -22,7 +22,18 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
         public MicrosoftLoginForm(LoginHandler handler)
         {
             this.LoginHandler = handler;
+
+            browserTimeoutTimer = new System.Windows.Forms.Timer();
+            browserTimeoutTimer.Tick += BrowserTimeoutTimer_Tick;
+
             InitializeComponent();
+        }
+
+        private void BrowserTimeoutTimer_Tick(object? sender, EventArgs e)
+        {
+            browserTimeoutTimer.Stop();
+            this.Error = new WebView2RuntimeNotFoundException("timeout");
+            this.Close();
         }
 
         public string LoadingText
@@ -32,7 +43,9 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
         }
         
         public CoreWebView2Environment? WebView2Environment { get; set; }
+        public int BrowserTimeout { get; set; } = 10 * 1000;
 
+        private System.Windows.Forms.Timer browserTimeoutTimer;
         private Exception? Error { get; set; }
         private MSession? Session { get; set; }
         private string? ActionName { get; set; }
@@ -50,6 +63,9 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
                 ex is MinecraftAuthException)
             {
                 ActionName = "login"; // need UI
+
+                CoreWebView2Environment.GetAvailableBrowserVersionString(); // check runtime is installed
+
                 this.ShowDialog();
 
                 if (Error != null)
@@ -108,6 +124,9 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
             this.Controls.Add(wv);
             this.Controls.SetChildIndex(wv, 0);
             await InitializeWebView2(wv);
+
+            browserTimeoutTimer.Interval = BrowserTimeout;
+            browserTimeoutTimer.Start();
         }
 
         // Remove webview on form
@@ -140,6 +159,8 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
 
         private async void Wv_NavigationStarting(object? sender, CoreWebView2NavigationStartingEventArgs e)
         {
+            browserTimeoutTimer.Stop();
+
             if (e.IsRedirected && LoginHandler.CheckOAuthCodeResult(new Uri(e.Uri), out var authCode)) // microsoft browser login success
             {
                 removeWv(); // remove webview control
@@ -170,7 +191,8 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
             LoginHandler.ClearCache();
 
             await createWv(); // show webview control
-            wv.Source = new Uri(MicrosoftOAuth.GetSignOutUrl());
+            if (wv != null)
+                wv.Source = new Uri(MicrosoftOAuth.GetSignOutUrl());
         }
 
         private void MicrosoftLoginForm_FormClosing(object sender, FormClosingEventArgs e)
