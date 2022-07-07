@@ -65,7 +65,7 @@ namespace CmlLib.Core.Auth.Microsoft
             var msToken = sessionCache?.MicrosoftOAuthSession;
             var xboxToken = sessionCache?.XboxAuthSession;
 
-            if (mcToken == null || DateTime.Now > mcToken.ExpiresOn) // invalid mc session
+            if (mcToken == null || !mcToken.CheckValidation()) // invalid mc session
             {
                 if (string.IsNullOrEmpty(msToken?.RefreshToken)) // failed to refresh ms
                     throw new MicrosoftOAuthException("no refresh token", 0);
@@ -115,6 +115,7 @@ namespace CmlLib.Core.Auth.Microsoft
 
                 //if (!string.IsNullOrEmpty(xboxToken?.UserXUID)) // XUID is not necessary
                 //    sessionCache.GameSession.XUID = xboxToken.UserXUID;
+                // TODO: you can get XUID from MojangXboxAccessTokenPayload
             }
 
             sessionCache.XboxAuthSession = xboxToken;

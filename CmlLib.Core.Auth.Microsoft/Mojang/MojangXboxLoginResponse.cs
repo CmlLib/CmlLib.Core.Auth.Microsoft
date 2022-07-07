@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CmlLib.Core.Auth.Microsoft.Jwt;
+using System;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace CmlLib.Core.Auth.Microsoft.Mojang
@@ -22,5 +24,35 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
 
         [JsonPropertyName("expires_on")]
         public DateTime ExpiresOn { get; set; }
+
+        public MojangXboxAccessTokenPayload DecodeAccesTokenPayload()
+        {
+            return JwtDecoder.DecodePayload<MojangXboxAccessTokenPayload>(this.AccessToken);
+        }
+
+        public bool CheckValidation()
+        {
+            if (this.ExpiresOn < DateTime.Now || string.IsNullOrEmpty(this.AccessToken))
+                return false;
+
+            try
+            {
+                var payload = DecodeAccesTokenPayload();
+                var exp = DateTimeOffset.FromUnixTimeSeconds(payload.Exp);
+
+                if (exp < DateTimeOffset.UtcNow)
+                    return false;
+            }
+            catch (JsonException)
+            {
+                return false;
+            }
+            catch (ArgumentException)
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }
