@@ -15,7 +15,7 @@
     <RepositoryUrl>https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft.UI</RepositoryUrl>
     <Authors>ksi123456ab</Authors>
     <PackageTags>CmlLib Minecraft Login Auth Authentication Microsoft Xbox Live XboxLive</PackageTags>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <PackageIcon>icon.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
     <PackageId>CmlLib.Core.Auth.Microsoft</PackageId>
@@ -25,7 +25,7 @@
       <Version>3.3.5</Version>
     </PackageReference>
     <PackageReference Include="ConfigureAwait.Fody" Version="3.3.1" PrivateAssets="All" />
-    <PackageReference Include="XboxAuthNet" Version="2.0.0-beta8" />
+    <PackageReference Include="XboxAuthNet" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
     <None Include="../icon.png" Pack="true" Visible="false" PackagePath="" />

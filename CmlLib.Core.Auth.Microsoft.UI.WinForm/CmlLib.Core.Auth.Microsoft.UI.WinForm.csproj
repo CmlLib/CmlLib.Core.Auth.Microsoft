@@ -14,7 +14,7 @@
     <RepositoryUrl>https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft.UI</RepositoryUrl>
     <Authors>ksi123456ab</Authors>
     <PackageTags>CmlLib Minecraft Login Auth Authentication Microsoft Xbox Live XboxLive UI WinForm</PackageTags>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <PackageIcon>icon.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
     <PackageId>CmlLib.Core.Auth.Microsoft.UI.WinForm</PackageId>
