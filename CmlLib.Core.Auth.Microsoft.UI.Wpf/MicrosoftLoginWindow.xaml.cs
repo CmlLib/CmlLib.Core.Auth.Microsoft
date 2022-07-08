@@ -56,7 +56,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
         public CoreWebView2Environment? WebView2Environment { get; set; }
         public int BrowserTimeout { get; set; } = 10 * 1000;
 
-        private DispatcherTimer browserTimeoutTimer;
+        private readonly DispatcherTimer browserTimeoutTimer;
         private Exception? Error { get; set; }
         private MSession? Session { get; set; }
         private string? ActionName { get; set; }

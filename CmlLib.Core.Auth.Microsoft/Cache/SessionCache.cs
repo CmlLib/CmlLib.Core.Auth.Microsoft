@@ -10,7 +10,7 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
         [JsonPropertyName("microsoftOAuthSession")]
         public MicrosoftOAuthResponse? MicrosoftOAuthToken { get; set; }
 
-        [JsonPropertyName("xboxAuthSession")]
+        [JsonPropertyName("xstsSession")]
         public XboxAuthResponse? XstsToken { get; set; }
 
         [JsonPropertyName("xboxSession")] // to keep backwards compatibility, it keeps old name

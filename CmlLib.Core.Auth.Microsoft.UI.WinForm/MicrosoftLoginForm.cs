@@ -45,7 +45,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
         public CoreWebView2Environment? WebView2Environment { get; set; }
         public int BrowserTimeout { get; set; } = 10 * 1000;
 
-        private System.Windows.Forms.Timer browserTimeoutTimer;
+        private readonly System.Windows.Forms.Timer browserTimeoutTimer;
         private Exception? Error { get; set; }
         private MSession? Session { get; set; }
         private string? ActionName { get; set; }
