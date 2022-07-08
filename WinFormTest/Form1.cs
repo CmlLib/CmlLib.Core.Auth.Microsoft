@@ -40,6 +40,9 @@ namespace WinFormTest
 
         private async void btnLogin_Click(object sender, EventArgs e)
         {
+            btnLogin.Enabled = false;
+            btnLogout.Enabled = false;
+
             var form = await CreateForm();
 
             try
@@ -56,6 +59,9 @@ namespace WinFormTest
             {
                 MessageBox.Show(ex.ToString());
             }
+
+            btnLogin.Enabled = true;
+            btnLogout.Enabled = true;
         }
 
         private async void btnLogout_Click(object sender, EventArgs e)

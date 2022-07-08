@@ -29,7 +29,7 @@ namespace WpfTest
 
         private async void btnLogin_Click(object sender, RoutedEventArgs e)
         {
-            var httpClient = new HttpClient();
+            btnLogin.IsEnabled = false;
 
             var loginHandler = new LoginHandler(builder =>
             {
@@ -53,6 +53,8 @@ namespace WpfTest
             {
                 MessageBox.Show(ex.ToString());
             }
+
+            btnLogin.IsEnabled = true;
         }
 
         private void btnLogout_Click(object sender, RoutedEventArgs e)
