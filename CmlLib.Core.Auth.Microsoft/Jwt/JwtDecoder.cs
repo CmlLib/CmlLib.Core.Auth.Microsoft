@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace CmlLib.Core.Auth.Microsoft.Jwt
 {
-    public class JwtDecoder
+    public static class JwtDecoder
     {
         public static string DecodePayloadString(string jwt)
         {

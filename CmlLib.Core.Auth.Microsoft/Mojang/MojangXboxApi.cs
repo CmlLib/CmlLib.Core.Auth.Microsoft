@@ -44,18 +44,9 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
                 resObj.ExpiresOn = DateTime.UtcNow.AddSeconds(resObj.ExpiresIn);
                 return resObj;
             }
-            catch (Exception ex) when (
-                ex is JsonException || 
-                ex is HttpRequestException)
+            catch (Exception ex)
             {
-                try
-                {
-                    throw MinecraftAuthException.FromResponseBody(resBody, (int)res.StatusCode);
-                }
-                catch (FormatException)
-                {
-                    throw new MinecraftAuthException($"{(int)res.StatusCode}: {res.ReasonPhrase}");
-                }
+                throw createException(ex, resBody, res);
             }
         }
 
@@ -123,19 +114,27 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
                 session.UserType = "msa";
                 return session;
             }
-            catch (Exception ex) when (
-                ex is JsonException ||
-                ex is HttpRequestException)
+            catch (Exception ex)
+            {
+                throw createException(ex, resBody, res);
+            }
+        }
+
+        private Exception createException(Exception ex, string resBody, HttpResponseMessage res)
+        {
+            if (ex is JsonException || ex is HttpRequestException)
             {
                 try
                 {
-                    throw MinecraftAuthException.FromResponseBody(resBody, (int)res.StatusCode);
+                    return MinecraftAuthException.FromResponseBody(resBody, (int)res.StatusCode);
                 }
                 catch (FormatException)
                 {
-                    throw new MinecraftAuthException($"{(int)res.StatusCode}: {res.ReasonPhrase}");
+                    return new MinecraftAuthException($"{(int)res.StatusCode}: {res.ReasonPhrase}");
                 }
             }
+            else
+                return ex;
         }
     }
 }

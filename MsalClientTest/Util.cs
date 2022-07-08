@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MsalClientTest
 {
-    internal class Util
+    internal static class Util
     {
         // Open URL
         // https://stackoverflow.com/a/43232486/13228835

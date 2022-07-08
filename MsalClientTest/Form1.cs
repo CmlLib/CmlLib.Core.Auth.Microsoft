@@ -38,8 +38,8 @@ namespace MsalClientTest
             lbStatus.Text = "LoginSilent()";
             try
             {
-                var session = await handler.LoginSilent();
-                loginSuccess(session);
+                var s = await handler.LoginSilent();
+                loginSuccess(s);
             }
             catch (Exception)
             {
@@ -58,8 +58,8 @@ namespace MsalClientTest
             try
             {
                 loginCancel = new CancellationTokenSource();
-                var session = await handler.LoginInteractive(loginCancel?.Token);
-                loginSuccess(session);
+                var s = await handler.LoginInteractive(loginCancel?.Token);
+                loginSuccess(s);
             }
             catch (Exception ex)
             {
@@ -79,8 +79,8 @@ namespace MsalClientTest
             try
             {
                 loginCancel = new CancellationTokenSource();
-                var session = await handler.LoginInteractive(loginCancel?.Token, useEmbeddedWebView: true);
-                loginSuccess(session);
+                var s = await handler.LoginInteractive(loginCancel?.Token, useEmbeddedWebView: true);
+                loginSuccess(s);
             }
             catch (Exception ex)
             {
@@ -100,7 +100,7 @@ namespace MsalClientTest
             try
             {
                 var deviceCodeForm = new DeviceCodeForm();
-                var session = await handler.LoginDeviceCode(result =>
+                var s = await handler.LoginDeviceCode(result =>
                 {
                     Invoke(() =>
                     {
@@ -117,7 +117,7 @@ namespace MsalClientTest
                 }
                 catch { }
 
-                loginSuccess(session);
+                loginSuccess(s);
             }
             catch (Exception ex)
             {
