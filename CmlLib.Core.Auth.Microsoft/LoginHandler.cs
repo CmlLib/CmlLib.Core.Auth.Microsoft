@@ -156,7 +156,7 @@ namespace CmlLib.Core.Auth.Microsoft
             return cachedSession;
         }
 
-        protected virtual async Task<MSession> createMinecraftSession(MojangXboxLoginResponse mcToken)
+        private async Task<MSession> createMinecraftSession(MojangXboxLoginResponse mcToken)
         {
             if (mcToken == null)
                 throw new ArgumentNullException(nameof(mcToken));
