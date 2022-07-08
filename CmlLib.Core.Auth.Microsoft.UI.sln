@@ -12,7 +12,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfTest", "WpfTest\WpfTest.
 		{FAD8E33F-E392-4CDC-9F8E-CBA60BB51120} = {FAD8E33F-E392-4CDC-9F8E-CBA60BB51120}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinFormTest", "WinFormTest\WinFormTest.csproj", "{8979F5B0-F6B5-4B6C-8DE7-1E915FD12B46}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormTest", "WinFormTest\WinFormTest.csproj", "{8979F5B0-F6B5-4B6C-8DE7-1E915FD12B46}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A7AF65E5-BC6F-49DE-B32B-707199B03089} = {A7AF65E5-BC6F-49DE-B32B-707199B03089}
 	EndProjectSection
@@ -22,8 +22,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MsalClientTest", "MsalClientTest\MsalClientTest.csproj", "{B00D1011-90A5-4AC2-BB5D-3D7DF3156D02}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CmlLib.Core.Auth.Microsoft.MsalClient", "CmlLib.Core.Auth.Microsoft.MsalClient\CmlLib.Core.Auth.Microsoft.MsalClient.csproj", "{8982D8B5-A1F1-4DC9-A715-B589A74467D2}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CmlLib.Core.Auth.Microsoft.Test", "CmlLib.Core.Auth.Microsoft.Test\CmlLib.Core.Auth.Microsoft.Test.csproj", "{79228048-D9CB-43EA-8B9D-F759D59B17E9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,10 +57,6 @@ Global
 		{8982D8B5-A1F1-4DC9-A715-B589A74467D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8982D8B5-A1F1-4DC9-A715-B589A74467D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8982D8B5-A1F1-4DC9-A715-B589A74467D2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{79228048-D9CB-43EA-8B9D-F759D59B17E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{79228048-D9CB-43EA-8B9D-F759D59B17E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{79228048-D9CB-43EA-8B9D-F759D59B17E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{79228048-D9CB-43EA-8B9D-F759D59B17E9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
