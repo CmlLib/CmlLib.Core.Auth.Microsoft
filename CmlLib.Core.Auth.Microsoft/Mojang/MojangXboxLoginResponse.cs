@@ -27,11 +27,17 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
 
         public MojangXboxAccessTokenPayload DecodeAccesTokenPayload()
         {
-            return JwtDecoder.DecodePayload<MojangXboxAccessTokenPayload>(this.AccessToken);
+            if (string.IsNullOrEmpty(this.AccessToken))
+                throw new InvalidOperationException("AccessToken is null");
+
+            return JwtDecoder.DecodePayload<MojangXboxAccessTokenPayload>(this.AccessToken!);
         }
 
         public bool CheckValidation()
         {
+            if (string.IsNullOrEmpty(this.AccessToken))
+                return false;
+
             if (this.ExpiresOn <= DateTime.UtcNow || string.IsNullOrEmpty(this.AccessToken))
                 return false;
 

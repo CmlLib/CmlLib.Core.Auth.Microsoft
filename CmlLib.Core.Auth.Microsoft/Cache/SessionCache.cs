@@ -8,13 +8,13 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
     public class SessionCache
     {
         [JsonPropertyName("microsoftOAuthSession")]
-        public MicrosoftOAuthResponse? MicrosoftOAuthSession { get; set; }
+        public MicrosoftOAuthResponse? MicrosoftOAuthToken { get; set; }
 
         [JsonPropertyName("xboxAuthSession")]
-        public XboxAuthResponse? XboxAuthSession { get; set; }
+        public XboxAuthResponse? XstsToken { get; set; }
 
         [JsonPropertyName("xboxSession")] // to keep backwards compatibility, it keeps old name
-        public MojangXboxLoginResponse? MojangSession { get; set; }
+        public MojangXboxLoginResponse? MojangXboxToken { get; set; }
 
         [JsonPropertyName("gameSession")]
         public MSession? GameSession { get; set; }

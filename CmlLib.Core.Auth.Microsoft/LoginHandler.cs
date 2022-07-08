@@ -54,21 +54,22 @@ namespace CmlLib.Core.Auth.Microsoft
 
             // if current cached minecraft token is invalid,
             // it try to refresh microsoft token, xbox token, and minecraft token
-            if (sessionCache.MojangSession == null || !sessionCache.MojangSession.CheckValidation())
+            if (sessionCache.MojangXboxToken == null || !sessionCache.MojangXboxToken.CheckValidation())
             {
-                if (string.IsNullOrEmpty(sessionCache.MicrosoftOAuthSession?.RefreshToken))
+                if (string.IsNullOrEmpty(sessionCache.MicrosoftOAuthToken?.RefreshToken))
                     throw new MicrosoftOAuthException("no refresh token", 0);
 
                 // RefreshTokens method throws exception when server fails to refresh token
-                sessionCache.MicrosoftOAuthSession = await xboxLiveApi.RefreshTokens(sessionCache.MicrosoftOAuthSession?.RefreshToken!); 
+                sessionCache.MicrosoftOAuthToken = await xboxLiveApi.RefreshTokens(sessionCache.MicrosoftOAuthToken?.RefreshToken!); 
                 
                 // success to refresh ms
-                sessionCache.XboxAuthSession = await GetXsts(sessionCache.MicrosoftOAuthSession);
-                sessionCache.MojangSession = await GetMojangXboxToken(sessionCache.XboxAuthSession);
+                sessionCache.XstsToken = await GetXsts(sessionCache.MicrosoftOAuthToken);
+                sessionCache.MojangXboxToken = await GetMojangXboxToken(sessionCache.XstsToken);
                 sessionCache.GameSession = null; // clear GameSession to refresh
             } 
 
-            sessionCache.GameSession = await GetMSession(sessionCache.MojangSession, sessionCache.GameSession ?? new MSession());
+            // always refresh game session
+            sessionCache.GameSession = await GetMSession(sessionCache.MojangXboxToken, sessionCache.GameSession);
 
             saveSessionCache(sessionCache);
             return sessionCache.GameSession;
@@ -101,9 +102,9 @@ namespace CmlLib.Core.Auth.Microsoft
 
             saveSessionCache(new SessionCache
             {
-                MicrosoftOAuthSession = msToken,
-                XboxAuthSession = xsts,
-                MojangSession = mojangToken,
+                MicrosoftOAuthToken = msToken,
+                XstsToken = xsts,
+                MojangXboxToken = mojangToken,
                 GameSession = msession
             });
             return msession;
@@ -131,8 +132,11 @@ namespace CmlLib.Core.Auth.Microsoft
             return mcToken;
         }
 
-        protected virtual async Task<MSession> GetMSession(MojangXboxLoginResponse mcToken, MSession cachedSession)
+        protected virtual async Task<MSession> GetMSession(MojangXboxLoginResponse mcToken, MSession? cachedSession)
         {
+            if (cachedSession == null)
+                cachedSession = new MSession();
+
             // update Username, UUID
             if (string.IsNullOrEmpty(cachedSession.Username) ||
                 string.IsNullOrEmpty(cachedSession.UUID))
