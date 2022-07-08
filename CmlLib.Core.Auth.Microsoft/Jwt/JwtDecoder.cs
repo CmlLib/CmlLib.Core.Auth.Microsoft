@@ -14,7 +14,7 @@ namespace CmlLib.Core.Auth.Microsoft.Jwt
 
             var spl = jwt.Split('.');
             if (spl.Length != 3)
-                throw new ArgumentException("invalid jwt");
+                throw new FormatException("invalid jwt");
 
             var encodedPayload = spl[1];
             switch (encodedPayload.Length % 4)
@@ -28,7 +28,7 @@ namespace CmlLib.Core.Auth.Microsoft.Jwt
                     encodedPayload += "=";
                     break;
                 default:
-                    throw new ArgumentException("invalid jwt payload");
+                    throw new FormatException("jwt payload");
 
             }
 
