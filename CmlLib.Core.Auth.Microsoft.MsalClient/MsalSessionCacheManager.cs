@@ -12,7 +12,7 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
         // SaveCache method does not cache OAuth tokens. only caching GameSession and XboxSession
         public override void SaveCache(SessionCache obj)
         {
-            obj.MicrosoftOAuthSession = null;
+            obj.MicrosoftOAuthToken = null;
             base.SaveCache(obj);
         }
     }

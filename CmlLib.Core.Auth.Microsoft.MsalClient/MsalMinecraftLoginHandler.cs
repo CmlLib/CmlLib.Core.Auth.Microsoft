@@ -13,7 +13,7 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
     {
         public LoginHandler LoginHandler { get; private set; }
 
-        IPublicClientApplication app;
+        private readonly IPublicClientApplication app;
 
         public MsalMinecraftLoginHandler(IPublicClientApplication application)
         {

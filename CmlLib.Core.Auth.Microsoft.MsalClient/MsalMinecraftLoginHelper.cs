@@ -11,7 +11,7 @@ using XboxAuthNet.OAuth;
 
 namespace CmlLib.Core.Auth.Microsoft.MsalClient
 {
-    public class MsalMinecraftLoginHelper
+    public static class MsalMinecraftLoginHelper
     {
         public static readonly string[] DefaultScopes = new[] { "XboxLive.signin" };
 
