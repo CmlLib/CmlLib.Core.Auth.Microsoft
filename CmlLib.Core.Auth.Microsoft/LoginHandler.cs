@@ -12,7 +12,6 @@ namespace CmlLib.Core.Auth.Microsoft
     {
         private readonly IXboxLiveApi xboxLiveApi;
         private readonly IMojangXboxApi mojangXboxApi;
-
         private readonly ICacheManager<SessionCache>? cacheManager;
 
         public LoginHandler() : this(builder => { })
@@ -34,32 +33,32 @@ namespace CmlLib.Core.Auth.Microsoft
         public string RelyingParty { get; set; }
         public bool CheckGameOwnership { get; set; } = false;
 
-        private SessionCache? readSessionCache()
-        {
-            return cacheManager?.ReadCache();
-        }
-
-        private void saveSessionCache(SessionCache? sessionCache)
-        {
-            cacheManager?.SaveCache(sessionCache ?? new SessionCache());
-        }
-
-        public void ClearCache()
-        {
-            saveSessionCache(null);
-        }
-
         /// <summary>
-        /// Get minecraft session from cached tokens. This method also try to refresh token if cached token is expired
+        /// Get minecraft session from cached tokens. This method also try to refresh token if cached token is expired. 
+        /// Cached tokens is retrieved by internal cache manager.
         /// </summary>
         /// <returns>New valid session</returns>
         /// <exception cref="MicrosoftOAuthException"></exception>
         /// <exception cref="XboxAuthException"></exception>
         /// <exception cref="MinecraftAuthException"></exception>
-        public virtual async Task<MSession> LoginFromCache()
+        public async Task<MSession> LoginFromCache()
         {
             var sessionCache = readSessionCache() ?? new SessionCache();
+            sessionCache = await LoginFromCache(sessionCache);
+            saveSessionCache(sessionCache);
+            return sessionCache.GameSession!;
+        }
 
+        /// <summary>
+        /// Get minecraft session from cached tokens. This method also try to refresh token if cached token is expired. 
+        /// </summary>
+        /// <param name="sessionCache">cached session</param>
+        /// <returns>valid sessions</returns>
+        /// <exception cref="MicrosoftOAuthException"></exception>
+        /// <exception cref="XboxAuthException"></exception>
+        /// <exception cref="MinecraftAuthException"></exception>
+        public virtual async Task<SessionCache> LoginFromCache(SessionCache sessionCache)
+        {
             // if current cached minecraft token is invalid,
             // it try to refresh microsoft token, xbox token, and minecraft token
             if (sessionCache.MojangXboxToken == null || !sessionCache.MojangXboxToken.CheckValidation())
@@ -68,29 +67,17 @@ namespace CmlLib.Core.Auth.Microsoft
                     throw new MicrosoftOAuthException("no refresh token", 0);
 
                 // RefreshTokens method throws exception when server fails to refresh token
-                sessionCache.MicrosoftOAuthToken = await xboxLiveApi.RefreshTokens(sessionCache.MicrosoftOAuthToken?.RefreshToken!); 
-                
+                var msToken = await xboxLiveApi.RefreshTokens(sessionCache.MicrosoftOAuthToken?.RefreshToken!);
+
                 // success to refresh ms
-                sessionCache.XstsToken = await GetXsts(sessionCache.MicrosoftOAuthToken);
-                sessionCache.MojangXboxToken = await GetMojangXboxToken(sessionCache.XstsToken);
-                sessionCache.GameSession = null; // clear GameSession to refresh
-            } 
-
-            // always refresh game session
-            sessionCache.GameSession = await GetMSession(sessionCache.MojangXboxToken, sessionCache.GameSession);
-
-            saveSessionCache(sessionCache);
-            return sessionCache.GameSession;
-        }
-
-        public virtual string CreateOAuthUrl()
-        {
-            return xboxLiveApi.CreateOAuthUrl();
-        }
-
-        public virtual bool CheckOAuthCodeResult(Uri uri, out MicrosoftOAuthCode authCode)
-        {
-            return xboxLiveApi.CheckOAuthCodeResult(uri, out authCode);
+                return await GetAllTokens(msToken);
+            }
+            else
+            {
+                // always refresh game session
+                sessionCache.GameSession = await GetMSession(sessionCache.MojangXboxToken, sessionCache.GameSession);
+                return sessionCache;
+            }
         }
 
         /// <summary>
@@ -118,28 +105,49 @@ namespace CmlLib.Core.Auth.Microsoft
         /// <exception cref="MinecraftAuthException"></exception>
         public virtual async Task<MSession> LoginFromOAuth(MicrosoftOAuthResponse msToken)
         {
-            var xsts = await GetXsts(msToken);
+            var sessionCache = await GetAllTokens(msToken);
+            saveSessionCache(sessionCache);
+            return sessionCache.GameSession!;
+        }
+
+        protected SessionCache? readSessionCache()
+        {
+            return cacheManager?.ReadCache();
+        }
+
+        protected void saveSessionCache(SessionCache? sessionCache)
+        {
+            cacheManager?.SaveCache(sessionCache ?? new SessionCache());
+        }
+
+        public void ClearCache()
+        {
+            saveSessionCache(null);
+        }
+
+        protected async Task<SessionCache> GetAllTokens(MicrosoftOAuthResponse msToken)
+        {
+            var xsts = await GetXsts(msToken, null, null, this.RelyingParty);
             var mojangToken = await GetMojangXboxToken(xsts);
             var msession = await GetMSession(mojangToken, new MSession());
 
-            saveSessionCache(new SessionCache
+            return new SessionCache
             {
                 MicrosoftOAuthToken = msToken,
                 XstsToken = xsts,
                 MojangXboxToken = mojangToken,
                 GameSession = msession
-            });
-            return msession;
+            };
         }
 
-        protected virtual async Task<XboxAuthResponse> GetXsts(MicrosoftOAuthResponse msToken)
+        protected virtual async Task<XboxAuthResponse> GetXsts(MicrosoftOAuthResponse msToken, string? deviceToken, string? titleToken, string? relyingParty)
         {
             if (msToken == null)
                 throw new ArgumentNullException(nameof(msToken));
             if (msToken.AccessToken == null)
                 throw new ArgumentNullException(nameof(msToken.AccessToken));
 
-            var xsts = await xboxLiveApi.GetXSTS(msToken.AccessToken, null, null, RelyingParty);
+            var xsts = await xboxLiveApi.GetXSTS(msToken.AccessToken, deviceToken, titleToken, relyingParty);
             return xsts;
         }
 
@@ -203,6 +211,16 @@ namespace CmlLib.Core.Auth.Microsoft
             {
                 throw new MinecraftAuthException("mojang_noprofile", ex);
             }
+        }
+
+        public virtual string CreateOAuthUrl()
+        {
+            return xboxLiveApi.CreateOAuthUrl();
+        }
+
+        public virtual bool CheckOAuthCodeResult(Uri uri, out MicrosoftOAuthCode authCode)
+        {
+            return xboxLiveApi.CheckOAuthCodeResult(uri, out authCode);
         }
     }
 }

@@ -5,6 +5,9 @@ using CmlLib.Core.Auth.Microsoft.Mojang;
 
 namespace CmlLib.Core.Auth.Microsoft.Cache
 {
+    /// <summary>
+    /// Contains sessions to be stored
+    /// </summary>
     public class SessionCache
     {
         /// <summary>

@@ -30,12 +30,12 @@ namespace CmlLib.Core.Auth.Microsoft
             });
         }
 
-        public Lazy<HttpClient> HttpClient { get; private set; }
-        public Lazy<IXboxLiveApi> XboxLiveApi { get; private set; }
-        public Lazy<IMojangXboxApi> MojangXboxApi { get; private set; }
-        public Lazy<ICacheManager<SessionCache>> CacheManager { get; private set; }
-        public string ClientId { get; private set; } = DefaultClientId;
-        public string XboxRelyingParty { get; private set; } = Mojang.MojangXboxApi.RelyingParty;
+        public Lazy<HttpClient> HttpClient { get; set; }
+        public Lazy<IXboxLiveApi> XboxLiveApi { get; set; }
+        public Lazy<IMojangXboxApi> MojangXboxApi { get; set; }
+        public Lazy<ICacheManager<SessionCache>> CacheManager { get; set; }
+        public string ClientId { get; set; } = DefaultClientId;
+        public string XboxRelyingParty { get; set; } = Mojang.MojangXboxApi.RelyingParty;
 
         public LoginHandlerBuilder SetHttpClient(HttpClient client)
         {
