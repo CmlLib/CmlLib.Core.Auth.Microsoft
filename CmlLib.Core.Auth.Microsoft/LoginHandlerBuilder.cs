@@ -9,13 +9,13 @@ using XboxAuthNet.XboxLive;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
-    public sealed class LoginHandlerBuilder
+    public class LoginHandlerBuilder
     {
         public static readonly string DefaultClientId = "00000000402B5328";
         private static readonly Lazy<HttpClient> defaultHttpClient
             = new Lazy<HttpClient>(() => new HttpClient());
 
-        internal LoginHandlerBuilder() 
+        public LoginHandlerBuilder() 
         {
             this.HttpClient = new Lazy<HttpClient>(() => defaultHttpClient.Value);
             this.XboxLiveApi = new Lazy<IXboxLiveApi>(() => new XboxAuthNetApi(
@@ -30,10 +30,12 @@ namespace CmlLib.Core.Auth.Microsoft
             });
         }
 
-        internal Lazy<HttpClient> HttpClient;
-        internal Lazy<IXboxLiveApi> XboxLiveApi;
-        internal Lazy<IMojangXboxApi> MojangXboxApi;
-        internal Lazy<ICacheManager<SessionCache>> CacheManager;
+        public Lazy<HttpClient> HttpClient { get; private set; }
+        public Lazy<IXboxLiveApi> XboxLiveApi { get; private set; }
+        public Lazy<IMojangXboxApi> MojangXboxApi { get; private set; }
+        public Lazy<ICacheManager<SessionCache>> CacheManager { get; private set; }
+        public string ClientId { get; private set; } = DefaultClientId;
+        public string XboxRelyingParty { get; private set; } = Mojang.MojangXboxApi.RelyingParty;
 
         public LoginHandlerBuilder SetHttpClient(HttpClient client)
         {
@@ -78,6 +80,18 @@ namespace CmlLib.Core.Auth.Microsoft
         public LoginHandlerBuilder SetJsonCacheManager(string path)
         {
             return SetCacheManager(new JsonFileCacheManager<SessionCache>(path));
+        }
+
+        public LoginHandlerBuilder SetClientId(string id)
+        {
+            this.ClientId = id;
+            return this;
+        }
+
+        public LoginHandlerBuilder SetXboxRelyingParty(string relyingParty)
+        {
+            this.XboxRelyingParty = relyingParty;
+            return this;
         }
     }
 }
