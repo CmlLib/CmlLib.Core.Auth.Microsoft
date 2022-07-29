@@ -120,12 +120,16 @@ namespace CmlLib.Core.Auth.Microsoft.Test
 
             // all tokens should be refreshed
             var cache = cacheManager.ReadCache();
-            Assert.AreEqual("MockXboxLiveApi_AccessToken", cache.MicrosoftOAuthToken.AccessToken);
-            Assert.AreEqual("MockXboxLiveApi_RefreshToken", cache.MicrosoftOAuthToken.RefreshToken);
-            Assert.AreEqual("MockXboxLiveApi_Token", cache.XstsToken.Token);
-            Assert.AreEqual("MockXboxLiveApi_UserHash", cache.XstsToken.UserHash);
-            Assert.AreEqual("MockMojangXboxApi_AccessToken", cache.MojangXboxToken.AccessToken);
-            Assert.AreEqual("MockMojangXboxApi_Username", cache.MojangXboxToken.Username);
+            Assert.NotNull(cache.MicrosoftOAuthToken);
+            Assert.NotNull(cache.MojangXboxToken);
+            Assert.NotNull(cache.XstsToken);
+
+            Assert.AreEqual("MockXboxLiveApi_AccessToken", cache.MicrosoftOAuthToken!.AccessToken);
+            Assert.AreEqual("MockXboxLiveApi_RefreshToken", cache.MicrosoftOAuthToken!.RefreshToken);
+            Assert.AreEqual("MockXboxLiveApi_Token", cache.XstsToken!.Token);
+            Assert.AreEqual("MockXboxLiveApi_UserHash", cache.XstsToken!.UserHash);
+            Assert.AreEqual("MockMojangXboxApi_AccessToken", cache.MojangXboxToken!.AccessToken);
+            Assert.AreEqual("MockMojangXboxApi_Username", cache.MojangXboxToken!.Username);
             
             Assert.AreEqual("MockMojangXboxApi_ProfileUsername", resultSession.Username); 
             Assert.AreEqual("MockMojangXboxApi_ProfileUUID", resultSession.UUID);
@@ -151,12 +155,16 @@ namespace CmlLib.Core.Auth.Microsoft.Test
 
             // all tokens should be refreshed
             var cache = cacheManager.ReadCache();
-            Assert.AreEqual("MockXboxLiveApi_AccessToken", cache.MicrosoftOAuthToken.AccessToken);
-            Assert.AreEqual("MockXboxLiveApi_RefreshToken", cache.MicrosoftOAuthToken.RefreshToken);
-            Assert.AreEqual("MockXboxLiveApi_Token", cache.XstsToken.Token);
-            Assert.AreEqual("MockXboxLiveApi_UserHash", cache.XstsToken.UserHash);
-            Assert.AreEqual("MockMojangXboxApi_AccessToken", cache.MojangXboxToken.AccessToken);
-            Assert.AreEqual("MockMojangXboxApi_Username", cache.MojangXboxToken.Username);
+            Assert.NotNull(cache.MicrosoftOAuthToken);
+            Assert.NotNull(cache.MojangXboxToken);
+            Assert.NotNull(cache.XstsToken);
+
+            Assert.AreEqual("MockXboxLiveApi_AccessToken", cache.MicrosoftOAuthToken!.AccessToken);
+            Assert.AreEqual("MockXboxLiveApi_RefreshToken", cache.MicrosoftOAuthToken!.RefreshToken);
+            Assert.AreEqual("MockXboxLiveApi_Token", cache.XstsToken!.Token);
+            Assert.AreEqual("MockXboxLiveApi_UserHash", cache.XstsToken!.UserHash);
+            Assert.AreEqual("MockMojangXboxApi_AccessToken", cache.MojangXboxToken!.AccessToken);
+            Assert.AreEqual("MockMojangXboxApi_Username", cache.MojangXboxToken!.Username);
 
             Assert.AreEqual("MockMojangXboxApi_ProfileUsername", resultSession.Username);
             Assert.AreEqual("MockMojangXboxApi_ProfileUUID", resultSession.UUID);

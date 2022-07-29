@@ -53,7 +53,10 @@ namespace CmlLib.Core.Auth.Microsoft.Test.Mock
             return Task.FromResult(new XboxAuthResponse
             {
                 Token = "MockXboxLiveApi_Token",
-                UserHash = "MockXboxLiveApi_UserHash"
+                XuiClaims = new XboxAuthXuiClaims
+                {
+                    UserHash = "MockXboxLiveApi_UserHash"
+                }
             });
         }
 
