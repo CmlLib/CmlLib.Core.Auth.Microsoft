@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <UseWpf>true</UseWpf>
-    <TargetFrameworks>net5.0-windows</TargetFrameworks>
+    <TargetFrameworks>net472;net5.0-windows</TargetFrameworks>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>8.0</LangVersion>
@@ -14,7 +14,7 @@
     <RepositoryUrl>https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft.UI</RepositoryUrl>
     <Authors>ksi123456ab</Authors>
     <PackageTags>CmlLib Minecraft Login Auth Authentication Microsoft Xbox Live XboxLive UI Wpf</PackageTags>
-    <Version>2.0.1</Version>
+    <Version>2.0.2</Version>
     <PackageIcon>icon.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
     <PackageId>CmlLib.Core.Auth.Microsoft.UI.Wpf</PackageId>
