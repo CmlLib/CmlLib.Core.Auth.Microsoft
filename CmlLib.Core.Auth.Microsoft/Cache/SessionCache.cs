@@ -7,15 +7,27 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
 {
     public class SessionCache
     {
+        /// <summary>
+        /// Microsoft OAuth tokens
+        /// </summary>
         [JsonPropertyName("microsoftOAuthSession")]
         public MicrosoftOAuthResponse? MicrosoftOAuthToken { get; set; }
-
+        
+        /// <summary>
+        /// XSTS tokens, issued by xsts.auth.xboxlive.com
+        /// </summary>
         [JsonPropertyName("xstsSession")]
         public XboxAuthResponse? XstsToken { get; set; }
 
-        [JsonPropertyName("xboxSession")] // to keep backwards compatibility, it keeps old name
+        /// <summary>
+        /// Minecraft tokens, issued by api.minecraftservices.com
+        /// </summary>
+        [JsonPropertyName("xboxSession")] // to keep backwards compatibility, it keeps old name. (not `mojangXboxToken`)
         public MojangXboxLoginResponse? MojangXboxToken { get; set; }
 
+        /// <summary>
+        /// MSession
+        /// </summary>
         [JsonPropertyName("gameSession")]
         public MSession? GameSession { get; set; }
     }

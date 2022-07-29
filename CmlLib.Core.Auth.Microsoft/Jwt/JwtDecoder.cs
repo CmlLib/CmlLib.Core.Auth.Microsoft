@@ -7,6 +7,13 @@ namespace CmlLib.Core.Auth.Microsoft.Jwt
 {
     public static class JwtDecoder
     {
+        /// <summary>
+        /// decode jwt payload
+        /// </summary>
+        /// <param name="jwt">entire jwt</param>
+        /// <returns>decoded jwt payload</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="FormatException">invalid jwt</exception>
         public static string DecodePayloadString(string jwt)
         {
             if (string.IsNullOrEmpty(jwt))
@@ -32,10 +39,17 @@ namespace CmlLib.Core.Auth.Microsoft.Jwt
 
             }
 
-            var decodedPayload = Encoding.UTF8.GetString(Convert.FromBase64String(encodedPayload));
+            var decodedPayload = Encoding.UTF8.GetString(Convert.FromBase64String(encodedPayload)); // encodedPayload can't be null since string.Split never return null element
             return decodedPayload;
         }
 
+        /// <summary>
+        /// decode jwt payload and deserialize
+        /// </summary>
+        /// <param name="jwt"></param>
+        /// <returns>deserialized object of jwt payload</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="FormatException">invalid jwt</exception>
         public static T DecodePayload<T>(string jwt)
         {
             var payload = DecodePayloadString(jwt);

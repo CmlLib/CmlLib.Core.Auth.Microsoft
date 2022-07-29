@@ -1,5 +1,6 @@
 ﻿using CmlLib.Core.Auth.Microsoft.Jwt;
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -25,6 +26,12 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
         [JsonPropertyName("expires_on")]
         public DateTime ExpiresOn { get; set; }
 
+        /// <summary>
+        /// decode jwt payload of AccessToken
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">AccessToken is null or empty</exception>
+        /// <exception cref="FormatException">AccessToken is not valid jwt</exception>
         public MojangXboxAccessTokenPayload DecodeAccesTokenPayload()
         {
             if (string.IsNullOrEmpty(this.AccessToken))
@@ -33,6 +40,10 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
             return JwtDecoder.DecodePayload<MojangXboxAccessTokenPayload>(this.AccessToken!);
         }
 
+        /// <summary>
+        /// check if access token is valid
+        /// </summary>
+        /// <returns>validation result</returns>
         public bool CheckValidation()
         {
             if (string.IsNullOrEmpty(this.AccessToken))
@@ -49,12 +60,19 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
                 if (exp <= DateTimeOffset.UtcNow)
                     return false;
             }
+            catch (FormatException)
+            {
+                // when jwt payload is not valid base64 string
+                return false;
+            }
             catch (JsonException)
             {
+                // when jwt payload is not valid json string
                 return false;
             }
             catch (ArgumentException)
             {
+                // when exp of jwt is not valid unix timestamp
                 return false;
             }
 
