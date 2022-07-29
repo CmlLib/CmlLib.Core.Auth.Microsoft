@@ -11,6 +11,6 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CmlLib.Core.Auth.Microsoft.UI.Wpf\CmlLib.Core.Auth.Microsoft.UI.Wpf.csproj" />
+    <ProjectReference Include="..\..\CmlLib.Core.Auth.Microsoft.UI.Wpf\CmlLib.Core.Auth.Microsoft.UI.Wpf.csproj" />
   </ItemGroup>
 </Project>
