@@ -47,5 +47,16 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
             var storageProperties = cacheSettings.ToStorageCreationPropertiesBuilder().Build();
             return await BuildApplicationWithCache(cid, storageProperties);
         }
+
+        public static MicrosoftOAuthResponse ToMicrosoftOAuthResponse(AuthenticationResult result)
+        {
+            return new MicrosoftOAuthResponse
+            {
+                AccessToken = "d=" + result.AccessToken, // token prefix
+                UserId = result.UniqueId,
+                TokenType = result.TokenType,
+                Scope = string.Join(",", result.Scopes)
+            };
+        }
     }
 }

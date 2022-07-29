@@ -1,6 +1,7 @@
 ﻿using CmlLib.Core.Auth.Microsoft.Cache;
 using Microsoft.Identity.Client;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -15,27 +16,43 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
 
         private readonly IPublicClientApplication app;
 
-        public MsalMinecraftLoginHandler(IPublicClientApplication application)
+        public MsalMinecraftLoginHandler(IPublicClientApplication application) : this(application, builder => { })
         {
-            var defaultPath = Path.Combine(MinecraftPath.GetOSDefaultPath(), "cml_msalsession.json");
-            this.app = application;
-            this.LoginHandler = new LoginHandler(builder =>
-            {
-                builder.SetCacheManager(new MsalSessionCacheManager(defaultPath));
-            });
+
         }
 
         public MsalMinecraftLoginHandler(IPublicClientApplication application, Action<LoginHandlerBuilder> builder)
         {
+            var defaultPath = Path.Combine(MinecraftPath.GetOSDefaultPath(), "cml_msalsession.json");
             this.app = application;
-            this.LoginHandler = new LoginHandler(builder);
+            this.LoginHandler = new LoginHandler(innerBuilder =>
+            {
+                innerBuilder.SetCacheManager(new MsalSessionCacheManager(defaultPath));
+                builder.Invoke(innerBuilder);
+            });
+        }
+
+        public MsalMinecraftLoginHandler(IPublicClientApplication application, LoginHandler loginHandler)
+        {
+            this.app = application;
+            this.LoginHandler = loginHandler;
         }
 
         public async Task<MSession> LoginSilent()
         {
-            var cachedSession = await LoginHandler.LoginFromCache();
-            if (cachedSession != null)
-                return cachedSession;
+            try
+            {
+                await LoginHandler.LoginFromCache();
+            }
+            catch (Exception ex)
+            {
+                var pass = ex is MicrosoftOAuthException ||
+                           ex is XboxAuthNet.XboxLive.XboxAuthException ||
+                           ex is Mojang.MinecraftAuthException;
+
+                if (!pass)
+                    throw;
+            }
 
             var accounts = await app.GetAccountsAsync();
             var result = await app.AcquireTokenSilent(MsalMinecraftLoginHelper.DefaultScopes, accounts.FirstOrDefault())
@@ -69,14 +86,8 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
 
         public async Task<MSession> LoginWithMsalResult(AuthenticationResult result)
         {
-            var session = await LoginHandler.LoginFromOAuth(new MicrosoftOAuthResponse
-            {
-                AccessToken = "d=" + result.AccessToken, // token prefix
-                UserId = result.UniqueId,
-                TokenType = result.TokenType,
-                Scope = string.Join(",", result.Scopes)
-            });
-
+            var msToken = MsalMinecraftLoginHelper.ToMicrosoftOAuthResponse(result);
+            var session = await LoginHandler.LoginFromOAuth(msToken);
             return session;
         }
 
