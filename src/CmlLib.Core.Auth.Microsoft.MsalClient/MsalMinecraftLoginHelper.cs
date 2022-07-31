@@ -58,5 +58,16 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
                 Scope = string.Join(",", result.Scopes)
             };
         }
+
+        public static async Task RemoveAccounts(IPublicClientApplication app)
+        {
+            var accounts = await app.GetAccountsAsync();
+            while (accounts.Any())
+            {
+                var first = accounts.First();
+                await app.RemoveAsync(first);
+                accounts = await app.GetAccountsAsync();
+            }
+        }
     }
 }

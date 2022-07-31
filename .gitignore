@@ -339,3 +339,4 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 /_old
+/src/samples/MsalClientTest/tests.cs

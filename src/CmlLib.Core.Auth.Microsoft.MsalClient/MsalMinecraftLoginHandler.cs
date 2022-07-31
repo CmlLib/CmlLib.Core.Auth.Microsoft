@@ -42,7 +42,7 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
         {
             try
             {
-                await LoginHandler.LoginFromCache();
+                return await LoginHandler.LoginFromCache();
             }
             catch (Exception ex)
             {
@@ -54,16 +54,35 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
                     throw;
             }
 
-            var accounts = await app.GetAccountsAsync();
-            var result = await app.AcquireTokenSilent(MsalMinecraftLoginHelper.DefaultScopes, accounts.FirstOrDefault())
-                .ExecuteAsync();
-            return await LoginWithMsalResult(result);
+            var msalLoginResult = await msalAcquireTokenSilent();
+            return await LoginWithMsalResult(msalLoginResult);
         }
 
         public Task<MSession> LoginInteractive(bool useEmbeddedWebView = false)
             => LoginInteractive(null, useEmbeddedWebView);
 
         public async Task<MSession> LoginInteractive(CancellationToken? cancellationToken, bool useEmbeddedWebView = false)
+        {
+            var msalLoginResult = await msalAcquireTokenInteractive(cancellationToken, useEmbeddedWebView);
+            return await LoginWithMsalResult(msalLoginResult);
+        }
+
+        public async Task<MSession> LoginDeviceCode(Func<DeviceCodeResult, Task> deviceCodeResultCallback)
+        {
+            var result = await app.AcquireTokenWithDeviceCode(MsalMinecraftLoginHelper.DefaultScopes, deviceCodeResultCallback)
+                .ExecuteAsync();
+            return await LoginWithMsalResult(result);
+        }
+
+        protected virtual async Task<AuthenticationResult> msalAcquireTokenSilent()
+        {
+            var accounts = await app.GetAccountsAsync();
+            var result = await app.AcquireTokenSilent(MsalMinecraftLoginHelper.DefaultScopes, accounts.FirstOrDefault())
+                .ExecuteAsync();
+            return result;
+        }
+
+        protected virtual async Task<AuthenticationResult> msalAcquireTokenInteractive(CancellationToken? cancellationToken, bool useEmbeddedWebView)
         {
             var t = app.AcquireTokenInteractive(MsalMinecraftLoginHelper.DefaultScopes)
                 .WithUseEmbeddedWebView(useEmbeddedWebView);
@@ -73,15 +92,7 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
                 result = await t.ExecuteAsync(cancellationToken.Value);
             else
                 result = await t.ExecuteAsync();
-
-            return await LoginWithMsalResult(result);
-        }
-
-        public async Task<MSession> LoginDeviceCode(Func<DeviceCodeResult, Task> deviceCodeResultCallback)
-        {
-            var result = await app.AcquireTokenWithDeviceCode(MsalMinecraftLoginHelper.DefaultScopes, deviceCodeResultCallback)
-                .ExecuteAsync();
-            return await LoginWithMsalResult(result);
+            return result;
         }
 
         public async Task<MSession> LoginWithMsalResult(AuthenticationResult result)
@@ -93,13 +104,7 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
 
         public async Task RemoveAccounts()
         {
-            var accounts = await app.GetAccountsAsync();
-            while (accounts.Any())
-            {
-                var first = accounts.First();
-                await app.RemoveAsync(first);
-                accounts = await app.GetAccountsAsync();
-            }
+            await MsalMinecraftLoginHelper.RemoveAccounts(app);
 
             // save empty session
             LoginHandler.ClearCache();
