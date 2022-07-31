@@ -10,35 +10,20 @@ using XboxAuthNet.OAuth;
 
 namespace CmlLib.Core.Auth.Microsoft.MsalClient
 {
-    public class MsalMinecraftLoginHandler
+    public class MsalMinecraftLoginHandler<T> 
+        where T : SessionCacheBase
     {
-        public LoginHandler LoginHandler { get; private set; }
+        public AbstractLoginHandler<T> LoginHandler { get; private set; }
 
         private readonly IPublicClientApplication app;
 
-        public MsalMinecraftLoginHandler(IPublicClientApplication application) : this(application, builder => { })
-        {
-
-        }
-
-        public MsalMinecraftLoginHandler(IPublicClientApplication application, Action<LoginHandlerBuilder> builder)
-        {
-            var defaultPath = Path.Combine(MinecraftPath.GetOSDefaultPath(), "cml_msalsession.json");
-            this.app = application;
-            this.LoginHandler = new LoginHandler(innerBuilder =>
-            {
-                innerBuilder.SetCacheManager(new MsalSessionCacheManager(defaultPath));
-                builder.Invoke(innerBuilder);
-            });
-        }
-
-        public MsalMinecraftLoginHandler(IPublicClientApplication application, LoginHandler loginHandler)
+        public MsalMinecraftLoginHandler(IPublicClientApplication application, AbstractLoginHandler<T> loginHandler)
         {
             this.app = application;
             this.LoginHandler = loginHandler;
         }
 
-        public async Task<MSession> LoginSilent()
+        public async Task<T> LoginSilent()
         {
             try
             {
@@ -58,16 +43,16 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
             return await LoginWithMsalResult(msalLoginResult);
         }
 
-        public Task<MSession> LoginInteractive(bool useEmbeddedWebView = false)
+        public Task<T> LoginInteractive(bool useEmbeddedWebView = false)
             => LoginInteractive(null, useEmbeddedWebView);
 
-        public async Task<MSession> LoginInteractive(CancellationToken? cancellationToken, bool useEmbeddedWebView = false)
+        public async Task<T> LoginInteractive(CancellationToken? cancellationToken, bool useEmbeddedWebView = false)
         {
             var msalLoginResult = await msalAcquireTokenInteractive(cancellationToken, useEmbeddedWebView);
             return await LoginWithMsalResult(msalLoginResult);
         }
 
-        public async Task<MSession> LoginDeviceCode(Func<DeviceCodeResult, Task> deviceCodeResultCallback)
+        public async Task<T> LoginDeviceCode(Func<DeviceCodeResult, Task> deviceCodeResultCallback)
         {
             var result = await app.AcquireTokenWithDeviceCode(MsalMinecraftLoginHelper.DefaultScopes, deviceCodeResultCallback)
                 .ExecuteAsync();
@@ -95,10 +80,10 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
             return result;
         }
 
-        public async Task<MSession> LoginWithMsalResult(AuthenticationResult result)
+        public async Task<T> LoginWithMsalResult(AuthenticationResult result)
         {
             var msToken = MsalMinecraftLoginHelper.ToMicrosoftOAuthResponse(result);
-            var session = await LoginHandler.LoginFromOAuth(msToken);
+            var session = await LoginHandler.GetAllTokens(msToken);
             return session;
         }
 
