@@ -17,17 +17,18 @@ namespace CmlLib.Core.Auth.Microsoft.Test
         public const string NotExpiredJwt = ".eyJleHAiOjE5MDk2NjEzMTh9."; // exp: 2030.07.07
         public const string ExpiredJwt = ".eyJleHAiOjk2Mjk3NjUxOH0."; // exp: 2000.07.07
 
-        public (MockCacheManager<SessionCache>, MockXboxLiveApi, MockMojangXboxApi, LoginHandler) CreateMockEnvironment()
+        public (MockCacheManager<JavaEditionSessionCache>, MockXboxLiveApi, MockMojangXboxApi, JavaEditionLoginHandler) CreateMockEnvironment()
         {
-            var cacheManager = new MockCacheManager<SessionCache>();
+            var cacheManager = new MockCacheManager<JavaEditionSessionCache>();
             var xboxLiveApi = new MockXboxLiveApi();
             var mojangXboxApi = new MockMojangXboxApi();
-            var loginHandler = new LoginHandler(builder =>
-            {
-                builder.SetXboxLiveApi(xboxLiveApi);
-                builder.SetMojangXboxApi(mojangXboxApi);
-                builder.SetCacheManager(cacheManager);
-            });
+            var loginHandler = LoginHandlerBuilder.Create()
+                .ForJavaEdition()
+                .SetXboxLiveApi(xboxLiveApi)
+                .SetMojangXboxApi(mojangXboxApi)
+                .SetCacheManager(cacheManager)
+                .Build();
+
             return (cacheManager, xboxLiveApi, mojangXboxApi, loginHandler);
         }
 
@@ -51,7 +52,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
                 UUID = "OldUUID"
             };
 
-            cacheManager.Cache = new SessionCache()
+            cacheManager.Cache = new JavaEditionSessionCache()
             {
                 MicrosoftOAuthToken = msToken,
                 XstsToken = xsts,
@@ -65,13 +66,13 @@ namespace CmlLib.Core.Auth.Microsoft.Test
             Assert.AreEqual(msToken, cache.MicrosoftOAuthToken);
             Assert.AreEqual(xsts, cache.XstsToken);
             Assert.AreEqual(mcToken, cache.MojangXboxToken);
-            Assert.AreEqual(resultSession, cache.GameSession);
+            Assert.AreEqual(resultSession.GameSession, cache.GameSession);
 
-            Assert.AreEqual(msession.Username, resultSession.Username);
-            Assert.AreEqual(msession.UUID, resultSession.UUID);
+            Assert.AreEqual(msession.Username, resultSession.GameSession.Username);
+            Assert.AreEqual(msession.UUID, resultSession.GameSession.UUID);
 
             // accessToken should be always updated to MojangXboxLoginResponse.AccessToken
-            Assert.AreEqual(NotExpiredJwt, resultSession.AccessToken);
+            Assert.AreEqual(NotExpiredJwt, resultSession.GameSession.AccessToken);
         }
 
         public static object[] ExpiredMicrosoftOAuthResponseCases = new object[]
@@ -100,7 +101,15 @@ namespace CmlLib.Core.Auth.Microsoft.Test
             {
                 RefreshToken = "test_RefreshToken"
             };
-            var xsts = new XboxAuthResponse();
+            var xsts = new XboxAuthResponse()
+            {
+                Token = "OldXstsToken",
+                XuiClaims = new XboxAuthXuiClaims
+                {
+                    UserHash = "OldUserHash",
+                    XboxUserId = "OldXboxUserId"
+                }
+            };
             var msession = new MSession
             {
                 AccessToken = "OldAccessToken",
@@ -108,7 +117,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
                 UUID = "OldUUID"
             };
 
-            cacheManager.Cache = new SessionCache()
+            cacheManager.Cache = new JavaEditionSessionCache()
             {
                 MicrosoftOAuthToken = msToken,
                 XstsToken = xsts,
@@ -131,12 +140,12 @@ namespace CmlLib.Core.Auth.Microsoft.Test
             Assert.AreEqual("MockMojangXboxApi_AccessToken", cache.MojangXboxToken!.AccessToken);
             Assert.AreEqual("MockMojangXboxApi_Username", cache.MojangXboxToken!.Username);
             
-            Assert.AreEqual("MockMojangXboxApi_ProfileUsername", resultSession.Username); 
-            Assert.AreEqual("MockMojangXboxApi_ProfileUUID", resultSession.UUID);
-            Assert.AreEqual("MockMojangXboxApi_AccessToken", resultSession.AccessToken); 
+            Assert.AreEqual("MockMojangXboxApi_ProfileUsername", resultSession.GameSession.Username); 
+            Assert.AreEqual("MockMojangXboxApi_ProfileUUID", resultSession.GameSession.UUID);
+            Assert.AreEqual("MockMojangXboxApi_AccessToken", resultSession.GameSession.AccessToken); 
 
             // resultSession === cachedSession
-            Assert.AreEqual(resultSession, cache.GameSession);
+            Assert.AreEqual(resultSession?.GameSession, cache.GameSession);
         }
 
         [Test]
@@ -149,7 +158,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
                 RefreshToken = "test_RefreshToken"
             };
 
-            cacheManager.Cache = new SessionCache();
+            cacheManager.Cache = new JavaEditionSessionCache();
 
             var resultSession = await loginHandler.LoginFromOAuth();
 
@@ -166,12 +175,12 @@ namespace CmlLib.Core.Auth.Microsoft.Test
             Assert.AreEqual("MockMojangXboxApi_AccessToken", cache.MojangXboxToken!.AccessToken);
             Assert.AreEqual("MockMojangXboxApi_Username", cache.MojangXboxToken!.Username);
 
-            Assert.AreEqual("MockMojangXboxApi_ProfileUsername", resultSession.Username);
-            Assert.AreEqual("MockMojangXboxApi_ProfileUUID", resultSession.UUID);
-            Assert.AreEqual("MockMojangXboxApi_AccessToken", resultSession.AccessToken);
+            Assert.AreEqual("MockMojangXboxApi_ProfileUsername", resultSession.GameSession.Username);
+            Assert.AreEqual("MockMojangXboxApi_ProfileUUID", resultSession.GameSession.UUID);
+            Assert.AreEqual("MockMojangXboxApi_AccessToken", resultSession.GameSession.AccessToken);
 
             // resultSession === cachedSession
-            Assert.AreEqual(resultSession, cache.GameSession);
+            Assert.AreEqual(resultSession.GameSession, cache.GameSession);
         }
     }
 }

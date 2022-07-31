@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace CmlLib.Core.Auth.Microsoft.Cache
 {
-    public class JsonFileCacheManager<T> : ICacheManager<T> where T : new()
+    public class JsonFileCacheManager<T> : ICacheManager<T>
     {
         public string CacheFilePath { get; private set; }
 
@@ -12,7 +12,7 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
             this.CacheFilePath = filepath;
         }
 
-        public virtual T GetDefaultObject() => new T();
+        public virtual T GetDefaultObject() => default(T);
 
         public virtual T ReadCache()
         {
@@ -22,7 +22,7 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
             try
             {
                 string filecontent = File.ReadAllText(CacheFilePath);
-                return JsonSerializer.Deserialize<T>(filecontent) ?? new T();
+                return JsonSerializer.Deserialize<T>(filecontent);
             }
             catch
             {

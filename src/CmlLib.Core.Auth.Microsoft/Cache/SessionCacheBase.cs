@@ -1,14 +1,13 @@
-﻿using XboxAuthNet.OAuth;
+﻿using System.Text.Json.Serialization;
+using XboxAuthNet.OAuth;
 using XboxAuthNet.XboxLive;
-using System.Text.Json.Serialization;
-using CmlLib.Core.Auth.Microsoft.Mojang;
 
 namespace CmlLib.Core.Auth.Microsoft.Cache
 {
     /// <summary>
     /// Contains sessions to be stored
     /// </summary>
-    public class SessionCache
+    public class SessionCacheBase
     {
         /// <summary>
         /// Microsoft OAuth tokens
@@ -23,15 +22,12 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
         public XboxAuthResponse? XstsToken { get; set; }
 
         /// <summary>
-        /// Minecraft tokens, issued by api.minecraftservices.com
+        /// Checks if current cached session is valid. (example: not expired, not null)
         /// </summary>
-        [JsonPropertyName("xboxSession")] // to keep backwards compatibility, it keeps old name. (not `mojangXboxToken`)
-        public MojangXboxLoginResponse? MojangXboxToken { get; set; }
-
-        /// <summary>
-        /// MSession
-        /// </summary>
-        [JsonPropertyName("gameSession")]
-        public MSession? GameSession { get; set; }
+        /// <returns></returns>
+        public virtual bool CheckValidation()
+        {
+            return true;
+        }
     }
 }

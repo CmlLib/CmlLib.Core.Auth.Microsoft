@@ -28,6 +28,6 @@
     <PackageReference Include="XboxAuthNet" Version="2.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="../icon.png" Pack="true" Visible="false" PackagePath="" />
+    <None Include="../../icon.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
 </Project>

@@ -55,7 +55,8 @@ namespace CmlLib.Core.Auth.Microsoft.Test.Mock
                 Token = "MockXboxLiveApi_Token",
                 XuiClaims = new XboxAuthXuiClaims
                 {
-                    UserHash = "MockXboxLiveApi_UserHash"
+                    UserHash = "MockXboxLiveApi_UserHash",
+                    XboxUserId = "MockXboxLiveApi_XboxUserId"
                 }
             });
         }
