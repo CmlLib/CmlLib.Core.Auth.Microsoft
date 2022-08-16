@@ -16,7 +16,7 @@ namespace CmlLib.Core.Auth.Microsoft
         public string RelyingParty { get; set; }
         public bool CheckGameOwnership { get; set; } = false;
 
-        internal JavaEditionLoginHandler(
+        public JavaEditionLoginHandler(
             IXboxLiveApi xboxLiveApi, 
             ICacheManager<JavaEditionSessionCache>? cacheManager, 
             IMojangXboxApi mojangXboxApi, 

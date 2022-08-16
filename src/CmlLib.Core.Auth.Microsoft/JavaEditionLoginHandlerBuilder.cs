@@ -11,7 +11,7 @@ namespace CmlLib.Core.Auth.Microsoft
         public string XboxRelyingParty { get; set; } = Mojang.MojangXboxApi.RelyingParty;
         public IMojangXboxApi MojangXboxApi { get; private set; }
 
-        internal JavaEditionLoginHandlerBuilder(string cid, HttpClient httpClient) : base(cid, httpClient)
+        public JavaEditionLoginHandlerBuilder(string cid, HttpClient httpClient) : base(cid, httpClient)
         {
             this.MojangXboxApi = new MojangXboxApi(httpClient);
         }

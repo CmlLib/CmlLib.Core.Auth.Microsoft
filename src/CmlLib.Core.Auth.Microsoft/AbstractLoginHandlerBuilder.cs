@@ -24,8 +24,8 @@ namespace CmlLib.Core.Auth.Microsoft
             this.CacheManager = new JsonFileCacheManager<TSession>(defaultPath);
         }
 
-        protected IXboxLiveApi XboxLiveApi { get; private set; }
-        protected ICacheManager<TSession> CacheManager { get; private set; }
+        public IXboxLiveApi XboxLiveApi { get; private set; }
+        public ICacheManager<TSession> CacheManager { get; private set; }
 
         public TBuilder SetMicrosoftOAuthHandler(string id, string scope)
         {
