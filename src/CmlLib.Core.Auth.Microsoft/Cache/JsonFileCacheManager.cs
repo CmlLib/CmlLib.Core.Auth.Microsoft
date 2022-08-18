@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace CmlLib.Core.Auth.Microsoft.Cache
 {
-    public class JsonFileCacheManager<T> : ICacheManager<T>
+    public sealed class JsonFileCacheManager<T> : ICacheManager<T> where T : class
     {
         public string CacheFilePath { get; private set; }
 
@@ -12,9 +12,9 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
             this.CacheFilePath = filepath;
         }
 
-        public virtual T GetDefaultObject() => default(T);
+        private T? GetDefaultObject() => default(T);
 
-        public virtual T ReadCache()
+        public T? ReadCache()
         {
             if (!File.Exists(CacheFilePath))
                 return GetDefaultObject();
@@ -30,7 +30,7 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
             }
         }
 
-        public virtual void SaveCache(T obj)
+        public void SaveCache(T? obj)
         {
             var dirPath = Path.GetDirectoryName(CacheFilePath);
             if (!string.IsNullOrEmpty(dirPath))

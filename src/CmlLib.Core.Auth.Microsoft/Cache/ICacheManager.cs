@@ -1,9 +1,8 @@
 ﻿namespace CmlLib.Core.Auth.Microsoft.Cache
 {
-    public interface ICacheManager<T>
+    public interface ICacheManager<T> where T : class
     {
-        T GetDefaultObject();
-        T ReadCache();
-        void SaveCache(T obj);
+        T? ReadCache();
+        void SaveCache(T? obj);
     }
 }
