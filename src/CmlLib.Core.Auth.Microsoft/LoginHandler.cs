@@ -1,9 +1,9 @@
 ﻿using CmlLib.Core.Auth.Microsoft.Cache;
+using CmlLib.Core.Auth.Microsoft.OAuth;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
+using XboxAuthNet.XboxLive;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
@@ -13,12 +13,21 @@ namespace CmlLib.Core.Auth.Microsoft
     public class LoginHandler
     {
         private readonly JavaEditionLoginHandler _loginHandler;
+        private readonly MicrosoftOAuth _oauth;
+        private readonly MicrosoftOAuthWebUILoginHandler _webUILoginHandler;
+
+        private MicrosoftOAuthCode? authCode;
 
         [Obsolete("Use LoginHandlerBuilder.Create().ForJavaEdition().Build()")]
         public LoginHandler()
         {
-            this._loginHandler = LoginHandlerBuilder.Create()
-                .ForJavaEdition()
+            this._oauth = new MicrosoftOAuth(
+                JavaEditionLoginHandlerBuilder.DefaultClientId, 
+                XboxAuth.XboxScope, 
+                HttpHelper.DefaultHttpClient.Value);
+            this._webUILoginHandler = new MicrosoftOAuthWebUILoginHandler(this._oauth);
+            this._loginHandler = new JavaEditionLoginHandlerBuilder()
+                .WithMicrosoftOAuthApi(new MicrosoftOAuthApi(this._oauth))
                 .Build();
         }
 
@@ -33,11 +42,14 @@ namespace CmlLib.Core.Auth.Microsoft
             return _loginHandler.LoginFromCache(sessionCache);
         }
 
-        public Task<MSession> LoginFromOAuth()
+        public async Task<MSession> LoginFromOAuth()
         {
-            throw new NotImplementedException();
-            //var sessionCache = await _loginHandler.LoginFromOAuth(authCode);
-            //return sessionCache.GameSession;
+            if (authCode == null)
+                throw new InvalidOperationException();
+
+            var token = await _oauth.GetTokens(authCode);
+            var sessionCache = await _loginHandler.LoginFromOAuth(token);
+            return sessionCache.GameSession;
         }
 
         public virtual async Task<MSession> LoginFromOAuth(MicrosoftOAuthResponse msToken)
@@ -53,12 +65,14 @@ namespace CmlLib.Core.Auth.Microsoft
 
         public virtual string CreateOAuthUrl()
         {
-            throw new NotImplementedException();
+            return _webUILoginHandler.CreateOAuthUrl();
         }
 
         public bool CheckOAuthCodeResult(Uri uri, out MicrosoftOAuthCode authCode)
         {
-            throw new NotImplementedException();
+            var result = _webUILoginHandler.CheckOAuthCodeResult(uri);
+            authCode = result.OAuthCode;
+            return result.IsSuccess;
         }
     }
 }

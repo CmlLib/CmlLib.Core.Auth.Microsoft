@@ -1,6 +1,7 @@
 ﻿using CmlLib.Core.Auth.Microsoft.Cache;
 using CmlLib.Core.Auth.Microsoft.Mojang;
 using CmlLib.Core.Auth.Microsoft.XboxLive;
+using System;
 using System.Net.Http;
 using XboxAuthNet.XboxLive;
 
@@ -11,16 +12,24 @@ namespace CmlLib.Core.Auth.Microsoft
     {
         public static readonly string DefaultClientId = "00000000402B5328";
 
-        public IXboxLiveApi XboxLiveApi { get; private set; }
-        public IMojangXboxApi MojangXboxApi { get; private set; }
-        public string XboxRelyingParty { get; set; } = Mojang.MojangXboxApi.RelyingParty;
+        public JavaEditionLoginHandlerBuilder()
+            : this(HttpHelper.DefaultHttpClient.Value)
+        {
 
-        public JavaEditionLoginHandlerBuilder(string cid, HttpClient httpClient)
-            : base(cid, httpClient)
+        }
+
+        public JavaEditionLoginHandlerBuilder(HttpClient httpClient)
+            : base(httpClient)
         {
             this.XboxLiveApi = new XboxAuthNetApi(new XboxAuth(httpClient));
             this.MojangXboxApi = new MojangXboxApi(httpClient);
         }
+
+        public IXboxLiveApi XboxLiveApi { get; private set; }
+        public IMojangXboxApi MojangXboxApi { get; private set; }
+        public string XboxRelyingParty { get; set; } = Mojang.MojangXboxApi.RelyingParty;
+
+        public override string GetDefaultClientId() => DefaultClientId;
 
         public JavaEditionLoginHandlerBuilder WithXboxLiveApi(IXboxLiveApi xboxApi)
         {
@@ -42,6 +51,9 @@ namespace CmlLib.Core.Auth.Microsoft
 
         public JavaEditionLoginHandler Build()
         {
+            if (MicrosoftOAuthApi == null)
+                throw new InvalidOperationException("MicrosoftOAuthApi null");
+
             return new JavaEditionLoginHandler(
                 oauthApi : MicrosoftOAuthApi,
                 xboxLiveApi : XboxLiveApi,

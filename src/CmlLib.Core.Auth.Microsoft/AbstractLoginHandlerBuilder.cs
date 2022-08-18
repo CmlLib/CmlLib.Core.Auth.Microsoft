@@ -1,9 +1,8 @@
 ﻿using CmlLib.Core.Auth.Microsoft.Cache;
 using CmlLib.Core.Auth.Microsoft.OAuth;
-using CmlLib.Core.Auth.Microsoft.XboxLive;
+using System;
 using System.IO;
 using System.Net.Http;
-using XboxAuthNet.OAuth;
 using XboxAuthNet.XboxLive;
 
 namespace CmlLib.Core.Auth.Microsoft
@@ -12,12 +11,15 @@ namespace CmlLib.Core.Auth.Microsoft
         where TBuilder : AbstractLoginHandlerBuilder<TBuilder, TSession>
         where TSession : SessionCacheBase
     {
-        protected readonly HttpClient HttpClient;
+        public HttpClient HttpClient { get; private set; }
 
-        public AbstractLoginHandlerBuilder(string clientId, HttpClient httpClient)
+        public AbstractLoginHandlerBuilder(HttpClient httpClient)
         {
             this.HttpClient = httpClient;
-            this.MicrosoftOAuthApi = new MicrosoftOAuthApi(new MicrosoftOAuth(clientId, XboxAuth.XboxScope, httpClient));
+            this.MicrosoftOAuthApi = MicrosoftOAuthApiBuilder.Create(GetDefaultClientId())
+                .WithHttpClient(httpClient)
+                .WithScope(XboxAuth.XboxScope)
+                .Build();
 
             var defaultPath = Path.Combine(MinecraftPath.GetOSDefaultPath(), "cml_xsession.json");
             this.CacheManager = new JsonFileCacheManager<TSession>(defaultPath);
@@ -37,5 +39,7 @@ namespace CmlLib.Core.Auth.Microsoft
             this.CacheManager = cacheManager;
             return (TBuilder)this;
         }
+
+        public abstract string GetDefaultClientId();
     }
 }
