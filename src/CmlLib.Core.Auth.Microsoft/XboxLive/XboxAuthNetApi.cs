@@ -7,49 +7,31 @@ namespace CmlLib.Core.Auth.Microsoft.XboxLive
 {
     public class XboxAuthNetApi : IXboxLiveApi
     {
-        private readonly MicrosoftOAuth oAuth;
         private readonly XboxAuth xbox;
 
-        public XboxAuthNetApi(MicrosoftOAuth auth, XboxAuth xl)
+        public XboxAuthNetApi(XboxAuth xl)
         {
-            this.oAuth = auth;
             this.xbox = xl;
         }
 
-        private MicrosoftOAuthCode? authCode;
-
-        public bool CheckOAuthCodeResult(Uri uri, out MicrosoftOAuthCode code)
-        {
-            var result = this.oAuth.CheckOAuthCodeResult(uri, out code);
-            this.authCode = code;
-            return result;
-        }
-
-        public string CreateOAuthUrl()
-        {
-            return this.oAuth.CreateUrlForOAuth();
-        }
-
-        public Task<MicrosoftOAuthResponse> GetTokens()
-        {
-            if (this.authCode == null)
-                throw new InvalidOperationException("authCode was null");
-
-            return this.oAuth.GetTokens(this.authCode);
-        }
-
-        public Task<MicrosoftOAuthResponse> RefreshTokens(string token)
-        {
-            return this.oAuth.RefreshToken(token);
-        }
-
+        /// <summary>
+        /// get xsts token
+        /// </summary>
+        /// <param name="token">token returned by microsoft oauth</param>
+        /// <param name="deviceToken"></param>
+        /// <param name="titleToken"></param>
+        /// <param name="xstsRelyingParty"></param>
+        /// <returns></returns>
         public async Task<XboxAuthResponse> GetXSTS(string token, string? deviceToken, string? titleToken, string? xstsRelyingParty)
         {
             var rps = await xbox.ExchangeRpsTicketForUserToken(token)
                 .ConfigureAwait(false);
 
+            if (string.IsNullOrEmpty(rps.Token))
+                throw new XboxAuthException("rps.Token was empty", 200);
+
             var xsts = await xbox.ExchangeTokensForXstsIdentity(
-                userToken: rps.Token, 
+                userToken: rps.Token!, 
                 deviceToken,
                 titleToken,
                 xstsRelyingParty,

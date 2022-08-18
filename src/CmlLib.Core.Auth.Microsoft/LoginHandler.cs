@@ -33,10 +33,11 @@ namespace CmlLib.Core.Auth.Microsoft
             return _loginHandler.LoginFromCache(sessionCache);
         }
 
-        public async Task<MSession> LoginFromOAuth()
+        public Task<MSession> LoginFromOAuth()
         {
-            var sessionCache = await _loginHandler.LoginFromOAuth();
-            return sessionCache.GameSession;
+            throw new NotImplementedException();
+            //var sessionCache = await _loginHandler.LoginFromOAuth(authCode);
+            //return sessionCache.GameSession;
         }
 
         public virtual async Task<MSession> LoginFromOAuth(MicrosoftOAuthResponse msToken)
@@ -52,12 +53,12 @@ namespace CmlLib.Core.Auth.Microsoft
 
         public virtual string CreateOAuthUrl()
         {
-            return _loginHandler.CreateOAuthUrl();
+            throw new NotImplementedException();
         }
 
         public bool CheckOAuthCodeResult(Uri uri, out MicrosoftOAuthCode authCode)
         {
-            return _loginHandler.CheckOAuthCodeResult(uri, out authCode);
+            throw new NotImplementedException();
         }
     }
 }

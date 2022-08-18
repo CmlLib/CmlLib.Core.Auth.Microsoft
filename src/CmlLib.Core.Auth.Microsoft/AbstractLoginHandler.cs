@@ -1,6 +1,6 @@
 ﻿using CmlLib.Core.Auth.Microsoft.Cache;
 using CmlLib.Core.Auth.Microsoft.Mojang;
-using CmlLib.Core.Auth.Microsoft.XboxLive;
+using CmlLib.Core.Auth.Microsoft.OAuth;
 using System;
 using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
@@ -10,13 +10,15 @@ namespace CmlLib.Core.Auth.Microsoft
 {
     public abstract class AbstractLoginHandler<T> where T : SessionCacheBase
     {
-        private readonly IXboxLiveApi _xboxLiveApi;
-        private readonly ICacheManager<T>? _cacheManager;
+        private readonly IMicrosoftOAuthApi _oauth;
+        protected ICacheManager<T>? CacheManager { get; }
 
-        public AbstractLoginHandler(IXboxLiveApi xboxLiveApi, ICacheManager<T>? cacheManager)
+        public AbstractLoginHandler(
+            IMicrosoftOAuthApi oauthApi, 
+            ICacheManager<T>? cacheManager)
         {
-            this._xboxLiveApi = xboxLiveApi;
-            this._cacheManager = cacheManager;
+            this._oauth = oauthApi;
+            this.CacheManager = cacheManager;
         }
 
         /// <summary>
@@ -44,7 +46,7 @@ namespace CmlLib.Core.Auth.Microsoft
         /// <exception cref="MicrosoftOAuthException"></exception>
         /// <exception cref="XboxAuthException"></exception>
         /// <exception cref="MinecraftAuthException"></exception>
-        public virtual async Task<T> LoginFromCache(T sessionCacheBase)
+        public virtual async Task<T> LoginFromCache(T? sessionCacheBase)
         {
             // if current cached minecraft token is invalid,
             // it try to refresh microsoft token, xbox token, and minecraft token
@@ -53,9 +55,7 @@ namespace CmlLib.Core.Auth.Microsoft
                 if (string.IsNullOrEmpty(sessionCacheBase?.MicrosoftOAuthToken?.RefreshToken))
                     throw new MicrosoftOAuthException("no refresh token", 0);
 
-                // RefreshTokens method throws exception when server fails to refresh token
-                var msToken = await _xboxLiveApi.RefreshTokens(sessionCacheBase?.MicrosoftOAuthToken?.RefreshToken!);
-
+                var msToken = await _oauth.GetOrRefreshTokens(sessionCacheBase!.MicrosoftOAuthToken!);
                 // success to refresh ms
                 return await GetAllTokens(msToken);
             }
@@ -65,20 +65,11 @@ namespace CmlLib.Core.Auth.Microsoft
             }
         }
 
-        /// <summary>
-        /// Get new Minecraft session
-        /// </summary>
-        /// <returns>New valid session</returns>
-        /// <exception cref="MicrosoftOAuthException"></exception>
-        /// <exception cref="XboxAuthException"></exception>
-        /// <exception cref="MinecraftAuthException"></exception>
+
         public async Task<T> LoginFromOAuth()
         {
-            // if CheckOAuthCodeResult returns true,
-            // the xboxLiveApi holds OAuth code and can get valid Microsoft OAuth token
-
-            var msToken = await GetMicrosoftOAuthToken();
-            return await LoginFromOAuth(msToken);
+            var token = await _oauth.RequestNewTokens();
+            return await LoginFromOAuth(token);
         }
 
         /// <summary>
@@ -97,44 +88,16 @@ namespace CmlLib.Core.Auth.Microsoft
 
         public abstract Task<T> GetAllTokens(MicrosoftOAuthResponse msToken);
 
-        // xboxLiveApis
-
-        protected async Task<XboxAuthResponse> GetXsts(MicrosoftOAuthResponse msToken, string? deviceToken, string? titleToken, string? relyingParty)
-        {
-            if (msToken == null)
-                throw new ArgumentNullException(nameof(msToken));
-            if (msToken.AccessToken == null)
-                throw new ArgumentNullException(nameof(msToken.AccessToken));
-
-            var xsts = await _xboxLiveApi.GetXSTS(msToken.AccessToken, deviceToken, titleToken, relyingParty);
-            return xsts;
-        }
-
-        protected async Task<MicrosoftOAuthResponse> GetMicrosoftOAuthToken()
-        {
-            return await _xboxLiveApi.GetTokens();
-        }
-
-        public string CreateOAuthUrl()
-        {
-            return _xboxLiveApi.CreateOAuthUrl();
-        }
-
-        public bool CheckOAuthCodeResult(Uri uri, out MicrosoftOAuthCode authCode)
-        {
-            return _xboxLiveApi.CheckOAuthCodeResult(uri, out authCode);
-        }
-
         // managing caches
 
-        protected T readSessionCache()
+        protected T? readSessionCache()
         {
-            return _cacheManager?.ReadCache();
+            return CacheManager?.ReadCache();
         }
 
-        protected void saveSessionCache(T sessionCache)
+        protected void saveSessionCache(T? sessionCache)
         {
-            _cacheManager?.SaveCache(sessionCache);
+            CacheManager?.SaveCache(sessionCache);
         }
 
         public void ClearCache()

@@ -1,33 +1,36 @@
 ﻿using CmlLib.Core.Auth.Microsoft.Cache;
 using CmlLib.Core.Auth.Microsoft.Mojang;
+using CmlLib.Core.Auth.Microsoft.OAuth;
 using CmlLib.Core.Auth.Microsoft.XboxLive;
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
 using XboxAuthNet.XboxLive;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
-    public sealed class JavaEditionLoginHandler : AbstractLoginHandler<JavaEditionSessionCache>
+    public class JavaEditionLoginHandler : AbstractLoginHandler<JavaEditionSessionCache>
     {
+        private readonly IXboxLiveApi _xboxLiveApi;
         private readonly IMojangXboxApi _mojangXboxApi;
 
         public string RelyingParty { get; set; }
         public bool CheckGameOwnership { get; set; } = false;
 
         public JavaEditionLoginHandler(
+            IMicrosoftOAuthApi oauthApi,
             IXboxLiveApi xboxLiveApi, 
             ICacheManager<JavaEditionSessionCache>? cacheManager, 
             IMojangXboxApi mojangXboxApi, 
-            string relyingParty) : 
-            base(xboxLiveApi, cacheManager)
+            string relyingParty) :
+            base(oauthApi, cacheManager)
         {
+            this._xboxLiveApi = xboxLiveApi;
             this._mojangXboxApi = mojangXboxApi;
             this.RelyingParty = relyingParty;
         }
 
-        public override async Task<JavaEditionSessionCache> LoginFromCache(JavaEditionSessionCache sessionCache)
+        public override async Task<JavaEditionSessionCache> LoginFromCache(JavaEditionSessionCache? sessionCache)
         {
             sessionCache = await base.LoginFromCache(sessionCache);
 
@@ -39,18 +42,27 @@ namespace CmlLib.Core.Auth.Microsoft
 
         public override async Task<JavaEditionSessionCache> GetAllTokens(MicrosoftOAuthResponse msToken)
         {
-            var xsts = await GetXsts(msToken, null, null, this.RelyingParty);
+            if (string.IsNullOrEmpty(msToken.AccessToken))
+                throw new Exception("msToken.AccessToken was empty");
+
+            var xsts = await _xboxLiveApi.GetXSTS(msToken.AccessToken!, null, null, this.RelyingParty);
             if (string.IsNullOrEmpty(xsts.Token))
                 throw new XboxAuthException("xsts was empty", 200);
             if (string.IsNullOrEmpty(xsts.UserHash))
                 throw new XboxAuthException("uhs was empty", 200);
 
+            var session = await LoginFromXsts(xsts);
+            session.MicrosoftOAuthToken = msToken;
+            return session;
+        }
+
+        public async Task<JavaEditionSessionCache> LoginFromXsts(XboxAuthResponse xsts)
+        {
             var mojangToken = await GetMojangXboxToken(xsts);
             var msession = await GetMSession(mojangToken, new MSession());
 
             return new JavaEditionSessionCache
             {
-                MicrosoftOAuthToken = msToken,
                 XstsToken = xsts,
                 MojangXboxToken = mojangToken,
                 GameSession = msession
