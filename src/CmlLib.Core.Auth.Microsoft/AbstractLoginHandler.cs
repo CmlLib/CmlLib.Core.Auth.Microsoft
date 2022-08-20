@@ -1,7 +1,6 @@
 ﻿using CmlLib.Core.Auth.Microsoft.Cache;
 using CmlLib.Core.Auth.Microsoft.Mojang;
 using CmlLib.Core.Auth.Microsoft.OAuth;
-using System;
 using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
 using XboxAuthNet.XboxLive;
@@ -11,11 +10,11 @@ namespace CmlLib.Core.Auth.Microsoft
     public abstract class AbstractLoginHandler<T> where T : SessionCacheBase
     {
         private readonly IMicrosoftOAuthApi _oauth;
-        protected ICacheManager<T>? CacheManager { get; }
+        protected ICacheManager<T> CacheManager { get; }
 
         public AbstractLoginHandler(
             IMicrosoftOAuthApi oauthApi, 
-            ICacheManager<T>? cacheManager)
+            ICacheManager<T> cacheManager)
         {
             this._oauth = oauthApi;
             this.CacheManager = cacheManager;
@@ -31,10 +30,10 @@ namespace CmlLib.Core.Auth.Microsoft
         /// <exception cref="MinecraftAuthException"></exception>
         public async Task<T> LoginFromCache()
         {
-            var sessionCache = readSessionCache();
+            var sessionCache = await readSessionCache();
             sessionCache = await LoginFromCache(sessionCache);
 
-            saveSessionCache(sessionCache);
+            await saveSessionCache(sessionCache);
             return sessionCache;
         }
 
@@ -82,7 +81,7 @@ namespace CmlLib.Core.Auth.Microsoft
         public async Task<T> LoginFromOAuth(MicrosoftOAuthResponse msToken)
         {
             var sessionCache = await GetAllTokens(msToken);
-            saveSessionCache(sessionCache);
+            await saveSessionCache(sessionCache);
             return sessionCache;
         }
 
@@ -90,19 +89,23 @@ namespace CmlLib.Core.Auth.Microsoft
 
         // managing caches
 
-        protected T? readSessionCache()
+        protected async Task<T?> readSessionCache()
         {
-            return CacheManager?.ReadCache();
+            if (CacheManager == null)
+                return null;
+            return await CacheManager.ReadCache();
         }
 
-        protected void saveSessionCache(T? sessionCache)
+        protected async Task saveSessionCache(T? sessionCache)
         {
-            CacheManager?.SaveCache(sessionCache);
+            if (CacheManager == null)
+                return;
+            await CacheManager.SaveCache(sessionCache);
         }
 
-        public void ClearCache()
+        public async void ClearCache()
         {
-            saveSessionCache(null);
+            await CacheManager.ClearCache();
         }
     }
 }

@@ -1,9 +1,10 @@
 ﻿using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace CmlLib.Core.Auth.Microsoft.Cache
 {
-    public sealed class JsonFileCacheManager<T> : ICacheManager<T> where T : class
+    public class JsonFileCacheManager<T> : ICacheManager<T> where T : class
     {
         public string CacheFilePath { get; private set; }
 
@@ -14,28 +15,38 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
 
         private T? GetDefaultObject() => default(T);
 
-        public T? ReadCache()
+        public virtual Task<T?> ReadCache()
         {
             if (!File.Exists(CacheFilePath))
-                return GetDefaultObject();
+                return Task.FromResult(GetDefaultObject());
 
             try
             {
                 string filecontent = File.ReadAllText(CacheFilePath);
-                return JsonSerializer.Deserialize<T>(filecontent);
+                return Task.FromResult(JsonSerializer.Deserialize<T>(filecontent));
             }
             catch
             {
-                return GetDefaultObject();
+                return Task.FromResult(GetDefaultObject());
             }
         }
 
-        public void SaveCache(T? obj)
+        public virtual Task SaveCache(T? obj)
         {
             var dirPath = Path.GetDirectoryName(CacheFilePath);
             if (!string.IsNullOrEmpty(dirPath))
                 Directory.CreateDirectory(dirPath);
             File.WriteAllText(CacheFilePath, JsonSerializer.Serialize(obj));
+
+            return Task.CompletedTask;
+        }
+
+        public virtual Task ClearCache()
+        {
+            if (File.Exists(CacheFilePath))
+                File.Delete(CacheFilePath);
+
+            return Task.CompletedTask;
         }
     }
 }

@@ -25,8 +25,8 @@ namespace CmlLib.Core.Auth.Microsoft
             this.MojangXboxApi = new MojangXboxApi(httpClient);
         }
 
-        public IXboxLiveApi XboxLiveApi { get; private set; }
-        public IMojangXboxApi MojangXboxApi { get; private set; }
+        private IXboxLiveApi XboxLiveApi { get; set; }
+        private IMojangXboxApi MojangXboxApi { get; set; }
         public string XboxRelyingParty { get; set; } = Mojang.MojangXboxApi.RelyingParty;
 
         public override string GetDefaultClientId() => DefaultClientId;
