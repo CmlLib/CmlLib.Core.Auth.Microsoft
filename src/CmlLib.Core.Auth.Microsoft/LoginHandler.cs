@@ -9,26 +9,41 @@ namespace CmlLib.Core.Auth.Microsoft
 {
     // For backward compatibility, this class just wrap up JavaEditionLoginHandler
 
-    [Obsolete("Use LoginHandlerBuilder")]
+    [Obsolete("Use JavaEditionLoginHandler")]
     public class LoginHandler
     {
         private readonly JavaEditionLoginHandler _loginHandler;
         private readonly MicrosoftOAuth _oauth;
         private readonly MicrosoftOAuthWebUILoginHandler _webUILoginHandler;
 
-        private MicrosoftOAuthCode? authCode;
+        private MicrosoftOAuthCode? _authCode;
 
-        [Obsolete("Use LoginHandlerBuilder.Create().ForJavaEdition().Build()")]
+        [Obsolete("Use new JavaEditionLoginHandlerBuilder().Build()")]
         public LoginHandler()
         {
             this._oauth = new MicrosoftOAuth(
-                JavaEditionLoginHandlerBuilder.DefaultClientId, 
+                JavaEditionLoginHandlerBuilder.MojangClientId, 
                 XboxAuth.XboxScope, 
                 HttpHelper.DefaultHttpClient.Value);
             this._webUILoginHandler = new MicrosoftOAuthWebUILoginHandler(this._oauth);
             this._loginHandler = new JavaEditionLoginHandlerBuilder()
                 .WithMicrosoftOAuthApi(new MicrosoftOAuthApi(this._oauth))
                 .Build();
+        }
+
+        [Obsolete("Use new JavaEditionLoginHandlerBuilder().Build()")]
+        public LoginHandler(Action<JavaEditionLoginHandlerBuilder> builder)
+        {
+            var builderObj = new JavaEditionLoginHandlerBuilder();
+            builder.Invoke(builderObj);
+
+            var oauth = builderObj.MicrosoftOAuthApi as MicrosoftOAuth;
+            if (oauth == null)
+                throw new InvalidOperationException("Legacy LoginHandler only can handle MicrosoftOAuth. Use JavaEditionLoginHandlerBuilder.");
+
+            this._oauth = oauth;
+            this._webUILoginHandler = new MicrosoftOAuthWebUILoginHandler(_oauth);
+            this._loginHandler = builderObj.Build();
         }
 
         public async Task<MSession> LoginFromCache()
@@ -44,10 +59,10 @@ namespace CmlLib.Core.Auth.Microsoft
 
         public async Task<MSession> LoginFromOAuth()
         {
-            if (authCode == null)
-                throw new InvalidOperationException();
+            if (_authCode == null)
+                throw new InvalidOperationException("authCode was null");
 
-            var token = await _oauth.GetTokens(authCode);
+            var token = await _oauth.GetTokens(_authCode);
             var sessionCache = await _loginHandler.LoginFromOAuth(token);
             return sessionCache.GameSession;
         }
@@ -58,9 +73,9 @@ namespace CmlLib.Core.Auth.Microsoft
             return sessionCache.GameSession;
         }
 
-        public void ClearCache()
+        public async Task ClearCache()
         {
-            _loginHandler.ClearCache();
+            await _loginHandler.ClearCache();
         }
 
         public virtual string CreateOAuthUrl()
@@ -71,7 +86,7 @@ namespace CmlLib.Core.Auth.Microsoft
         public bool CheckOAuthCodeResult(Uri uri, out MicrosoftOAuthCode authCode)
         {
             var result = _webUILoginHandler.CheckOAuthCodeResult(uri);
-            authCode = result.OAuthCode;
+            this._authCode = authCode = result.OAuthCode ?? throw new InvalidOperationException("OAuthCode was null");
             return result.IsSuccess;
         }
     }
