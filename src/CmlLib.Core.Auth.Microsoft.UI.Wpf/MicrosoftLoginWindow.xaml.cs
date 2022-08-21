@@ -124,7 +124,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
             await wv.EnsureCoreWebView2Async(WebView2Environment);
         }
 
-        private async Task createWv()
+        private async Task<WebView2> createWv()
         {
             wv = new WebView2();
             grid.Children.Add(wv);
@@ -133,6 +133,8 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
 
             browserTimeoutTimer.Interval = TimeSpan.FromMilliseconds(BrowserTimeout);
             browserTimeoutTimer.Start();
+
+            return wv;
         }
 
         // Remove webview on form
@@ -151,7 +153,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
         private async Task login()
         {
             var url = LoginHandler.CreateOAuthUrl(); // oauth
-            await createWv();
+            var wv = await createWv();
             wv.Source = new Uri(url);
         }
 
@@ -185,9 +187,9 @@ namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
 
         private async Task signout()
         {
-            LoginHandler.ClearCache();
+            await LoginHandler.ClearCache();
 
-            await createWv(); // show webview control
+            var wv = await createWv(); // show webview control
             wv.Source = new Uri(MicrosoftOAuth.GetSignOutUrl());
         }
 

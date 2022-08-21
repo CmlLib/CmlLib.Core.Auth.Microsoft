@@ -2,8 +2,6 @@
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 using System;
-using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using XboxAuthNet.OAuth;
@@ -116,7 +114,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
         }
 
         // Show webview on form
-        private async Task createWv()
+        private async Task<WebView2> createWv()
         {
             wv = new WebView2();
             wv.NavigationStarting += Wv_NavigationStarting;
@@ -127,6 +125,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
 
             browserTimeoutTimer.Interval = BrowserTimeout;
             browserTimeoutTimer.Start();
+            return wv;
         }
 
         // Remove webview on form
@@ -153,7 +152,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
         private async Task login()
         {
             var url = LoginHandler.CreateOAuthUrl(); // oauth
-            await createWv();
+            var wv = await createWv();
             wv.Source = new Uri(url);
         }
 
@@ -188,11 +187,10 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
 
         private async Task signout()
         {
-            LoginHandler.ClearCache();
+            await LoginHandler.ClearCache();
 
-            await createWv(); // show webview control
-            if (wv != null)
-                wv.Source = new Uri(MicrosoftOAuth.GetSignOutUrl());
+            var wv = await createWv(); // show webview control
+            wv.Source = new Uri(MicrosoftOAuth.GetSignOutUrl());
         }
 
         private void MicrosoftLoginForm_FormClosing(object sender, FormClosingEventArgs e)
