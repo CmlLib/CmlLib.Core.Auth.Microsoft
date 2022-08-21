@@ -19,7 +19,7 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
 
         public override async Task<MicrosoftOAuthResponse> RequestNewTokens()
         {
-            var builder = MsalApplication.AcquireTokenInteractive(MsalMinecraftLoginHelper.DefaultScopes);
+            var builder = MsalApplication.AcquireTokenInteractive(Scopes);
             if (builderFunc != null)
                 builder = builderFunc?.Invoke(builder);
 

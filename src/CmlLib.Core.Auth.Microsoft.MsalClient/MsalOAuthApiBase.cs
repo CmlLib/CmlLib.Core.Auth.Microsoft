@@ -14,7 +14,10 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
         public MsalOAuthApiBase(IPublicClientApplication app)
         {
             this.MsalApplication = app;
+            this.Scopes = MsalMinecraftLoginHelper.DefaultScopes;
         }
+
+        protected IEnumerable<string> Scopes { get; }
 
         public virtual async Task<IEnumerable<IAccount>> GetAccounts()
         {
@@ -24,7 +27,7 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
         public async Task<MicrosoftOAuthResponse> GetOrRefreshTokens(MicrosoftOAuthResponse refreshToken)
         {
             var accounts = await GetAccounts();
-            var result = await MsalApplication.AcquireTokenSilent(MsalMinecraftLoginHelper.DefaultScopes, accounts.FirstOrDefault())
+            var result = await MsalApplication.AcquireTokenSilent(Scopes, accounts.FirstOrDefault())
                 .ExecuteAsync();
             return MsalMinecraftLoginHelper.ToMicrosoftOAuthResponse(result);
         }

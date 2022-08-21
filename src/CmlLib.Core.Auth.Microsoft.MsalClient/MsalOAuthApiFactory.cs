@@ -16,23 +16,23 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
             this.app = app;
         }
 
-        public IMicrosoftOAuthApi Interactive()
+        public IMicrosoftOAuthApi CreateInteractiveApi()
         {
             return new MsalInteractiveOAuthApi(app, null);
         }
 
-        public IMicrosoftOAuthApi Interactive(Func<AcquireTokenInteractiveParameterBuilder, AcquireTokenInteractiveParameterBuilder> builder)
+        public IMicrosoftOAuthApi CreateInteractiveApi(Func<AcquireTokenInteractiveParameterBuilder, AcquireTokenInteractiveParameterBuilder> builder)
         {
             return new MsalInteractiveOAuthApi(app, builder);
         }
 
-        public IMicrosoftOAuthApi WithEmbeddedWebView()
+        public IMicrosoftOAuthApi CreateWithEmbeddedWebView()
         {
             return new MsalInteractiveOAuthApi(app, builder =>
                 builder.WithUseEmbeddedWebView(true));
         }
 
-        public IMicrosoftOAuthApi WithDeviceCode(Func<DeviceCodeResult, Task> deviceCodeResultCallback)
+        public IMicrosoftOAuthApi CreateDeviceCodeApi(Func<DeviceCodeResult, Task> deviceCodeResultCallback)
         {
             return new MsalDeviceCodeOAuthApi(app, deviceCodeResultCallback);
         }
