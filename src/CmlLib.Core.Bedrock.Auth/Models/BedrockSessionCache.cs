@@ -8,5 +8,15 @@ namespace CmlLib.Core.Bedrock.Auth
     {
         [JsonPropertyName("bedrockTokens")]
         public BedrockToken[]? BedrockTokens { get; set; }
+
+        public override bool CheckValidation()
+        {
+            if (!base.CheckValidation())
+                return false;
+
+            // TODO: check jwt expiration
+
+            return BedrockTokens != null && BedrockTokens.Length > 0;
+        }
     }
 }

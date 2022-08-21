@@ -44,7 +44,7 @@ namespace CmlLib.Core.Bedrock.Auth
                 var chains = doc.RootElement.GetProperty("chain").EnumerateArray();
 
                 var result = chains
-                    .Select(chain => new BedrockToken(chain.GetString()))
+                    .Select(chain => new BedrockToken(chain.GetString()!))
                     .Where(chain => chain != null)
                     .ToArray();
 
