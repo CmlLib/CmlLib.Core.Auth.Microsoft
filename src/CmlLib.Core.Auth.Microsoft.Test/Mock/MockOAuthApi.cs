@@ -55,5 +55,10 @@ namespace CmlLib.Core.Auth.Microsoft.Test.Mock
         {
             return "CreateOAuthUrl";
         }
+
+        public Task InvalidateTokens()
+        {
+            return Task.CompletedTask;
+        }
     }
 }

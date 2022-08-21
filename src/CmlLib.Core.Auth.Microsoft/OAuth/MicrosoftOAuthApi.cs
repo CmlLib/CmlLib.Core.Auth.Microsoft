@@ -27,5 +27,10 @@ namespace CmlLib.Core.Auth.Microsoft.OAuth
         {
             throw new NotImplementedException();
         }
+
+        public virtual Task InvalidateTokens()
+        {
+            return Task.CompletedTask;
+        }
     }
 }

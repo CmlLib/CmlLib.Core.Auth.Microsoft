@@ -33,5 +33,10 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
         }
 
         public abstract Task<MicrosoftOAuthResponse> RequestNewTokens();
+
+        public async Task InvalidateTokens()
+        {
+            await MsalMinecraftLoginHelper.RemoveAccounts(MsalApplication);
+        }
     }
 }

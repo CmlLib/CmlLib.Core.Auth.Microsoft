@@ -106,6 +106,7 @@ namespace CmlLib.Core.Auth.Microsoft
         public async Task ClearCache()
         {
             await CacheManager.ClearCache();
+            await _oauth.InvalidateTokens();
         }
     }
 }

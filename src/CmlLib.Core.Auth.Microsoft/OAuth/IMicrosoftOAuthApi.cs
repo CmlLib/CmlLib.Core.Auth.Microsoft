@@ -8,5 +8,6 @@ namespace CmlLib.Core.Auth.Microsoft.OAuth
     {
         Task<MicrosoftOAuthResponse> GetOrRefreshTokens(MicrosoftOAuthResponse refreshToken);
         Task<MicrosoftOAuthResponse> RequestNewTokens();
+        Task InvalidateTokens();
     }
 }

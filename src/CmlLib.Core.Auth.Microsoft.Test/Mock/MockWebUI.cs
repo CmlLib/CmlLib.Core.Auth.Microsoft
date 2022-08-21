@@ -25,5 +25,10 @@ namespace CmlLib.Core.Auth.Microsoft.Test.Mock
             else
                 throw new LoginCancelledException("MockWebUI");
         }
+
+        public Task ShowUri(Uri uri)
+        {
+            return Task.CompletedTask;
+        }
     }
 }

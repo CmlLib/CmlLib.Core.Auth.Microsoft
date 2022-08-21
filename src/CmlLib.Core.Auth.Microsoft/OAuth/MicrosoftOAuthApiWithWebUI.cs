@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
 
 namespace CmlLib.Core.Auth.Microsoft.OAuth
@@ -18,6 +19,12 @@ namespace CmlLib.Core.Auth.Microsoft.OAuth
             var authCode = await _webUI.GetAuthCode(loginHandler);
             var tokens = await _oAuth.GetTokens(authCode);
             return tokens;
+        }
+
+        public override async Task InvalidateTokens()
+        {
+            var uri = new Uri(MicrosoftOAuth.GetSignOutUrl());
+            await _webUI.ShowUri(uri);
         }
     }
 }
