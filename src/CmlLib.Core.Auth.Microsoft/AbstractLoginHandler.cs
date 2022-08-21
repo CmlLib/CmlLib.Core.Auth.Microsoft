@@ -85,7 +85,7 @@ namespace CmlLib.Core.Auth.Microsoft
             return sessionCache;
         }
 
-        public abstract Task<T> GetAllTokens(MicrosoftOAuthResponse msToken);
+        protected abstract Task<T> GetAllTokens(MicrosoftOAuthResponse msToken);
 
         // managing caches
 
@@ -103,7 +103,7 @@ namespace CmlLib.Core.Auth.Microsoft
             await CacheManager.SaveCache(sessionCache);
         }
 
-        public async void ClearCache()
+        public async Task ClearCache()
         {
             await CacheManager.ClearCache();
         }

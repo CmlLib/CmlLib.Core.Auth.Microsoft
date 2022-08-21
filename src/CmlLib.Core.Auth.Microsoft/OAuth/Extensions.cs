@@ -22,7 +22,7 @@ namespace CmlLib.Core.Auth.Microsoft.OAuth
             where TBuilder : AbstractLoginHandlerBuilder<TBuilder, TSession>
             where TSession : SessionCacheBase
         {
-            var msBuilder = msOAuthConfig.Invoke(MicrosoftOAuthApiBuilder.Create(builder.GetDefaultClientId()));
+            var msBuilder = msOAuthConfig.Invoke(MicrosoftOAuthApiBuilder.Create(builder.DefaultClientId));
             return builder.WithMicrosoftOAuthApi(msBuilder);
         }
     }

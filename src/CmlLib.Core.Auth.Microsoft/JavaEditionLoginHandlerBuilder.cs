@@ -10,7 +10,7 @@ namespace CmlLib.Core.Auth.Microsoft
     public class JavaEditionLoginHandlerBuilder
         : AbstractLoginHandlerBuilder<JavaEditionLoginHandlerBuilder, JavaEditionSessionCache>
     {
-        public static readonly string DefaultClientId = "00000000402B5328";
+        public static readonly string MojangClientId = "00000000402B5328";
 
         public JavaEditionLoginHandlerBuilder()
             : this(HttpHelper.DefaultHttpClient.Value)
@@ -29,7 +29,8 @@ namespace CmlLib.Core.Auth.Microsoft
         private IMojangXboxApi MojangXboxApi { get; set; }
         public string XboxRelyingParty { get; set; } = Mojang.MojangXboxApi.RelyingParty;
 
-        public override string GetDefaultClientId() => DefaultClientId;
+        public override bool IsDefaultClientIdAvailable => true;
+        protected override string GetDefaultClientId() => MojangClientId;
 
         public JavaEditionLoginHandlerBuilder WithXboxLiveApi(IXboxLiveApi xboxApi)
         {
@@ -49,10 +50,12 @@ namespace CmlLib.Core.Auth.Microsoft
             return this;
         }
 
-        public JavaEditionLoginHandler Build()
+        private JavaEditionLoginHandler BuildConcrete()
         {
             if (MicrosoftOAuthApi == null)
                 throw new InvalidOperationException("MicrosoftOAuthApi null");
+            if (CacheManager == null)
+                throw new InvalidOperationException("CacheManager null");
 
             return new JavaEditionLoginHandler(
                 oauthApi : MicrosoftOAuthApi,
@@ -61,6 +64,16 @@ namespace CmlLib.Core.Auth.Microsoft
                 mojangXboxApi : MojangXboxApi,
                 relyingParty : XboxRelyingParty
             );
+        }
+
+        protected override AbstractLoginHandler<JavaEditionSessionCache> BuildInternal()
+        {
+            return BuildConcrete();
+        }
+
+        public new JavaEditionLoginHandler Build()
+        {
+            return BuildConcrete();
         }
     }
 }

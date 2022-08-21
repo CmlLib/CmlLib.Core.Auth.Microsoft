@@ -11,9 +11,10 @@ namespace CmlLib.Core.Auth.Microsoft.OAuth
             return new MicrosoftOAuthApiBuilder(clientId);
         }
 
-        private string ClientId { get; set; }
-        public string Scope { get; set; }
-        public HttpClient? HttpClient { get; set; }
+        private string ClientId;
+        private string Scope;
+        private HttpClient? HttpClient;
+        private IWebUI? WebUI;
 
         private MicrosoftOAuthApiBuilder(string clientId)
         {
@@ -33,12 +34,23 @@ namespace CmlLib.Core.Auth.Microsoft.OAuth
             return this;
         }
 
+        public MicrosoftOAuthApiBuilder WithWebUI(IWebUI webUi)
+        {
+            this.WebUI = webUi;
+            return this;
+        }
+
         public MicrosoftOAuthApi Build()
         {
             if (HttpClient == null)
                 HttpClient = HttpHelper.DefaultHttpClient.Value;
 
-            return new MicrosoftOAuthApi(new MicrosoftOAuth(ClientId, Scope, HttpClient));
+            var oauth = new MicrosoftOAuth(ClientId, Scope, HttpClient);
+
+            if (WebUI == null)
+                return new MicrosoftOAuthApi(oauth);
+            else
+                return new MicrosoftOAuthApiWithWebUI(WebUI, oauth);
         }
     }
 }

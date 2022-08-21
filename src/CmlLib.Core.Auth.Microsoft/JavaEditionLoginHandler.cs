@@ -20,7 +20,7 @@ namespace CmlLib.Core.Auth.Microsoft
         public JavaEditionLoginHandler(
             IMicrosoftOAuthApi oauthApi,
             IXboxLiveApi xboxLiveApi, 
-            ICacheManager<JavaEditionSessionCache>? cacheManager, 
+            ICacheManager<JavaEditionSessionCache> cacheManager, 
             IMojangXboxApi mojangXboxApi, 
             string relyingParty) :
             base(oauthApi, cacheManager)
@@ -40,7 +40,7 @@ namespace CmlLib.Core.Auth.Microsoft
             return sessionCache;
         }
 
-        public override async Task<JavaEditionSessionCache> GetAllTokens(MicrosoftOAuthResponse msToken)
+        protected override async Task<JavaEditionSessionCache> GetAllTokens(MicrosoftOAuthResponse msToken)
         {
             if (string.IsNullOrEmpty(msToken.AccessToken))
                 throw new Exception("msToken.AccessToken was empty");
@@ -119,16 +119,16 @@ namespace CmlLib.Core.Auth.Microsoft
             {
                 // throw 404 exception if profile is not exists
                 session = await _mojangXboxApi.GetProfileUsingToken(mcToken.AccessToken);
-
-                if (!session.CheckIsValid())
-                    throw new MinecraftAuthException("mojang_noprofile");
-
-                return session;
             }
             catch (MinecraftAuthException ex)
             {
                 throw new MinecraftAuthException("mojang_noprofile", ex);
             }
+
+            if (!session.CheckIsValid())
+                throw new MinecraftAuthException("mojang_noprofile");
+
+            return session;
         }
     }
 }
