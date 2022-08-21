@@ -73,7 +73,7 @@ namespace CmlLib.Core.Auth.Microsoft
 
         public new JavaEditionLoginHandler Build()
         {
-            return BuildConcrete();
+            return (JavaEditionLoginHandler)base.Build();
         }
     }
 }

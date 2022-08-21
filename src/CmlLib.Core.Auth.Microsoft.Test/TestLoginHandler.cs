@@ -15,6 +15,19 @@ namespace CmlLib.Core.Auth.Microsoft.Test
         public MockOAuthApi OAuthApi { get; init; }
         public MockXboxLiveApi XboxLiveApi { get; init; }
         public MockMojangXboxApi MojangXboxApi { get; init; }
+
+        public MockObjects(
+            ICacheManager<JavaEditionSessionCache> cacheManager, 
+            MockOAuthApi oAuthApi, 
+            MockXboxLiveApi xboxLiveApi, 
+            MockMojangXboxApi mojangXboxApi)
+        {
+            CacheManager = cacheManager;
+            OAuthApi = oAuthApi;
+            XboxLiveApi = xboxLiveApi;
+            MojangXboxApi = mojangXboxApi;
+        }
+
     }
 
     internal class TestLoginHandler
@@ -36,13 +49,11 @@ namespace CmlLib.Core.Auth.Microsoft.Test
                 .WithMojangXboxApi(mojangXboxApi)
                 .Build();
 
-            var objects = new MockObjects
-            {
-                CacheManager = cacheManager,
-                OAuthApi = oauthApi,
-                XboxLiveApi = xboxLiveApi,
-                MojangXboxApi = mojangXboxApi,
-            };
+            var objects = new MockObjects(
+                cacheManager: cacheManager,
+                oAuthApi: oauthApi,
+                xboxLiveApi: xboxLiveApi,
+                mojangXboxApi: mojangXboxApi);
             return (objects, loginHandler);
         }
 
@@ -169,7 +180,8 @@ namespace CmlLib.Core.Auth.Microsoft.Test
             Assert.ThrowsAsync<MicrosoftOAuthException>(async () => {
                 var (mockObjects, loginHandler) = CreateMockEnvironment();
                 var testcase = CreateDefaultTestCase();
-                testcase.MicrosoftOAuthToken.ExpireIn = 0; // make token expired
+                Assert.NotNull(testcase.MicrosoftOAuthToken);
+                testcase.MicrosoftOAuthToken!.ExpireIn = 0; // make token expired
                 testcase.MojangXboxToken = mcToken;
 
                 await mockObjects.CacheManager.SaveCache(testcase);
