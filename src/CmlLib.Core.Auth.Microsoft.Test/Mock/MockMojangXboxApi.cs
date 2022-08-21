@@ -16,7 +16,10 @@ namespace CmlLib.Core.Auth.Microsoft.Test.Mock
 
         public Task<MSession> GetProfileUsingToken(string bearerToken)
         {
-            return Task.FromResult(new MSession("MockMojangXboxApi_ProfileUsername", bearerToken, "MockMojangXboxApi_ProfileUUID"));
+            return Task.FromResult(new MSession(
+                username: "MockMojangXboxApi_ProfileUsername", 
+                accessToken: bearerToken, 
+                uuid: "MockMojangXboxApi_ProfileUUID"));
         }
 
         public Task<MojangXboxLoginResponse> LoginWithXbox(string uhs, string xsts)
