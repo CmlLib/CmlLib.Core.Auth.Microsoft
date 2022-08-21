@@ -45,9 +45,9 @@ namespace WinFormTest
             // 
             // btnLogin
             // 
-            this.btnLogin.Location = new System.Drawing.Point(12, 12);
+            this.btnLogin.Location = new System.Drawing.Point(10, 12);
             this.btnLogin.Name = "btnLogin";
-            this.btnLogin.Size = new System.Drawing.Size(569, 69);
+            this.btnLogin.Size = new System.Drawing.Size(498, 69);
             this.btnLogin.TabIndex = 0;
             this.btnLogin.Text = "Login";
             this.btnLogin.UseVisualStyleBackColor = true;
@@ -55,9 +55,9 @@ namespace WinFormTest
             // 
             // btnLogout
             // 
-            this.btnLogout.Location = new System.Drawing.Point(12, 87);
+            this.btnLogout.Location = new System.Drawing.Point(10, 87);
             this.btnLogout.Name = "btnLogout";
-            this.btnLogout.Size = new System.Drawing.Size(569, 69);
+            this.btnLogout.Size = new System.Drawing.Size(498, 69);
             this.btnLogout.TabIndex = 1;
             this.btnLogout.Text = "Logout";
             this.btnLogout.UseVisualStyleBackColor = true;
@@ -66,59 +66,59 @@ namespace WinFormTest
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 178);
+            this.label1.Location = new System.Drawing.Point(10, 178);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(111, 15);
+            this.label1.Size = new System.Drawing.Size(86, 15);
             this.label1.TabIndex = 2;
             this.label1.Text = "AccessToken : ";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 210);
+            this.label2.Location = new System.Drawing.Point(10, 210);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(87, 15);
+            this.label2.Size = new System.Drawing.Size(71, 15);
             this.label2.TabIndex = 3;
             this.label2.Text = "Username : ";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 239);
+            this.label3.Location = new System.Drawing.Point(10, 239);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(55, 15);
+            this.label3.Size = new System.Drawing.Size(46, 15);
             this.label3.TabIndex = 4;
             this.label3.Text = "UUID : ";
             // 
             // txtAccessToken
             // 
-            this.txtAccessToken.Location = new System.Drawing.Point(129, 175);
+            this.txtAccessToken.Location = new System.Drawing.Point(113, 175);
             this.txtAccessToken.Name = "txtAccessToken";
             this.txtAccessToken.ReadOnly = true;
-            this.txtAccessToken.Size = new System.Drawing.Size(452, 25);
+            this.txtAccessToken.Size = new System.Drawing.Size(396, 23);
             this.txtAccessToken.TabIndex = 5;
             // 
             // txtUsername
             // 
-            this.txtUsername.Location = new System.Drawing.Point(129, 207);
+            this.txtUsername.Location = new System.Drawing.Point(113, 207);
             this.txtUsername.Name = "txtUsername";
             this.txtUsername.ReadOnly = true;
-            this.txtUsername.Size = new System.Drawing.Size(452, 25);
+            this.txtUsername.Size = new System.Drawing.Size(396, 23);
             this.txtUsername.TabIndex = 6;
             // 
             // txtUUID
             // 
-            this.txtUUID.Location = new System.Drawing.Point(129, 236);
+            this.txtUUID.Location = new System.Drawing.Point(113, 236);
             this.txtUUID.Name = "txtUUID";
             this.txtUUID.ReadOnly = true;
-            this.txtUUID.Size = new System.Drawing.Size(452, 25);
+            this.txtUUID.Size = new System.Drawing.Size(396, 23);
             this.txtUUID.TabIndex = 7;
             // 
             // btnStart
             // 
-            this.btnStart.Location = new System.Drawing.Point(12, 279);
+            this.btnStart.Location = new System.Drawing.Point(10, 279);
             this.btnStart.Name = "btnStart";
-            this.btnStart.Size = new System.Drawing.Size(569, 63);
+            this.btnStart.Size = new System.Drawing.Size(498, 63);
             this.btnStart.TabIndex = 8;
             this.btnStart.Text = "Start game";
             this.btnStart.UseVisualStyleBackColor = true;
@@ -126,32 +126,32 @@ namespace WinFormTest
             // 
             // progressBar1
             // 
-            this.progressBar1.Location = new System.Drawing.Point(12, 348);
+            this.progressBar1.Location = new System.Drawing.Point(10, 348);
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(569, 23);
+            this.progressBar1.Size = new System.Drawing.Size(498, 23);
             this.progressBar1.TabIndex = 9;
             // 
             // progressBar2
             // 
-            this.progressBar2.Location = new System.Drawing.Point(12, 377);
+            this.progressBar2.Location = new System.Drawing.Point(10, 377);
             this.progressBar2.Name = "progressBar2";
-            this.progressBar2.Size = new System.Drawing.Size(569, 23);
+            this.progressBar2.Size = new System.Drawing.Size(498, 23);
             this.progressBar2.TabIndex = 10;
             // 
             // lbStatus
             // 
             this.lbStatus.AutoSize = true;
-            this.lbStatus.Location = new System.Drawing.Point(12, 410);
+            this.lbStatus.Location = new System.Drawing.Point(10, 410);
             this.lbStatus.Name = "lbStatus";
-            this.lbStatus.Size = new System.Drawing.Size(45, 15);
+            this.lbStatus.Size = new System.Drawing.Size(39, 15);
             this.lbStatus.TabIndex = 11;
             this.lbStatus.Text = "label4";
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(593, 465);
+            this.ClientSize = new System.Drawing.Size(519, 465);
             this.Controls.Add(this.lbStatus);
             this.Controls.Add(this.progressBar2);
             this.Controls.Add(this.progressBar1);
@@ -166,6 +166,7 @@ namespace WinFormTest
             this.Controls.Add(this.btnLogin);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

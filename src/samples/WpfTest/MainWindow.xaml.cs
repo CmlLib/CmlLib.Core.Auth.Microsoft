@@ -31,17 +31,11 @@ namespace WpfTest
         {
             btnLogin.IsEnabled = false;
 
-            var loginHandler = new LoginHandler(builder =>
-            {
-                builder.SetMicrosoftOAuthHandler("0000000048093EE3", "service::user.auth.xboxlive.com::MBI_SSL");
-            });
-            //loginHandler.RelyingParty = "http://xboxlive.com";
-
             //var dataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CmlLib.Core.Auth.Microsoft.UI.WinForm.TestApp");
 
             try
             {
-                MicrosoftLoginWindow window = new MicrosoftLoginWindow(loginHandler);
+                MicrosoftLoginWindow window = new MicrosoftLoginWindow();
                 //window.WebView2Environment = await CoreWebView2Environment.CreateAsync(userDataFolder: dataPath);
                 MSession session = await window.ShowLoginDialog();
 

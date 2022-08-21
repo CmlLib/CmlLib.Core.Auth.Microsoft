@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinFormTest", "samples\WinF
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfTest", "samples\WpfTest\WpfTest.csproj", "{86752823-C9E8-4B14-A670-02F08B6C22C5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CmlLib.Core.Bedrock.Auth", "CmlLib.Core.Bedrock.Auth\CmlLib.Core.Bedrock.Auth.csproj", "{06A9C3AD-B133-4E0E-BB92-13C75CDD303E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CmlLib.Core.Bedrock.Auth", "CmlLib.Core.Bedrock.Auth\CmlLib.Core.Bedrock.Auth.csproj", "{06A9C3AD-B133-4E0E-BB92-13C75CDD303E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

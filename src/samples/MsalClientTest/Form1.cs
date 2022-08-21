@@ -1,123 +1,90 @@
 using CmlLib.Core;
 using CmlLib.Core.Auth;
+using CmlLib.Core.Auth.Microsoft;
 using CmlLib.Core.Auth.Microsoft.MsalClient;
 using Microsoft.Identity.Client;
-using System.Diagnostics;
-using System.Reflection;
 
 namespace MsalClientTest
 {
     public partial class Form1 : Form
     {
-        public Form1()
-        {
-            InitializeComponent();
-        }
-
         // Use your own client id
         private readonly string ClientID = "499c8d36-be2a-4231-9ebd-ef291b7bb64c";
 
-        MsalMinecraftLoginHandler? handler;
+        public Form1()
+        {
+            InitializeComponent();
+            loginCancel = new CancellationTokenSource();
+        }
+
+        IPublicClientApplication? app;
+        JavaEditionLoginHandler? loginHandler;
         MSession? session;
-        CancellationTokenSource? loginCancel;
+        CancellationTokenSource loginCancel;
 
         private async void Form1_Shown(object sender, EventArgs e)
         {
-            setLoginButtonEnabled(false);
+            app = await MsalMinecraftLoginHelper.BuildApplicationWithCache(ClientID);
+            setLoginButtonEnabled(true);
             btnStart.Enabled = false;
-
-            lbStatus.Text = "Building Application";
-
-            // Initialize login handler
-            if (handler == null)
-            {
-                var app = await MsalMinecraftLoginHelper.BuildApplicationWithCache(ClientID);
-                handler = new MsalMinecraftLoginHandler(app);
-            }
-
-            lbStatus.Text = "LoginSilent()";
-            try
-            {
-                var s = await handler.LoginSilent();
-                loginSuccess(s);
-            }
-            catch (Exception)
-            {
-                lbStatus.Text = "Login Required";
-                setLoginButtonEnabled(true);
-            }
         }
 
         private async void btnLoginInteractive_Click(object sender, EventArgs e)
         {
-            if (handler == null)
-                return;
-            setLoginButtonEnabled(false);
+            if (app == null) return;
 
-            lbStatus.Text = "LoginInteractive()";
-            try
-            {
-                loginCancel = new CancellationTokenSource();
-                var s = await handler.LoginInteractive(loginCancel?.Token);
-                loginSuccess(s);
-            }
-            catch (Exception ex)
-            {
-                lbStatus.Text += ": Fail";
-                MessageBox.Show(ex.ToString());
-                setLoginButtonEnabled(true);
-            }
+            lbStatus.Text = "CreateInteractiveApi(), LoginFromOAuth()";
+            loginHandler = new JavaEditionLoginHandlerBuilder()
+                .WithMsalOAuth(app, factory => factory.CreateInteractiveApi())
+                .Build();
+
+            await LoginAndShowResultOnUI(loginHandler);
         }
 
         private async void btnLoginInteractiveEmb_Click(object sender, EventArgs e)
         {
-            if (handler == null)
-                return;
-            setLoginButtonEnabled(false);
+            if (app == null) return;
 
-            lbStatus.Text = "LoginInteractive(useEmbeddedWebView: true)";
-            try
-            {
-                loginCancel = new CancellationTokenSource();
-                var s = await handler.LoginInteractive(loginCancel?.Token, useEmbeddedWebView: true);
-                loginSuccess(s);
-            }
-            catch (Exception ex)
-            {
-                lbStatus.Text += ": Fail";
-                MessageBox.Show(ex.ToString());
-                setLoginButtonEnabled(true);
-            }
+            lbStatus.Text = "CreateWithEmbeddedWebView(), LoginFromOAuth()";
+            loginHandler = new JavaEditionLoginHandlerBuilder()
+                .WithMsalOAuth(app, factory => factory.CreateWithEmbeddedWebView())
+                .Build();
+
+            await LoginAndShowResultOnUI(loginHandler);
         }
 
         private async void btnLoginDeviceCode_Click(object sender, EventArgs e)
         {
-            if (handler == null)
-                return;
-            setLoginButtonEnabled(false);
+            if (app == null) return;
 
-            lbStatus.Text = "LoginDeviceCode()";
-            try
-            {
-                var deviceCodeForm = new DeviceCodeForm();
-                var s = await handler.LoginDeviceCode(result =>
+            lbStatus.Text = "CreateDeviceCodeApi(), LoginFromOAuth()";
+            var deviceCodeForm = new DeviceCodeForm();
+
+            loginHandler = new JavaEditionLoginHandlerBuilder()
+                .WithMsalOAuth(app, factory => factory.CreateDeviceCodeApi(result =>
                 {
                     Invoke(() =>
                     {
                         deviceCodeForm.SetDeviceCodeResult(result);
                         deviceCodeForm.Show();
                     });
-                    
+
                     return Task.CompletedTask;
-                });
+                }))
+                .Build();
 
-                try
-                {
-                    deviceCodeForm.Close();
-                }
-                catch { }
+            await LoginAndShowResultOnUI(loginHandler);
+            deviceCodeForm.Close();
+        }
 
-                loginSuccess(s);
+        private async Task LoginAndShowResultOnUI(JavaEditionLoginHandler loginHandler)
+        {
+            setLoginButtonEnabled(false);
+
+            try
+            {
+                var session = await loginHandler.LoginFromOAuth();
+                loginSuccess(session.GameSession);
             }
             catch (Exception ex)
             {
@@ -135,8 +102,8 @@ namespace MsalClientTest
         private async void btnLogout_Click(object sender, EventArgs e)
         {
             lbStatus.Text = "Removing accounts";
-            if (handler != null)
-                await handler.RemoveAccounts();
+            if (loginHandler != null)
+                await loginHandler.ClearCache();
 
             txtAccessToken.Clear();
             txtUUID.Clear();
