@@ -1,5 +1,6 @@
 ﻿using CmlLib.Core.Auth.Microsoft.OAuth;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
 
@@ -15,7 +16,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test.Mock
         public Uri RedirectedUri { get; private set; }
         public string? OAuthUrl { get; private set; }
 
-        public Task<MicrosoftOAuthCode> GetAuthCode(IWebUILoginHandler loginHandler)
+        public Task<MicrosoftOAuthCode> GetAuthCode(IWebUILoginHandler loginHandler, CancellationToken cancellationToken)
         {
             OAuthUrl = loginHandler.CreateOAuthUrl();
             var result = loginHandler.CheckOAuthCodeResult(RedirectedUri);
@@ -26,7 +27,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test.Mock
                 throw new LoginCancelledException("MockWebUI");
         }
 
-        public Task ShowUri(Uri uri)
+        public Task ShowUri(Uri uri, CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }

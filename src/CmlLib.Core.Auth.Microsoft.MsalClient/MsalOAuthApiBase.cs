@@ -2,6 +2,7 @@
 using Microsoft.Identity.Client;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
 
@@ -24,15 +25,15 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
             return await MsalApplication.GetAccountsAsync();
         }
 
-        public async Task<MicrosoftOAuthResponse> GetOrRefreshTokens(MicrosoftOAuthResponse refreshToken)
+        public async Task<MicrosoftOAuthResponse> GetOrRefreshTokens(MicrosoftOAuthResponse refreshToken, CancellationToken cancellationToken)
         {
             var accounts = await GetAccounts();
             var result = await MsalApplication.AcquireTokenSilent(Scopes, accounts.FirstOrDefault())
-                .ExecuteAsync();
+                .ExecuteAsync(cancellationToken);
             return MsalMinecraftLoginHelper.ToMicrosoftOAuthResponse(result);
         }
 
-        public abstract Task<MicrosoftOAuthResponse> RequestNewTokens();
+        public abstract Task<MicrosoftOAuthResponse> RequestNewTokens(CancellationToken cancellationToken);
 
         public async Task InvalidateTokens()
         {

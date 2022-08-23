@@ -1,5 +1,6 @@
 ﻿using Microsoft.Identity.Client;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
 
@@ -17,16 +18,16 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
             this.builderFunc = builderFunc;
         }
 
-        public override async Task<MicrosoftOAuthResponse> RequestNewTokens()
+        public override async Task<MicrosoftOAuthResponse> RequestNewTokens(CancellationToken cancellationToken)
         {
             var builder = MsalApplication.AcquireTokenInteractive(Scopes);
             if (builderFunc != null)
                 builder = builderFunc?.Invoke(builder);
 
             if (builder == null)
-                throw new InvalidOperationException();
+                throw new InvalidOperationException("builderFunc returns null");
 
-            var result = await builder.ExecuteAsync();
+            var result = await builder.ExecuteAsync(cancellationToken);
             return MsalMinecraftLoginHelper.ToMicrosoftOAuthResponse(result);
         }
     }

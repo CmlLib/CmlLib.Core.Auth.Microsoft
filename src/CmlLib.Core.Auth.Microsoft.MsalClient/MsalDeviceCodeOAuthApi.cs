@@ -1,6 +1,6 @@
 ﻿using Microsoft.Identity.Client;
 using System;
-using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
 
@@ -17,10 +17,10 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
             this.deviceCodeResultCallback = deviceCodeResultCallback;
         }
 
-        public override async Task<MicrosoftOAuthResponse> RequestNewTokens()
+        public override async Task<MicrosoftOAuthResponse> RequestNewTokens(CancellationToken cancellationToken)
         {
             var result = await MsalApplication.AcquireTokenWithDeviceCode(Scopes, deviceCodeResultCallback)
-                .ExecuteAsync();
+                .ExecuteAsync(cancellationToken);
 
             return MsalMinecraftLoginHelper.ToMicrosoftOAuthResponse(result);
         }

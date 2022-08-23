@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
 
@@ -14,16 +15,16 @@ namespace CmlLib.Core.Auth.Microsoft.OAuth
             this._oAuth = oa;
         }
 
-        public Task<MicrosoftOAuthResponse> GetOrRefreshTokens(MicrosoftOAuthResponse token)
+        public Task<MicrosoftOAuthResponse> GetOrRefreshTokens(MicrosoftOAuthResponse token, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(token.RefreshToken))
-                throw new ArgumentException("token has empty RefreshToken");
+            if (string.IsNullOrEmpty(token?.RefreshToken))
+                throw new MicrosoftOAuthException("no refresh token", 0);
 
             // TODO: Validate token
             return _oAuth.RefreshToken(token.RefreshToken!);
         }
 
-        public virtual Task<MicrosoftOAuthResponse> RequestNewTokens()
+        public virtual Task<MicrosoftOAuthResponse> RequestNewTokens(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

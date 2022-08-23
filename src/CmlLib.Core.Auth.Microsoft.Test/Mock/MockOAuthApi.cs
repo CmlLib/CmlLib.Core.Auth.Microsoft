@@ -1,5 +1,6 @@
 ﻿using CmlLib.Core.Auth.Microsoft.OAuth;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
 
@@ -9,7 +10,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test.Mock
     {
         public bool OAuthCodeResult { get; set; } = true;
 
-        public Task<MicrosoftOAuthResponse> GetOrRefreshTokens(MicrosoftOAuthResponse refreshToken)
+        public Task<MicrosoftOAuthResponse> GetOrRefreshTokens(MicrosoftOAuthResponse refreshToken, CancellationToken cancellationToken)
         {
             if (refreshToken.ExpireIn < 10)
                 throw new MicrosoftOAuthException("token was expired", 0);
@@ -21,7 +22,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test.Mock
             });
         }
 
-        public Task<MicrosoftOAuthResponse> RequestNewTokens()
+        public Task<MicrosoftOAuthResponse> RequestNewTokens(CancellationToken cancellationToken)
         {
             return Task.FromResult(new MicrosoftOAuthResponse
             {

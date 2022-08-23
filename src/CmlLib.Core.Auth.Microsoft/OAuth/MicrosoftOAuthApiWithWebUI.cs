@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
 
@@ -13,10 +14,10 @@ namespace CmlLib.Core.Auth.Microsoft.OAuth
             this._webUI = webUI;
         }
 
-        public override async Task<MicrosoftOAuthResponse> RequestNewTokens()
+        public override async Task<MicrosoftOAuthResponse> RequestNewTokens(CancellationToken cancellationToken)
         {
             var loginHandler = new MicrosoftOAuthWebUILoginHandler(_oAuth);
-            var authCode = await _webUI.GetAuthCode(loginHandler);
+            var authCode = await _webUI.GetAuthCode(loginHandler, cancellationToken);
             var tokens = await _oAuth.GetTokens(authCode);
             return tokens;
         }
@@ -24,7 +25,7 @@ namespace CmlLib.Core.Auth.Microsoft.OAuth
         public override async Task InvalidateTokens()
         {
             var uri = new Uri(MicrosoftOAuth.GetSignOutUrl());
-            await _webUI.ShowUri(uri);
+            await _webUI.ShowUri(uri, CancellationToken.None);
         }
     }
 }

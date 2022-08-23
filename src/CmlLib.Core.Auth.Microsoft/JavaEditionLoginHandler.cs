@@ -3,6 +3,7 @@ using CmlLib.Core.Auth.Microsoft.Mojang;
 using CmlLib.Core.Auth.Microsoft.OAuth;
 using CmlLib.Core.Auth.Microsoft.XboxLive;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
 using XboxAuthNet.XboxLive;
@@ -30,9 +31,9 @@ namespace CmlLib.Core.Auth.Microsoft
             this.RelyingParty = relyingParty;
         }
 
-        public override async Task<JavaEditionSessionCache> LoginFromCache(JavaEditionSessionCache? sessionCache)
+        public override async Task<JavaEditionSessionCache> LoginFromCache(JavaEditionSessionCache? sessionCache, CancellationToken cancellationToken = default)
         {
-            sessionCache = await base.LoginFromCache(sessionCache);
+            sessionCache = await base.LoginFromCache(sessionCache, cancellationToken);
 
             // always create new GameSession
             sessionCache.GameSession = await GetMSession(sessionCache.MojangXboxToken!, sessionCache.GameSession);
@@ -40,7 +41,7 @@ namespace CmlLib.Core.Auth.Microsoft
             return sessionCache;
         }
 
-        protected override async Task<JavaEditionSessionCache> GetAllTokens(MicrosoftOAuthResponse msToken)
+        protected override async Task<JavaEditionSessionCache> GetAllTokens(MicrosoftOAuthResponse msToken, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(msToken.AccessToken))
                 throw new Exception("msToken.AccessToken was empty");

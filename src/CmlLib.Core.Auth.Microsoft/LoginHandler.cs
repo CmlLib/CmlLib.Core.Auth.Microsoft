@@ -1,6 +1,7 @@
 ﻿using CmlLib.Core.Auth.Microsoft.Cache;
 using CmlLib.Core.Auth.Microsoft.OAuth;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
 using XboxAuthNet.XboxLive;
@@ -48,13 +49,13 @@ namespace CmlLib.Core.Auth.Microsoft
 
         public async Task<MSession> LoginFromCache()
         {
-            var sessionCache = await _loginHandler.LoginFromCache();
+            var sessionCache = await _loginHandler.LoginFromCache(CancellationToken.None);
             return sessionCache.GameSession;
         }
 
         public Task<JavaEditionSessionCache> LoginFromCache(JavaEditionSessionCache sessionCache)
         {
-            return _loginHandler.LoginFromCache(sessionCache);
+            return _loginHandler.LoginFromCache(sessionCache, CancellationToken.None);
         }
 
         public async Task<MSession> LoginFromOAuth()
@@ -63,13 +64,13 @@ namespace CmlLib.Core.Auth.Microsoft
                 throw new InvalidOperationException("authCode was null");
 
             var token = await _oauth.GetTokens(_authCode);
-            var sessionCache = await _loginHandler.LoginFromOAuth(token);
+            var sessionCache = await _loginHandler.LoginFromOAuth(token, CancellationToken.None);
             return sessionCache.GameSession;
         }
 
         public virtual async Task<MSession> LoginFromOAuth(MicrosoftOAuthResponse msToken)
         {
-            var sessionCache = await _loginHandler.LoginFromOAuth(msToken);
+            var sessionCache = await _loginHandler.LoginFromOAuth(msToken, CancellationToken.None);
             return sessionCache.GameSession;
         }
 

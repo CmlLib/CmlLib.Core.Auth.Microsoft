@@ -1,6 +1,7 @@
 ﻿using CmlLib.Core.Auth.Microsoft.Cache;
 using CmlLib.Core.Auth.Microsoft.Mojang;
 using CmlLib.Core.Auth.Microsoft.OAuth;
+using System.Threading;
 using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
 using XboxAuthNet.XboxLive;
@@ -28,10 +29,10 @@ namespace CmlLib.Core.Auth.Microsoft
         /// <exception cref="MicrosoftOAuthException"></exception>
         /// <exception cref="XboxAuthException"></exception>
         /// <exception cref="MinecraftAuthException"></exception>
-        public async Task<T> LoginFromCache()
+        public async Task<T> LoginFromCache(CancellationToken cancellationToken = default)
         {
             var sessionCache = await readSessionCache();
-            sessionCache = await LoginFromCache(sessionCache);
+            sessionCache = await LoginFromCache(sessionCache, cancellationToken);
 
             await saveSessionCache(sessionCache);
             return sessionCache;
@@ -45,18 +46,15 @@ namespace CmlLib.Core.Auth.Microsoft
         /// <exception cref="MicrosoftOAuthException"></exception>
         /// <exception cref="XboxAuthException"></exception>
         /// <exception cref="MinecraftAuthException"></exception>
-        public virtual async Task<T> LoginFromCache(T? sessionCacheBase)
+        public virtual async Task<T> LoginFromCache(T? sessionCacheBase, CancellationToken cancellationToken = default)
         {
             // if current cached minecraft token is invalid,
             // it try to refresh microsoft token, xbox token, and minecraft token
             if (sessionCacheBase == null || !sessionCacheBase.CheckValidation())
             {
-                if (string.IsNullOrEmpty(sessionCacheBase?.MicrosoftOAuthToken?.RefreshToken))
-                    throw new MicrosoftOAuthException("no refresh token", 0);
-
-                var msToken = await _oauth.GetOrRefreshTokens(sessionCacheBase!.MicrosoftOAuthToken!);
+                var msToken = await _oauth.GetOrRefreshTokens(sessionCacheBase!.MicrosoftOAuthToken!, cancellationToken);
                 // success to refresh ms
-                return await GetAllTokens(msToken);
+                return await GetAllTokens(msToken, cancellationToken);
             }
             else
             {
@@ -65,10 +63,10 @@ namespace CmlLib.Core.Auth.Microsoft
         }
 
 
-        public async Task<T> LoginFromOAuth()
+        public async Task<T> LoginFromOAuth(CancellationToken cancellationToken = default)
         {
-            var token = await _oauth.RequestNewTokens();
-            return await LoginFromOAuth(token);
+            var token = await _oauth.RequestNewTokens(cancellationToken);
+            return await LoginFromOAuth(token, cancellationToken);
         }
 
         /// <summary>
@@ -78,14 +76,14 @@ namespace CmlLib.Core.Auth.Microsoft
         /// <exception cref="MicrosoftOAuthException"></exception>
         /// <exception cref="XboxAuthException"></exception>
         /// <exception cref="MinecraftAuthException"></exception>
-        public async Task<T> LoginFromOAuth(MicrosoftOAuthResponse msToken)
+        public async Task<T> LoginFromOAuth(MicrosoftOAuthResponse msToken, CancellationToken cancellationToken = default)
         {
-            var sessionCache = await GetAllTokens(msToken);
+            var sessionCache = await GetAllTokens(msToken, cancellationToken);
             await saveSessionCache(sessionCache);
             return sessionCache;
         }
 
-        protected abstract Task<T> GetAllTokens(MicrosoftOAuthResponse msToken);
+        protected abstract Task<T> GetAllTokens(MicrosoftOAuthResponse msToken, CancellationToken cancellationToken = default);
 
         // managing caches
 

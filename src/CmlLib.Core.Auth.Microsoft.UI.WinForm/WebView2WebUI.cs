@@ -20,17 +20,17 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
             this._ownerWindow = ownerWindow;
         }
 
-        public Task<MicrosoftOAuthCode> GetAuthCode(IWebUILoginHandler loginHandler)
+        public Task<MicrosoftOAuthCode> GetAuthCode(IWebUILoginHandler loginHandler, CancellationToken cancellationToken)
         {
             var form = new WinFormsPanelWithWebView2(_ownerWindow);
-            var result = form.DisplayDialogAndInterceptUri(loginHandler, CancellationToken.None);
+            var result = form.DisplayDialogAndInterceptUri(loginHandler, cancellationToken);
             return Task.FromResult(result);
         }
 
-        public Task ShowUri(Uri uri)
+        public Task ShowUri(Uri uri, CancellationToken cancellationToken)
         {
             var form = new WinFormsPanelWithWebView2(_ownerWindow);
-            form.DisplayDialogAndNavigateUri(uri, CancellationToken.None);
+            form.DisplayDialogAndNavigateUri(uri, cancellationToken);
             return Task.CompletedTask;
         }
     }
