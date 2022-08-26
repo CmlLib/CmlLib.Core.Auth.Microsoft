@@ -20,7 +20,7 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
         /// <summary>
         /// Xbox live tokens
         /// </summary>
-        [JsonPropertyName("XboxTokens")]
+        [JsonPropertyName("xboxTokens")]
         public XboxAuthTokens? XboxTokens { get; set; }
 
         /// <summary>
