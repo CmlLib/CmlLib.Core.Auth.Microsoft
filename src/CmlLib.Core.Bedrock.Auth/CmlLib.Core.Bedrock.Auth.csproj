@@ -1,15 +1,28 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+      <OutputType>Library</OutputType>
+      <TargetFramework>netstandard2.0</TargetFramework>
+      <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+      <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+      <LangVersion>8.0</LangVersion>
+      <Nullable>enable</Nullable>
+      <Version>0.0.1-dev</Version>
+      <Copyright>Copyright (c) 2022 AlphaBs</Copyright>
+      <PackageLicenseExpression>MIT</PackageLicenseExpression>
+      <PackageProjectUrl>https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft</PackageProjectUrl>
+      <RepositoryUrl>https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft</RepositoryUrl>
+      <Authors>ksi123456ab</Authors>
+      <PackageTags>CmlLib Minecraft Login Auth Authentication Microsoft Xbox Live XboxLive</PackageTags>
+      <PackageIcon>icon.png</PackageIcon>
+      <RepositoryType>git</RepositoryType>
+      <PackageId>CmlLib.Core.Bedrock.Auth</PackageId>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\CmlLib.Core.Auth.Microsoft.MsalClient\CmlLib.Core.Auth.Microsoft.MsalClient.csproj" />
-    <ProjectReference Include="..\CmlLib.Core.Auth.Microsoft\CmlLib.Core.Auth.Microsoft.csproj" />
-  </ItemGroup>
-
+    <ItemGroup>
+        <ProjectReference Include="..\CmlLib.Core.Auth.Microsoft\CmlLib.Core.Auth.Microsoft.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="../../icon.png" Pack="true" Visible="false" PackagePath="" />
+    </ItemGroup>
 </Project>

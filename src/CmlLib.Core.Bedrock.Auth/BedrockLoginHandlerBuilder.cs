@@ -1,6 +1,8 @@
 ﻿using CmlLib.Core.Auth.Microsoft;
 using CmlLib.Core.Auth.Microsoft.Cache;
-using CmlLib.Core.Auth.Microsoft.XboxLive;
+using System;
+using System.IO;
+using System.Net.Http;
 
 namespace CmlLib.Core.Bedrock.Auth
 {
@@ -9,14 +11,12 @@ namespace CmlLib.Core.Bedrock.Auth
     {
         public BedrockLoginHandlerBuilder(HttpClient httpClient) : base(httpClient)
         {
-            var defaultPath = Path.Combine(MinecraftPath.GetOSDefaultPath(), "cml_bedrock.json");
-            WithCacheManager(new JsonFileCacheManager<BedrockSessionCache>(defaultPath));
-            XboxLiveApi = new XboxAuthNetApi(new XboxAuthNet.XboxLive.XboxAuth(httpClient));
+            Context.CachePath = Path.Combine(MinecraftPath.GetOSDefaultPath(), "cml_bedrock.json");
+            WithCacheManager(new JsonFileCacheManager<BedrockSessionCache>(Context.CachePath));
             BedrockXboxApi = new BedrockXboxApi(httpClient);
+            WithRelyingParty("https://multiplayer.minecraft.net/");
         }
 
-        public string XboxRelyingParty { get; private set; } = "https://multiplayer.minecraft.net/";
-        private IXboxLiveApi XboxLiveApi { get; set; }
         private IBedrockXboxApi BedrockXboxApi { get; set; }
 
         public BedrockLoginHandlerBuilder WithBedrockXboxApi(IBedrockXboxApi bedrockApi)
@@ -25,31 +25,20 @@ namespace CmlLib.Core.Bedrock.Auth
             return this;
         }
 
-        public BedrockLoginHandlerBuilder WithXboxRelyingParty(string relyingParty)
+        private BedrockLoginHandler BuildConcrete(LoginHandlerParameters parameters)
         {
-            this.XboxRelyingParty = relyingParty;
-            return this;
-        }
-
-        private BedrockLoginHandler BuildConcrete()
-        {
-            if (MicrosoftOAuthApi == null)
-                throw new InvalidOperationException("MicrosoftOAuthApi was null");
-
             if (CacheManager == null)
                 throw new InvalidOperationException("CacheManager was null");
 
             return new BedrockLoginHandler(
-                oauthApi: MicrosoftOAuthApi,
-                xboxLiveApi: XboxLiveApi,
+                parameters,
                 bedrockApi: BedrockXboxApi,
-                cacheManager: CacheManager,
-                relyingParty: XboxRelyingParty);
+                cacheManager: CacheManager);
         }
 
-        protected override AbstractLoginHandler<BedrockSessionCache> BuildInternal()
+        protected override AbstractLoginHandler<BedrockSessionCache> BuildInternal(LoginHandlerParameters parameters)
         {
-            return BuildConcrete();
+            return BuildConcrete(parameters);
         }
 
         public new BedrockLoginHandler Build()
