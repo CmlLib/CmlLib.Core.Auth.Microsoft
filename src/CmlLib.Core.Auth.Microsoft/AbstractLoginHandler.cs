@@ -1,24 +1,33 @@
 ﻿using CmlLib.Core.Auth.Microsoft.Cache;
 using CmlLib.Core.Auth.Microsoft.Mojang;
 using CmlLib.Core.Auth.Microsoft.OAuth;
+using CmlLib.Core.Auth.Microsoft.XboxLive;
 using System.Threading;
 using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
 using XboxAuthNet.XboxLive;
+using XboxAuthNet.XboxLive.Entity;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
     public abstract class AbstractLoginHandler<T> where T : SessionCacheBase
     {
         private readonly IMicrosoftOAuthApi _oauth;
+        private readonly IXboxLiveApi _xbox;
+
+        protected string RelyingParty { get; }
         protected ICacheManager<T> CacheManager { get; }
 
         public AbstractLoginHandler(
-            IMicrosoftOAuthApi oauthApi, 
+            LoginHandlerParameters parameters,
             ICacheManager<T> cacheManager)
         {
-            this._oauth = oauthApi;
+            parameters.Validate();
+
+            this._oauth = parameters.MicrosoftOAuthApi!;
             this.CacheManager = cacheManager;
+            this._xbox = parameters.XboxLiveApi!;
+            this.RelyingParty = parameters.RelyingParty!;
         }
 
         /// <summary>
@@ -54,7 +63,7 @@ namespace CmlLib.Core.Auth.Microsoft
             {
                 var msToken = await _oauth.GetOrRefreshTokens(sessionCacheBase!.MicrosoftOAuthToken!, cancellationToken);
                 // success to refresh ms
-                return await GetAllTokens(msToken, cancellationToken);
+                return await GetAllTokens(msToken, sessionCacheBase.XboxTokens, cancellationToken);
             }
             else
             {
@@ -78,12 +87,26 @@ namespace CmlLib.Core.Auth.Microsoft
         /// <exception cref="MinecraftAuthException"></exception>
         public async Task<T> LoginFromOAuth(MicrosoftOAuthResponse msToken, CancellationToken cancellationToken = default)
         {
-            var sessionCache = await GetAllTokens(msToken, cancellationToken);
+            var sessionCache = await GetAllTokens(msToken, null, cancellationToken);
             await saveSessionCache(sessionCache);
             return sessionCache;
         }
 
-        protected abstract Task<T> GetAllTokens(MicrosoftOAuthResponse msToken, CancellationToken cancellationToken = default);
+        private async Task<T> GetAllTokens(MicrosoftOAuthResponse msToken, XboxAuthTokens? xboxTokens, CancellationToken cancellationToken = default)
+        { 
+            xboxTokens = await _xbox.GetTokens(msToken.AccessToken!, xboxTokens, this.RelyingParty);
+            if (string.IsNullOrEmpty(xboxTokens?.XstsToken?.Token))
+                throw new XboxAuthException("xsts was empty", 200);
+            if (string.IsNullOrEmpty(xboxTokens?.XstsToken?.UserHash))
+                throw new XboxAuthException("uhs was empty", 200);
+
+            var session = await GetAllTokens(xboxTokens?.XstsToken!, cancellationToken);
+            session.MicrosoftOAuthToken = msToken;
+            session.XboxTokens = xboxTokens;
+            return session;
+        }
+
+        protected abstract Task<T> GetAllTokens(XboxAuthResponse xsts, CancellationToken cancellationToken = default);
 
         // managing caches
 

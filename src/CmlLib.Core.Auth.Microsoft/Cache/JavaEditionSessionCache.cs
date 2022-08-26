@@ -1,5 +1,6 @@
 ﻿using CmlLib.Core.Auth.Microsoft.Mojang;
 using System.Text.Json.Serialization;
+using XboxAuthNet.XboxLive;
 
 namespace CmlLib.Core.Auth.Microsoft.Cache
 {

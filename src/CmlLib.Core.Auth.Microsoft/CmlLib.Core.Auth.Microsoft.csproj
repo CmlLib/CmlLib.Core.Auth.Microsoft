@@ -25,7 +25,7 @@
       <Version>3.3.5</Version>
     </PackageReference>
     <PackageReference Include="ConfigureAwait.Fody" Version="3.3.1" PrivateAssets="All" />
-    <PackageReference Include="XboxAuthNet" Version="2.1.0" />
+    <PackageReference Include="XboxAuthNet" Version="2.2.0-beta1" />
   </ItemGroup>
   <ItemGroup>
     <None Include="../../icon.png" Pack="true" Visible="false" PackagePath="" />

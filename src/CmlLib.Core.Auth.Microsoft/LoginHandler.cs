@@ -37,8 +37,9 @@ namespace CmlLib.Core.Auth.Microsoft
         {
             var builderObj = new JavaEditionLoginHandlerBuilder();
             builder.Invoke(builderObj);
+            var parameters = builderObj.BuildParameters();
 
-            var oauth = builderObj.MicrosoftOAuthApi as MicrosoftOAuth;
+            var oauth = parameters.MicrosoftOAuthApi as MicrosoftOAuth;
             if (oauth == null)
                 throw new InvalidOperationException("Legacy LoginHandler only can handle MicrosoftOAuth. Use JavaEditionLoginHandlerBuilder.");
 

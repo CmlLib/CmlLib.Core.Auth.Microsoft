@@ -1,5 +1,6 @@
 ﻿using CmlLib.Core.Auth.Microsoft.Cache;
 using CmlLib.Core.Auth.Microsoft.OAuth;
+using CmlLib.Core.Auth.Microsoft.XboxLive;
 using System;
 using System.IO;
 using System.Net.Http;
@@ -16,9 +17,10 @@ namespace CmlLib.Core.Auth.Microsoft
         public AbstractLoginHandlerBuilder(HttpClient httpClient)
         {
             this.HttpClient = httpClient;
+            this.parameters = new LoginHandlerParameters();
         }
 
-        public IMicrosoftOAuthApi? MicrosoftOAuthApi { get; private set; }
+        private readonly LoginHandlerParameters parameters;
         public ICacheManager<TSession>? CacheManager { get; private set; }
 
         public TBuilder WithMicrosoftOAuthApi(IMicrosoftOAuthApi oauthApi)
@@ -26,7 +28,25 @@ namespace CmlLib.Core.Auth.Microsoft
             if (oauthApi == null)
                 throw new ArgumentNullException(nameof(oauthApi));
 
-            this.MicrosoftOAuthApi = oauthApi;
+            parameters.MicrosoftOAuthApi = oauthApi;
+            return (TBuilder)this;
+        }
+
+        public TBuilder WithXboxLiveApi(IXboxLiveApi xboxApi)
+        {
+            if (xboxApi == null)
+                throw new ArgumentNullException(nameof(xboxApi));
+
+            parameters.XboxLiveApi = xboxApi;
+            return (TBuilder)this;
+        }
+
+        public TBuilder WithRelyingParty(string relyingParty)
+        {
+            if (string.IsNullOrEmpty(relyingParty))
+                throw new ArgumentNullException(nameof(relyingParty));
+
+            parameters.RelyingParty = relyingParty;
             return (TBuilder)this;
         }
 
@@ -49,22 +69,26 @@ namespace CmlLib.Core.Auth.Microsoft
                 return GetDefaultClientId();
             }
         }
-
         protected virtual string GetDefaultClientId() => throw new NotImplementedException();
 
-        protected abstract AbstractLoginHandler<TSession> BuildInternal();
+        protected abstract AbstractLoginHandler<TSession> BuildInternal(LoginHandlerParameters parameters);
 
-        public AbstractLoginHandler<TSession> Build()
+        public LoginHandlerParameters BuildParameters()
         {
-            if (this.MicrosoftOAuthApi == null)
+            if (parameters.MicrosoftOAuthApi == null)
             {
                 if (!IsDefaultClientIdAvailable)
                     throw new InvalidOperationException("MicrosoftOAuthApi was not set.");
 
-                this.MicrosoftOAuthApi = MicrosoftOAuthApiBuilder.Create(GetDefaultClientId())
+                parameters.MicrosoftOAuthApi = MicrosoftOAuthApiBuilder.Create(GetDefaultClientId())
                     .WithHttpClient(this.HttpClient)
                     .WithScope(XboxAuth.XboxScope)
                     .Build();
+            }
+
+            if (parameters.XboxLiveApi == null)
+            {
+                parameters.XboxLiveApi = new XboxAuthNetApi(new XboxAuth(this.HttpClient));
             }
 
             if (this.CacheManager == null)
@@ -73,7 +97,12 @@ namespace CmlLib.Core.Auth.Microsoft
                 this.CacheManager = new JsonFileCacheManager<TSession>(defaultPath);
             }
 
-            return BuildInternal();
+            return parameters;
+        }
+
+        public AbstractLoginHandler<TSession> Build()
+        {
+            return BuildInternal(BuildParameters());
         }
     }
 }

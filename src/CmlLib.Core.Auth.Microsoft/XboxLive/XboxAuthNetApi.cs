@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using XboxAuthNet.OAuth;
+﻿using System.Threading.Tasks;
 using XboxAuthNet.XboxLive;
 
 namespace CmlLib.Core.Auth.Microsoft.XboxLive
@@ -22,7 +20,7 @@ namespace CmlLib.Core.Auth.Microsoft.XboxLive
         /// <param name="titleToken"></param>
         /// <param name="xstsRelyingParty"></param>
         /// <returns></returns>
-        public async Task<XboxAuthResponse> GetXSTS(string token, string? deviceToken, string? titleToken, string? xstsRelyingParty)
+        public async Task<XboxAuthTokens> GetTokens(string token, XboxAuthTokens? previousTokens, string? xstsRelyingParty)
         {
             var rps = await xbox.ExchangeRpsTicketForUserToken(token)
                 .ConfigureAwait(false);
@@ -30,13 +28,20 @@ namespace CmlLib.Core.Auth.Microsoft.XboxLive
             if (string.IsNullOrEmpty(rps.Token))
                 throw new XboxAuthException("rps.Token was empty", 200);
 
+            string? deviceToken = null;
+            string? titleToken = null;
+
             var xsts = await xbox.ExchangeTokensForXstsIdentity(
-                userToken: rps.Token!, 
+                userToken: rps.Token!,
                 deviceToken,
                 titleToken,
                 xstsRelyingParty,
                 null);
-            return xsts;
+
+            return new XboxAuthTokens
+            {
+                XstsToken = xsts
+            };
         }
     }
 }

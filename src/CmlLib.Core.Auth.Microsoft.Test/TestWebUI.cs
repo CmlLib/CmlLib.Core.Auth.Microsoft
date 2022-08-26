@@ -23,16 +23,11 @@ namespace CmlLib.Core.Auth.Microsoft.Test
         }
 
         [Test]
+        [TestCase("a")]
         public async Task TestSuccess(string uri)
         {
             var loginHandler = CreateLoginHandler(new Uri(uri));
             await loginHandler.LoginFromOAuth();
-        }
-
-        [Test]
-        public async Task TestError(string uri)
-        {
-
         }
     }
 }

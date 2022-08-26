@@ -21,28 +21,13 @@ namespace CmlLib.Core.Auth.Microsoft
         public JavaEditionLoginHandlerBuilder(HttpClient httpClient)
             : base(httpClient)
         {
-            this.XboxLiveApi = new XboxAuthNetApi(new XboxAuth(httpClient));
             this.MojangXboxApi = new MojangXboxApi(httpClient);
         }
 
-        public IXboxLiveApi XboxLiveApi { get; private set; }
         public IMojangXboxApi MojangXboxApi { get; private set; }
-        public string XboxRelyingParty { get; set; } = Mojang.MojangXboxApi.RelyingParty;
 
         public override bool IsDefaultClientIdAvailable => true;
         protected override string GetDefaultClientId() => MojangClientId;
-
-        public JavaEditionLoginHandlerBuilder WithXboxLiveApi(IXboxLiveApi xboxApi)
-        {
-            this.XboxLiveApi = xboxApi;
-            return this;
-        }
-
-        public JavaEditionLoginHandlerBuilder WithXboxRelyingParty(string relyingParty)
-        {
-            this.XboxRelyingParty = relyingParty;
-            return this;
-        }
 
         public JavaEditionLoginHandlerBuilder WithMojangXboxApi(IMojangXboxApi mojangApi)
         {
@@ -50,25 +35,21 @@ namespace CmlLib.Core.Auth.Microsoft
             return this;
         }
 
-        private JavaEditionLoginHandler BuildConcrete()
+        private JavaEditionLoginHandler BuildConcrete(LoginHandlerParameters parameters)
         {
-            if (MicrosoftOAuthApi == null)
-                throw new InvalidOperationException("MicrosoftOAuthApi null");
             if (CacheManager == null)
-                throw new InvalidOperationException("CacheManager null");
+                throw new InvalidOperationException("CacheManager was null");
 
             return new JavaEditionLoginHandler(
-                oauthApi : MicrosoftOAuthApi,
-                xboxLiveApi : XboxLiveApi,
-                cacheManager: CacheManager,
-                mojangXboxApi : MojangXboxApi,
-                relyingParty : XboxRelyingParty
+                parameters,
+                MojangXboxApi,
+                CacheManager
             );
         }
 
-        protected override AbstractLoginHandler<JavaEditionSessionCache> BuildInternal()
+        protected override AbstractLoginHandler<JavaEditionSessionCache> BuildInternal(LoginHandlerParameters parameters)
         {
-            return BuildConcrete();
+            return BuildConcrete(parameters);
         }
 
         public new JavaEditionLoginHandler Build()

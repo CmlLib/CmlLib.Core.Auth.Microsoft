@@ -1,6 +1,8 @@
-﻿using System.Text.Json.Serialization;
+﻿using CmlLib.Core.Auth.Microsoft.XboxLive;
+using System.Text.Json.Serialization;
 using XboxAuthNet.OAuth;
 using XboxAuthNet.XboxLive;
+using XboxAuthNet.XboxLive.Entity;
 
 namespace CmlLib.Core.Auth.Microsoft.Cache
 {
@@ -14,12 +16,12 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
         /// </summary>
         [JsonPropertyName("microsoftOAuthSession")]
         public MicrosoftOAuthResponse? MicrosoftOAuthToken { get; set; }
-        
+
         /// <summary>
-        /// XSTS tokens, issued by xsts.auth.xboxlive.com
+        /// Xbox live tokens
         /// </summary>
-        [JsonPropertyName("xstsSession")]
-        public XboxAuthResponse? XstsToken { get; set; }
+        [JsonPropertyName("XboxTokens")]
+        public XboxAuthTokens? XboxTokens { get; set; }
 
         /// <summary>
         /// Checks if current cached session is valid. (example: not expired, not null)
