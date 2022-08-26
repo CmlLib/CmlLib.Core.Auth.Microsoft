@@ -12,23 +12,34 @@ namespace CmlLib.Core.Auth.Microsoft
         where TBuilder : AbstractLoginHandlerBuilder<TBuilder, TSession>
         where TSession : SessionCacheBase
     {
-        public HttpClient HttpClient { get; private set; }
-
         public AbstractLoginHandlerBuilder(HttpClient httpClient)
         {
-            this.HttpClient = httpClient;
-            this.parameters = new LoginHandlerParameters();
+            this.Context = new LoginBuilderContext
+            {
+                HttpClient = httpClient,
+                CachePath = Path.Combine(MinecraftPath.GetOSDefaultPath(), "cml_xsession.json")
+            };
+            this.Parameters = new LoginHandlerParameters();
+
+            WithCacheManager(new JsonFileCacheManager<TSession>(this.Context.CachePath));
         }
 
-        private readonly LoginHandlerParameters parameters;
+        private LoginHandlerParameters Parameters { get; set; }
+        protected LoginBuilderContext Context { get; private set; }
         public ICacheManager<TSession>? CacheManager { get; private set; }
+
+        public TBuilder With(Action<TBuilder, LoginBuilderContext> action)
+        {
+            action.Invoke((TBuilder)this, Context);
+            return (TBuilder)this;
+        }
 
         public TBuilder WithMicrosoftOAuthApi(IMicrosoftOAuthApi oauthApi)
         {
             if (oauthApi == null)
                 throw new ArgumentNullException(nameof(oauthApi));
 
-            parameters.MicrosoftOAuthApi = oauthApi;
+            Parameters.MicrosoftOAuthApi = oauthApi;
             return (TBuilder)this;
         }
 
@@ -37,7 +48,7 @@ namespace CmlLib.Core.Auth.Microsoft
             if (xboxApi == null)
                 throw new ArgumentNullException(nameof(xboxApi));
 
-            parameters.XboxLiveApi = xboxApi;
+            Parameters.XboxLiveApi = xboxApi;
             return (TBuilder)this;
         }
 
@@ -46,7 +57,7 @@ namespace CmlLib.Core.Auth.Microsoft
             if (string.IsNullOrEmpty(relyingParty))
                 throw new ArgumentNullException(nameof(relyingParty));
 
-            parameters.RelyingParty = relyingParty;
+            Parameters.RelyingParty = relyingParty;
             return (TBuilder)this;
         }
 
@@ -59,45 +70,39 @@ namespace CmlLib.Core.Auth.Microsoft
             return (TBuilder)this;
         }
 
-        public virtual bool IsDefaultClientIdAvailable => false;
-        public string DefaultClientId
-        {
-            get
-            {
-                if (!IsDefaultClientIdAvailable)
-                    throw new InvalidOperationException("This builder doesn't have a default client id. Please specify client id.");
-                return GetDefaultClientId();
-            }
-        }
-        protected virtual string GetDefaultClientId() => throw new NotImplementedException();
-
         protected abstract AbstractLoginHandler<TSession> BuildInternal(LoginHandlerParameters parameters);
 
         public LoginHandlerParameters BuildParameters()
         {
-            if (parameters.MicrosoftOAuthApi == null)
+            if (Parameters.MicrosoftOAuthApi == null)
             {
-                if (!IsDefaultClientIdAvailable)
-                    throw new InvalidOperationException("MicrosoftOAuthApi was not set.");
+                if (string.IsNullOrEmpty(Context.ClientId))
+                    throw new InvalidOperationException("MicrosoftOAuthApi was null");
+                if (Context.HttpClient == null)
+                    throw new InvalidOperationException("MicrosoftOAuthApi was null");
 
-                parameters.MicrosoftOAuthApi = MicrosoftOAuthApiBuilder.Create(GetDefaultClientId())
-                    .WithHttpClient(this.HttpClient)
+                Parameters.MicrosoftOAuthApi = MicrosoftOAuthApiBuilder.Create(Context.ClientId!)
+                    .WithHttpClient(Context.HttpClient)
                     .WithScope(XboxAuth.XboxScope)
                     .Build();
             }
 
-            if (parameters.XboxLiveApi == null)
+            if (Parameters.XboxLiveApi == null)
             {
-                parameters.XboxLiveApi = new XboxAuthNetApi(new XboxAuth(this.HttpClient));
+                if (Context.HttpClient == null)
+                    throw new InvalidOperationException("XboxLiveApi was null");
+
+                Parameters.XboxLiveApi = new XboxAuthNetApi(new XboxAuth(Context.HttpClient));
             }
 
             if (this.CacheManager == null)
             {
-                var defaultPath = Path.Combine(MinecraftPath.GetOSDefaultPath(), "cml_xsession.json");
-                this.CacheManager = new JsonFileCacheManager<TSession>(defaultPath);
+                if (string.IsNullOrEmpty(Context.CachePath))
+                    throw new InvalidOperationException("CacheManager was null");
+                this.CacheManager = new JsonFileCacheManager<TSession>(Context.CachePath!);
             }
 
-            return parameters;
+            return Parameters;
         }
 
         public AbstractLoginHandler<TSession> Build()

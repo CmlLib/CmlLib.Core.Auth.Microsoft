@@ -9,6 +9,13 @@ namespace CmlLib.Core.Auth.Microsoft
 {
     public class JavaEditionLoginHandler : AbstractLoginHandler<JavaEditionSessionCache>
     {
+        public static JavaEditionLoginHandler CreateWith(Action<JavaEditionLoginHandlerBuilder, LoginBuilderContext> action)
+        {
+            return new JavaEditionLoginHandlerBuilder()
+                .With(action)
+                .Build();
+        }
+
         private readonly IMojangXboxApi _mojangXboxApi;
 
         public bool CheckGameOwnership { get; set; } = false;

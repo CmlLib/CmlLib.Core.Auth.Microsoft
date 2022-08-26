@@ -61,9 +61,9 @@ namespace CmlLib.Core.Auth.Microsoft
             // it try to refresh microsoft token, xbox token, and minecraft token
             if (sessionCacheBase == null || !sessionCacheBase.CheckValidation())
             {
-                var msToken = await _oauth.GetOrRefreshTokens(sessionCacheBase!.MicrosoftOAuthToken!, cancellationToken);
+                var msToken = await _oauth.GetOrRefreshTokens(sessionCacheBase?.MicrosoftOAuthToken!, cancellationToken);
                 // success to refresh ms
-                return await GetAllTokens(msToken, sessionCacheBase.XboxTokens, cancellationToken);
+                return await GetAllTokens(msToken, sessionCacheBase?.XboxTokens, cancellationToken);
             }
             else
             {
