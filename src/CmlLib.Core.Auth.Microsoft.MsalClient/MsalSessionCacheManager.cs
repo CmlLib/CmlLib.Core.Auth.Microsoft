@@ -7,11 +7,9 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
     public class MsalSessionCacheManager<T> : JsonFileCacheManager<T>
         where T : SessionCacheBase
     {
-        private readonly IPublicClientApplication app;
-
-        public MsalSessionCacheManager(IPublicClientApplication app, string filepath) : base(filepath)
+        public MsalSessionCacheManager(string filepath) : base(filepath)
         {
-            this.app = app;
+            
         }
 
         // Microsoft OAuth tokens should be managed by MSAL.NET
@@ -21,11 +19,6 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
             if (obj != null)
                 obj.MicrosoftOAuthToken = null;
             return base.SaveCache(obj);
-        }
-
-        public override Task ClearCache()
-        {
-            return MsalMinecraftLoginHelper.RemoveAccounts(app);
         }
     }
 }
