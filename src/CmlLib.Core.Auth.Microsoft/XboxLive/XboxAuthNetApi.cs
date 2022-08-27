@@ -7,19 +7,22 @@ namespace CmlLib.Core.Auth.Microsoft.XboxLive
     public class XboxAuthNetApi : IXboxLiveApi
     {
         private readonly XboxAuth xbox;
+        private readonly string? TokenPrefix;
         private readonly IXboxAuthTokenApi? deviceTokenApi;
         private readonly IXboxAuthTokenApi? titleTokenApi;
 
-        public XboxAuthNetApi(XboxAuth xl) : this(xl, null, null)
+        public XboxAuthNetApi(XboxAuth xl) : this(xl, null, null, null)
         {
 
         }
 
         public XboxAuthNetApi(XboxAuth xl,
+            string? tokenPrefix,
             IXboxAuthTokenApi? deviceTokenApi,
             IXboxAuthTokenApi? titleTokenApi)
         {
             this.xbox = xl;
+            this.TokenPrefix = tokenPrefix;
             this.deviceTokenApi = deviceTokenApi;
             this.titleTokenApi = titleTokenApi;
         }
@@ -34,7 +37,7 @@ namespace CmlLib.Core.Auth.Microsoft.XboxLive
         /// <returns></returns>
         public async Task<XboxAuthTokens> GetTokens(string token, XboxAuthTokens? previousTokens, string? xstsRelyingParty)
         {
-            var rps = await xbox.ExchangeRpsTicketForUserToken(token)
+            var rps = await xbox.ExchangeRpsTicketForUserToken(TokenPrefix + token)
                 .ConfigureAwait(false);
 
             if (string.IsNullOrEmpty(rps.Token))

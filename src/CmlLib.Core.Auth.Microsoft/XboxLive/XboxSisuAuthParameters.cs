@@ -1,51 +1,24 @@
-﻿using XboxAuthNet.XboxLive;
+﻿using System;
 
 namespace CmlLib.Core.Auth.Microsoft.XboxLive
 {
     public class XboxSisuAuthParameters
     {
-        public static XboxSisuAuthParameters CreateWin32()
-            => CreateWin32(XboxGameTitles.MinecraftJava);
+        public string? ClientId { get; set; }
+        public string? DeviceType { get; set; }
+        public string? DeviceVersion { get; set; }
+        public string? TokenPrefix { get; set; }
 
-        public static XboxSisuAuthParameters CreateWin32(string cid)
+        public void Validate()
         {
-            return new XboxSisuAuthParameters(
-                cid,
-                XboxDeviceTypes.Win32,
-                "0.0.0");
+            if (string.IsNullOrEmpty(ClientId))
+                throw new ArgumentNullException(nameof(ClientId));
+
+            if (string.IsNullOrEmpty(DeviceType))
+                throw new ArgumentNullException(nameof(DeviceType));
+
+            if (string.IsNullOrEmpty(DeviceVersion))
+                throw new ArgumentNullException(nameof(DeviceVersion));
         }
-
-        public static XboxSisuAuthParameters CreateNintendo()
-            => CreateNintendo(XboxGameTitles.MinecraftNintendoSwitch);
-
-        public static XboxSisuAuthParameters CreateNintendo(string cid)
-        {
-            return new XboxSisuAuthParameters(
-                cid,
-                XboxDeviceTypes.Nintendo,
-                "0.0.0");
-        }
-
-        public static XboxSisuAuthParameters CreateiOS()
-            => CreateiOS(XboxGameTitles.XboxAppIOS);
-
-        public static XboxSisuAuthParameters CreateiOS(string cid)
-        {
-            return new XboxSisuAuthParameters(
-                cid,
-                XboxDeviceTypes.iOS,
-                "0.0.0");
-        }
-
-        public XboxSisuAuthParameters(string clientId, string deviceType, string deviceVersion)
-        {
-            ClientId = clientId;
-            DeviceType = deviceType;
-            DeviceVersion = deviceVersion;
-        }
-
-        public string ClientId { get; }
-        public string DeviceType { get; }
-        public string DeviceVersion { get; }
     }
 }
