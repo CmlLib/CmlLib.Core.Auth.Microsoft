@@ -160,7 +160,7 @@ namespace WinFormTest
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 22);
+            this.label4.Location = new System.Drawing.Point(12, 24);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(57, 15);
             this.label4.TabIndex = 12;
@@ -169,7 +169,7 @@ namespace WinFormTest
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(363, 22);
+            this.label5.Location = new System.Drawing.Point(293, 24);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(46, 15);
             this.label5.TabIndex = 13;
@@ -202,7 +202,7 @@ namespace WinFormTest
             "Win32",
             "Nintendo",
             "iOS"});
-            this.cbPresets.Location = new System.Drawing.Point(415, 18);
+            this.cbPresets.Location = new System.Drawing.Point(335, 19);
             this.cbPresets.Name = "cbPresets";
             this.cbPresets.Size = new System.Drawing.Size(92, 23);
             this.cbPresets.TabIndex = 16;
@@ -210,7 +210,7 @@ namespace WinFormTest
             // 
             // txtClientId
             // 
-            this.txtClientId.Location = new System.Drawing.Point(75, 18);
+            this.txtClientId.Location = new System.Drawing.Point(75, 19);
             this.txtClientId.Name = "txtClientId";
             this.txtClientId.Size = new System.Drawing.Size(214, 23);
             this.txtClientId.TabIndex = 17;
@@ -224,15 +224,15 @@ namespace WinFormTest
             // 
             // txtDeviceVersion
             // 
-            this.txtDeviceVersion.Location = new System.Drawing.Point(295, 51);
+            this.txtDeviceVersion.Location = new System.Drawing.Point(295, 48);
             this.txtDeviceVersion.Name = "txtDeviceVersion";
-            this.txtDeviceVersion.Size = new System.Drawing.Size(114, 23);
+            this.txtDeviceVersion.Size = new System.Drawing.Size(132, 23);
             this.txtDeviceVersion.TabIndex = 19;
             // 
             // cbSisuAuth
             // 
             this.cbSisuAuth.AutoSize = true;
-            this.cbSisuAuth.Location = new System.Drawing.Point(415, 53);
+            this.cbSisuAuth.Location = new System.Drawing.Point(433, 50);
             this.cbSisuAuth.Name = "cbSisuAuth";
             this.cbSisuAuth.Size = new System.Drawing.Size(74, 19);
             this.cbSisuAuth.TabIndex = 20;
@@ -242,7 +242,7 @@ namespace WinFormTest
             // cbAzure
             // 
             this.cbAzure.AutoSize = true;
-            this.cbAzure.Location = new System.Drawing.Point(300, 22);
+            this.cbAzure.Location = new System.Drawing.Point(433, 23);
             this.cbAzure.Name = "cbAzure";
             this.cbAzure.Size = new System.Drawing.Size(57, 19);
             this.cbAzure.TabIndex = 21;

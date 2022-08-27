@@ -169,12 +169,15 @@ namespace WinFormTest
             switch (cbPresets.Text)
             {
                 case "Win32":
+                    txtClientId.Text = XboxGameTitles.MinecraftJava;
                     txtDeviceType.Text = XboxDeviceTypes.Win32;
                     break;
                 case "Nintendo":
+                    txtClientId.Text = XboxGameTitles.MinecraftNintendoSwitch;
                     txtDeviceType.Text = XboxDeviceTypes.Nintendo;
                     break;
                 case "iOS":
+                    txtClientId.Text = XboxGameTitles.XboxAppIOS;
                     txtDeviceType.Text = XboxDeviceTypes.iOS;
                     break;
                 default:
