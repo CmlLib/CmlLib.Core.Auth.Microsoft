@@ -3,9 +3,12 @@ using CmlLib.Core.Auth;
 using CmlLib.Core.Auth.Microsoft;
 using CmlLib.Core.Auth.Microsoft.OAuth;
 using CmlLib.Core.Auth.Microsoft.UI.WinForm;
+using CmlLib.Core.Auth.Microsoft.XboxLive;
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
+using XboxAuthNet.Utils;
+using XboxAuthNet.XboxLive;
 
 namespace WinFormTest
 {
@@ -22,16 +25,17 @@ namespace WinFormTest
 
         private async void Form1_Load(object sender, EventArgs e)
         {
-            this._loginHandler = new JavaEditionLoginHandlerBuilder()
-                .WithMicrosoftOAuthApi(builder => builder
-                    .WithWebUI(new WebView2WebUI(this)))
+            var loginHandler = new LoginHandlerBuilder()
+                .ForJavaEdition()
                 .Build();
-
+            
             setUIEnable(false);
+
+            cbPresets.SelectedIndex = 0;
 
             try
             {
-                var result = await this._loginHandler.LoginFromCache();
+                var result = await loginHandler.LoginFromCache();
                 loginSuccess(result.GameSession);
             }
             catch (Exception ex)
@@ -43,8 +47,36 @@ namespace WinFormTest
 
         private async void btnLogin_Click(object sender, EventArgs e)
         {
-            if (this._loginHandler == null)
-                throw new InvalidOperationException("_loginHandler was null");
+            var scope = cbAzure.Checked ?
+                "XboxLive.signin" :
+                XboxAuth.XboxScope;
+
+            this._loginHandler = new LoginHandlerBuilder()
+                .WithClientId(txtClientId.Text)
+                .ForJavaEdition()
+                .WithMicrosoftOAuthApi(builder => builder
+                    .WithScope(scope)
+                    .WithWebUI(new WebView2WebUI(this)))
+                .With((builder, context) =>
+                {
+                    if (cbSisuAuth.Checked)
+                    {
+                        var keyGenerator = KeyPairGeneratorFactory.CreateDefaultAsymmetricKeyPair();
+                        builder.WithXboxSisuAuthApi(builder => builder
+                            .WithECKeyPairGenerator(keyGenerator)
+                            .WithDeviceType(txtDeviceType.Text)
+                            .WithDeviceVersion(txtDeviceVersion.Text)
+                            .WithTokenPrefix(cbAzure.Checked ? XboxSecureAuth.AzureTokenPrefix : XboxSecureAuth.XboxTokenPrefix));
+                    }
+                    else
+                    {
+                        builder.WithXboxLiveApi(
+                            new XboxAuthNetApi(
+                            new XboxAuth(context.HttpClient), 
+                            cbAzure.Checked ? "d=" : null, null, null));
+                    }
+                })
+                .Build();
 
             setUIEnable(false);
 
@@ -128,6 +160,28 @@ namespace WinFormTest
         private void Launcher_ProgressChanged(object? sender, ProgressChangedEventArgs e)
         {
             progressBar2.Value = e.ProgressPercentage;
+        }
+
+        private void cbPresets_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            txtDeviceVersion.Text = "0.0.0";
+
+            switch (cbPresets.Text)
+            {
+                case "Win32":
+                    txtDeviceType.Text = XboxDeviceTypes.Win32;
+                    break;
+                case "Nintendo":
+                    txtDeviceType.Text = XboxDeviceTypes.Nintendo;
+                    break;
+                case "iOS":
+                    txtDeviceType.Text = XboxDeviceTypes.iOS;
+                    break;
+                default:
+                    return;
+            }
+
+            cbAzure.Checked = false;
         }
     }
 }

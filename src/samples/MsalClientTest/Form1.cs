@@ -34,7 +34,8 @@ namespace MsalClientTest
             if (app == null) return;
 
             lbStatus.Text = "CreateInteractiveApi(), LoginFromOAuth()";
-            loginHandler = new JavaEditionLoginHandlerBuilder()
+            loginHandler = new LoginHandlerBuilder()
+                .ForJavaEdition()
                 .WithMsalOAuth(app, factory => factory.CreateInteractiveApi())
                 .Build();
 
@@ -46,7 +47,8 @@ namespace MsalClientTest
             if (app == null) return;
 
             lbStatus.Text = "CreateWithEmbeddedWebView(), LoginFromOAuth()";
-            loginHandler = new JavaEditionLoginHandlerBuilder()
+            loginHandler = new LoginHandlerBuilder()
+                .ForJavaEdition()
                 .WithMsalOAuth(app, factory => factory.CreateWithEmbeddedWebView())
                 .Build();
 
@@ -60,7 +62,8 @@ namespace MsalClientTest
             lbStatus.Text = "CreateDeviceCodeApi(), LoginFromOAuth()";
             var deviceCodeForm = new DeviceCodeForm();
 
-            loginHandler = new JavaEditionLoginHandlerBuilder()
+            loginHandler = new LoginHandlerBuilder()
+                .ForJavaEdition()
                 .WithMsalOAuth(app, factory => factory.CreateDeviceCodeApi(result =>
                 {
                     Invoke(() =>

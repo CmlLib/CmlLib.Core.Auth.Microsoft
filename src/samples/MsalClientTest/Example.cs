@@ -52,7 +52,8 @@ namespace MsalClientTest
 
         public static async Task<MSession> LoginInteractive(IPublicClientApplication app)
         {
-            var loginHandler = new JavaEditionLoginHandlerBuilder()
+            var loginHandler = new LoginHandlerBuilder()
+                .ForJavaEdition()
                 .WithMsalOAuth(app, factory => factory.CreateInteractiveApi())
                 .Build();
 
@@ -73,7 +74,8 @@ namespace MsalClientTest
 
         public static async Task<MSession> LoginEmbeddedWebView(IPublicClientApplication app)
         {
-            var loginHandler = new JavaEditionLoginHandlerBuilder()
+            var loginHandler = new LoginHandlerBuilder()
+                .ForJavaEdition()
                 .WithMsalOAuth(app, factory => factory.CreateWithEmbeddedWebView())
                 .Build();
 
@@ -94,7 +96,8 @@ namespace MsalClientTest
 
         public static async Task<MSession> LoginDeviceCode(IPublicClientApplication app)
         {
-            var loginHandler = new JavaEditionLoginHandlerBuilder()
+            var loginHandler = new LoginHandlerBuilder()
+                .ForJavaEdition()
                 .WithMsalOAuth(app, factory => factory.CreateDeviceCodeApi(result =>
                 {
                     Console.WriteLine($"Code: {result.UserCode}, ExpiresOn: {result.ExpiresOn.LocalDateTime}");
