@@ -11,8 +11,10 @@ namespace CmlLib.Core.Auth.Microsoft
         public JavaEditionLoginHandlerBuilder(LoginHandlerBuilderContext context)
             : base(context)
         {
+            if (string.IsNullOrEmpty(this.Context.ClientId))
+                this.Context.ClientId = XboxAuthNet.XboxLive.XboxGameTitles.MinecraftJava;
+
             this.MojangXboxApi = new MojangXboxApi(context.HttpClient);
-            this.Context.ClientId = XboxAuthNet.XboxLive.XboxGameTitles.MinecraftJava;
             WithRelyingParty(Mojang.MojangXboxApi.RelyingParty);
         }
 

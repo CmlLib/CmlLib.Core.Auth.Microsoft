@@ -31,7 +31,7 @@ namespace CmlLib.Core.Auth.Microsoft.XboxLive
                     return await requestDeviceToken();
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 // this method is experimental, can be break or removed anytime.
                 // since this token is not necessary for minecraft authentication, simply ignore device token if error occurs.

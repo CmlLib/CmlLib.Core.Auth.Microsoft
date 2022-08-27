@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Diagnostics;
+using System.Threading.Tasks;
 using XboxAuthNet.XboxLive;
 
 namespace CmlLib.Core.Auth.Microsoft.XboxLive
@@ -12,15 +13,21 @@ namespace CmlLib.Core.Auth.Microsoft.XboxLive
         {
             this._sisuAuth = sisuAuth;
             this._parameters = parameters;
+            parameters.Validate();
         }
 
         public async Task<XboxAuthTokens> GetTokens(string token, XboxAuthTokens? previousTokens, string xstsRelyingParty)
         {
-            var deviceToken = await _sisuAuth.RequestDeviceToken(_parameters.DeviceType, _parameters.DeviceVersion);
+            // check parameters in constructor
+            Debug.Assert(_parameters.DeviceType != null);
+            Debug.Assert(_parameters.DeviceVersion != null);
+            Debug.Assert(_parameters.ClientId != null);
+
+            var deviceToken = await _sisuAuth.RequestDeviceToken(_parameters.DeviceType!, _parameters.DeviceVersion!);
             if (string.IsNullOrEmpty(deviceToken?.Token))
                 throw new XboxAuthException("deviceToken was null", 200);
 
-            var tokens = await _sisuAuth.SisuAuth(token, _parameters.ClientId, deviceToken?.Token!, xstsRelyingParty);
+            var tokens = await _sisuAuth.SisuAuth(token, _parameters.ClientId!, deviceToken?.Token!, xstsRelyingParty, _parameters.TokenPrefix);
             return new XboxAuthTokens
             {
                 DeviceToken = deviceToken,
