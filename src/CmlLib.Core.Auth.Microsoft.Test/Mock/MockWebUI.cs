@@ -24,7 +24,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test.Mock
             if (result.IsSuccess && result.OAuthCode != null)
                 return Task.FromResult(result.OAuthCode);
             else
-                throw new LoginCancelledException("MockWebUI");
+                throw new LoginCancelledException(null, "MockWebUI");
         }
 
         public Task ShowUri(Uri uri, CancellationToken cancellationToken)

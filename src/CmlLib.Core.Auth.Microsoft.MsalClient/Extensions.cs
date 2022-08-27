@@ -23,8 +23,13 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
             where TBuilder : AbstractLoginHandlerBuilder<TBuilder, TSession>
             where TSession : SessionCacheBase
         {
-            var defaultPath = Path.Combine(MinecraftPath.GetOSDefaultPath(), "cml_msalsession.json");
-            return builder.WithMsalCacheManager(defaultPath);
+            return builder.With((_, context) =>
+            {
+                var path = context.CachePath;
+                if (string.IsNullOrEmpty(path))
+                    path = Path.Combine(MinecraftPath.GetOSDefaultPath(), "cml_msalsession.json");
+                builder.WithMsalCacheManager(path!);
+            });
         }
 
         public static TBuilder WithMsalCacheManager<TBuilder, TSession>(this AbstractLoginHandlerBuilder<TBuilder, TSession> builder,

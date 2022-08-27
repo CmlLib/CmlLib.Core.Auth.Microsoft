@@ -14,34 +14,41 @@ namespace CmlLib.Core.Auth.Microsoft
     public class LoginHandler
     {
         private readonly JavaEditionLoginHandler _loginHandler;
-        private readonly MicrosoftOAuth _oauth;
-        private readonly MicrosoftOAuthWebUILoginHandler _webUILoginHandler;
+        private MicrosoftOAuth _oauth;
+        private MicrosoftOAuthWebUILoginHandler _webUILoginHandler;
 
         private MicrosoftOAuthCode? _authCode;
 
-        [Obsolete("Use new JavaEditionLoginHandlerBuilder().Build()")]
         public LoginHandler()
         {
-            this._oauth = new MicrosoftOAuth(
-                JavaEditionLoginHandlerBuilder.MojangClientId, 
-                XboxAuth.XboxScope, 
-                HttpHelper.DefaultHttpClient.Value);
-            this._webUILoginHandler = new MicrosoftOAuthWebUILoginHandler(this._oauth);
-            this._loginHandler = new JavaEditionLoginHandlerBuilder()
-                .WithMicrosoftOAuthApi(new MicrosoftOAuthApi(this._oauth))
+            this._loginHandler = new LoginHandlerBuilder()
+                .ForJavaEdition()
+                .With((builder, context) =>
+                {
+                    if (string.IsNullOrEmpty(context.ClientId))
+                        throw new InvalidOperationException("context.ClientId was null");
+
+                    this._oauth = new MicrosoftOAuth(context.ClientId!, XboxAuth.XboxScope, context.HttpClient);
+                    this._webUILoginHandler = new MicrosoftOAuthWebUILoginHandler(this._oauth);
+                    builder.WithMicrosoftOAuthApi(new MicrosoftOAuthApi(this._oauth));
+                })
                 .Build();
+
+            if (this._oauth == null)
+                throw new InvalidOperationException("_oauth was null");
+            if (this._webUILoginHandler == null)
+                throw new InvalidOperationException("_webUILoginHandler was null");
         }
 
-        [Obsolete("Use new JavaEditionLoginHandlerBuilder().Build()")]
         public LoginHandler(Action<JavaEditionLoginHandlerBuilder> builder)
         {
-            var builderObj = new JavaEditionLoginHandlerBuilder();
+            var builderObj = new LoginHandlerBuilder().ForJavaEdition();
             builder.Invoke(builderObj);
             var parameters = builderObj.BuildParameters();
 
             var oauth = parameters.MicrosoftOAuthApi as MicrosoftOAuth;
             if (oauth == null)
-                throw new InvalidOperationException("Legacy LoginHandler only can handle MicrosoftOAuth. Use JavaEditionLoginHandlerBuilder.");
+                throw new InvalidOperationException("Legacy LoginHandler only can handle MicrosoftOAuth. Use JavaEditionLoginHandlerBuilder for others.");
 
             this._oauth = oauth;
             this._webUILoginHandler = new MicrosoftOAuthWebUILoginHandler(_oauth);

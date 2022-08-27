@@ -23,9 +23,6 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
             if (!base.CheckValidation())
                 return false;
 
-            if (GameSession == null)
-                return false;
-
             if (MojangXboxToken == null)
                 return false;
 

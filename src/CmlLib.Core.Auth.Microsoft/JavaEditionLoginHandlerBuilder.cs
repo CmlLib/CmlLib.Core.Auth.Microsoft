@@ -8,19 +8,11 @@ namespace CmlLib.Core.Auth.Microsoft
     public class JavaEditionLoginHandlerBuilder
         : AbstractLoginHandlerBuilder<JavaEditionLoginHandlerBuilder, JavaEditionSessionCache>
     {
-        public static readonly string MojangClientId = XboxAuthNet.XboxLive.XboxGameTitles.MinecraftJava;
-
-        public JavaEditionLoginHandlerBuilder()
-            : this(HttpHelper.DefaultHttpClient.Value)
+        public JavaEditionLoginHandlerBuilder(LoginHandlerBuilderContext context)
+            : base(context)
         {
-            
-        }
-
-        public JavaEditionLoginHandlerBuilder(HttpClient httpClient)
-            : base(httpClient)
-        {
-            this.MojangXboxApi = new MojangXboxApi(httpClient);
-            this.Context.ClientId = MojangClientId;
+            this.MojangXboxApi = new MojangXboxApi(context.HttpClient);
+            this.Context.ClientId = XboxAuthNet.XboxLive.XboxGameTitles.MinecraftJava;
             WithRelyingParty(Mojang.MojangXboxApi.RelyingParty);
         }
 

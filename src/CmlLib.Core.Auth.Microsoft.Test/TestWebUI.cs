@@ -11,7 +11,8 @@ namespace CmlLib.Core.Auth.Microsoft.Test
     {
         public JavaEditionLoginHandler CreateLoginHandler(Uri redirectedUri)
         {
-            var loginHandler = new JavaEditionLoginHandlerBuilder()
+            var loginHandler = new LoginHandlerBuilder()
+                .ForJavaEdition()
                 .WithCacheManager(new InMemoryCacheManger<JavaEditionSessionCache>())
                 .WithMicrosoftOAuthApi(builder => builder
                     .WithWebUI(new MockWebUI(redirectedUri)))
@@ -23,7 +24,6 @@ namespace CmlLib.Core.Auth.Microsoft.Test
         }
 
         [Test]
-        [TestCase("a")]
         public async Task TestSuccess(string uri)
         {
             var loginHandler = CreateLoginHandler(new Uri(uri));

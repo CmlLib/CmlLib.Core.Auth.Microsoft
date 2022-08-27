@@ -70,7 +70,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
                     throw Error;
 
                 if (this.Session == null)
-                    throw new LoginCancelledException("User cancelled login");
+                    throw new LoginCancelledException(null, "User cancelled login");
 
                 return this.Session;
             }
@@ -178,7 +178,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
                 }
                 else
                 {
-                    this.Error = new LoginCancelledException(authCode.Error + ", " + authCode.ErrorDescription);
+                    this.Error = new LoginCancelledException(authCode.Error, authCode.ErrorDescription ?? authCode.Error);
                 }
 
                 this.Close();

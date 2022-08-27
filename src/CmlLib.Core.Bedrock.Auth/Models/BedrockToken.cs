@@ -13,7 +13,7 @@ namespace CmlLib.Core.Bedrock.Auth.Models
 
         public string Token { get; }
         
-        public BedrockTokenPayload DecodeTokenPayload()
+        public BedrockTokenPayload? DecodeTokenPayload()
         {
             if (string.IsNullOrEmpty(Token))
                 throw new InvalidOperationException("Token was empty");
@@ -30,6 +30,9 @@ namespace CmlLib.Core.Bedrock.Auth.Models
             try
             {
                 var payload = DecodeTokenPayload();
+                if (payload == null)
+                    return false;
+
                 var exp = DateTimeOffset.FromUnixTimeSeconds(payload.Expire);
                 if (exp <= DateTimeOffset.UtcNow)
                     return false;

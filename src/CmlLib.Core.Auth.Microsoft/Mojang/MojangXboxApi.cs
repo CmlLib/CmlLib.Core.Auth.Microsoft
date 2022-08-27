@@ -38,7 +38,9 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
                 res.EnsureSuccessStatusCode();
                 var resObj = JsonSerializer.Deserialize<MojangXboxLoginResponse>(resBody);
 
-                if (resObj == null)
+                if (resObj == null && res.IsSuccessStatusCode)
+                    throw new MinecraftAuthException($"{(int)res.StatusCode}: {res.ReasonPhrase}");
+                else if (resObj == null)
                     throw new MinecraftAuthException("Response was null");
 
                 resObj.ExpiresOn = DateTime.UtcNow.AddSeconds(resObj.ExpiresIn);

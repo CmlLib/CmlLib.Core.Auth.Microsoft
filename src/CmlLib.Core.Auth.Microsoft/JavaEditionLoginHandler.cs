@@ -9,13 +9,6 @@ namespace CmlLib.Core.Auth.Microsoft
 {
     public class JavaEditionLoginHandler : AbstractLoginHandler<JavaEditionSessionCache>
     {
-        public static JavaEditionLoginHandler CreateWith(Action<JavaEditionLoginHandlerBuilder, LoginBuilderContext> action)
-        {
-            return new JavaEditionLoginHandlerBuilder()
-                .With(action)
-                .Build();
-        }
-
         private readonly IMojangXboxApi _mojangXboxApi;
 
         public bool CheckGameOwnership { get; set; } = false;
@@ -58,7 +51,13 @@ namespace CmlLib.Core.Auth.Microsoft
             if (string.IsNullOrEmpty(xsts.Token))
                 throw new ArgumentException("xsts.Token was null");
 
-            var mcToken = await _mojangXboxApi.LoginWithXbox(xsts.UserHash!, xsts.Token!); // not null
+            var mcToken = await _mojangXboxApi.LoginWithXbox(xsts.UserHash!, xsts.Token!);
+
+            if (mcToken == null)
+                throw new MinecraftAuthException("mcToken was null");
+            if (string.IsNullOrEmpty(mcToken.AccessToken))
+                throw new MinecraftAuthException("MojangXboxApi returned empty AccessToken");
+
             return mcToken;
         }
 
@@ -109,6 +108,11 @@ namespace CmlLib.Core.Auth.Microsoft
 
             if (!session.CheckIsValid())
                 throw new MinecraftAuthException("mojang_noprofile");
+
+            if (string.IsNullOrEmpty(session.UUID))
+                throw new MinecraftAuthException("no UUID");
+            if (string.IsNullOrEmpty(session.Username))
+                throw new MinecraftAuthException("no Username");
 
             return session;
         }

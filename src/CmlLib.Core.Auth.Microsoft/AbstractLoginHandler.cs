@@ -2,6 +2,7 @@
 using CmlLib.Core.Auth.Microsoft.Mojang;
 using CmlLib.Core.Auth.Microsoft.OAuth;
 using CmlLib.Core.Auth.Microsoft.XboxLive;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
@@ -61,7 +62,11 @@ namespace CmlLib.Core.Auth.Microsoft
             // it try to refresh microsoft token, xbox token, and minecraft token
             if (sessionCacheBase == null || !sessionCacheBase.CheckValidation())
             {
-                var msToken = await _oauth.GetOrRefreshTokens(sessionCacheBase?.MicrosoftOAuthToken!, cancellationToken);
+                var msToken = await _oauth.GetOrRefreshTokens(sessionCacheBase?.MicrosoftOAuthToken, cancellationToken);
+
+                if (msToken == null || string.IsNullOrEmpty(msToken.AccessToken))
+                    throw new MicrosoftOAuthException("MicrosoftOAuth returned null AccessToken", 200);
+
                 // success to refresh ms
                 return await GetAllTokens(msToken, sessionCacheBase?.XboxTokens, cancellationToken);
             }
@@ -75,6 +80,10 @@ namespace CmlLib.Core.Auth.Microsoft
         public async Task<T> LoginFromOAuth(CancellationToken cancellationToken = default)
         {
             var token = await _oauth.RequestNewTokens(cancellationToken);
+
+            if (token == null || string.IsNullOrEmpty(token.AccessToken))
+                throw new MicrosoftOAuthException("MicrosoftOAuth returned null AccessToken", 200);
+
             return await LoginFromOAuth(token, cancellationToken);
         }
 
@@ -87,6 +96,11 @@ namespace CmlLib.Core.Auth.Microsoft
         /// <exception cref="MinecraftAuthException"></exception>
         public async Task<T> LoginFromOAuth(MicrosoftOAuthResponse msToken, CancellationToken cancellationToken = default)
         {
+            if (msToken == null)
+                throw new ArgumentNullException(nameof(msToken));
+            if (string.IsNullOrEmpty(msToken.AccessToken))
+                throw new ArgumentException("Empty msToken");
+
             var sessionCache = await GetAllTokens(msToken, null, cancellationToken);
             await saveSessionCache(sessionCache);
             return sessionCache;
@@ -96,9 +110,9 @@ namespace CmlLib.Core.Auth.Microsoft
         { 
             xboxTokens = await _xbox.GetTokens(msToken.AccessToken!, xboxTokens, this.RelyingParty);
             if (string.IsNullOrEmpty(xboxTokens?.XstsToken?.Token))
-                throw new XboxAuthException("xsts was empty", 200);
+                throw new XboxAuthException("XboxLive returned empty xsts token", 200);
             if (string.IsNullOrEmpty(xboxTokens?.XstsToken?.UserHash))
-                throw new XboxAuthException("uhs was empty", 200);
+                throw new XboxAuthException("XboxLive returned empty userHash", 200);
 
             var session = await GetAllTokens(xboxTokens?.XstsToken!, cancellationToken);
             session.MicrosoftOAuthToken = msToken;

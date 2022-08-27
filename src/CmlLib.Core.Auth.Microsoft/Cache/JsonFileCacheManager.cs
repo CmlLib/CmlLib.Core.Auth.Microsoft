@@ -6,6 +6,11 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
 {
     public class JsonFileCacheManager<T> : ICacheManager<T> where T : class
     {
+        private static JsonSerializerOptions jsonOptions = new JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+        };
+
         public string CacheFilePath { get; private set; }
 
         public JsonFileCacheManager(string filepath)
@@ -15,30 +20,30 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
 
         private T? GetDefaultObject() => default(T);
 
-        public virtual Task<T?> ReadCache()
+        public async virtual Task<T?> ReadCache()
         {
             if (!File.Exists(CacheFilePath))
-                return Task.FromResult(GetDefaultObject());
+                return GetDefaultObject();
 
             try
             {
-                string filecontent = File.ReadAllText(CacheFilePath);
-                return Task.FromResult(JsonSerializer.Deserialize<T>(filecontent));
+                using var file = File.OpenRead(CacheFilePath);
+                return await JsonSerializer.DeserializeAsync<T>(file);
             }
             catch
             {
-                return Task.FromResult(GetDefaultObject());
+                return GetDefaultObject();
             }
         }
 
-        public virtual Task SaveCache(T? obj)
+        public async virtual Task SaveCache(T? obj)
         {
             var dirPath = Path.GetDirectoryName(CacheFilePath);
             if (!string.IsNullOrEmpty(dirPath))
                 Directory.CreateDirectory(dirPath);
-            File.WriteAllText(CacheFilePath, JsonSerializer.Serialize(obj));
 
-            return Task.CompletedTask;
+            using var file = File.Create(CacheFilePath);
+            await JsonSerializer.SerializeAsync(file, jsonOptions);
         }
 
         public virtual Task ClearCache()

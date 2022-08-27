@@ -14,8 +14,8 @@ namespace CmlLib.Core.Auth.Microsoft.OAuth
 
         public MicrosoftOAuthCodeCheckResult CheckOAuthCodeResult(Uri uri)
         {
-            var checkResult = _oAuth.CheckLoginSuccess(uri.ToString(), out var authCode);
-            return new MicrosoftOAuthCodeCheckResult(checkResult, authCode);
+            _oAuth.CheckLoginSuccess(uri.ToString(), out var authCode);
+            return new MicrosoftOAuthCodeCheckResult(!authCode.IsEmpty, authCode);
         }
 
         public string CreateOAuthUrl()

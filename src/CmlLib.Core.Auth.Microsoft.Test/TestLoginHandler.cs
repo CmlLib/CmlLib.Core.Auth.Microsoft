@@ -1,35 +1,16 @@
 ﻿using CmlLib.Core.Auth.Microsoft.Cache;
 using CmlLib.Core.Auth.Microsoft.Mojang;
 using CmlLib.Core.Auth.Microsoft.Test.Mock;
+using CmlLib.Core.Auth.Microsoft.XboxLive;
 using NUnit.Framework;
 using System;
 using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
+using XboxAuthNet.XboxLive;
 using XboxAuthNet.XboxLive.Entity;
 
 namespace CmlLib.Core.Auth.Microsoft.Test
 {
-    internal class MockObjects
-    {
-        public ICacheManager<JavaEditionSessionCache> CacheManager { get; init; }
-        public MockOAuthApi OAuthApi { get; init; }
-        public MockXboxLiveApi XboxLiveApi { get; init; }
-        public MockMojangXboxApi MojangXboxApi { get; init; }
-
-        public MockObjects(
-            ICacheManager<JavaEditionSessionCache> cacheManager, 
-            MockOAuthApi oAuthApi, 
-            MockXboxLiveApi xboxLiveApi, 
-            MockMojangXboxApi mojangXboxApi)
-        {
-            CacheManager = cacheManager;
-            OAuthApi = oAuthApi;
-            XboxLiveApi = xboxLiveApi;
-            MojangXboxApi = mojangXboxApi;
-        }
-
-    }
-
     internal class TestLoginHandler
     {
         public const string NotExpiredJwt = ".eyJleHAiOjE5MDk2NjEzMTh9."; // exp: 2030.07.07
@@ -42,7 +23,8 @@ namespace CmlLib.Core.Auth.Microsoft.Test
             var xboxLiveApi = new MockXboxLiveApi();
             var mojangXboxApi = new MockMojangXboxApi();
 
-            var loginHandler = new JavaEditionLoginHandlerBuilder()
+            var loginHandler = new LoginHandlerBuilder()
+                .ForJavaEdition()
                 .WithMicrosoftOAuthApi(oauthApi)
                 .WithCacheManager(cacheManager)
                 .WithXboxLiveApi(xboxLiveApi)
@@ -125,8 +107,15 @@ namespace CmlLib.Core.Auth.Microsoft.Test
             Assert.AreEqual(result, cache);
         }
 
-        public static object[] ExpiredMojangXboxLoginResponses = new object[]
+        public static object?[] ExpiredMojangXboxLoginResponses = new object?[]
         {
+            null,
+            new MojangXboxLoginResponse
+            {
+                AccessToken = null,
+                ExpiresIn = 86400,
+                ExpiresOn = DateTime.UtcNow.AddDays(10)
+            },
             new MojangXboxLoginResponse
             {
                 AccessToken = NotExpiredJwt,
@@ -143,7 +132,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
 
         [Test]
         [TestCaseSource(nameof(ExpiredMojangXboxLoginResponses))]
-        public async Task TestLoginFromCache_ValidOAuthExpiredMojang(MojangXboxLoginResponse mcToken)
+        public async Task TestLoginFromCache_ValidOAuthExpiredMojang(MojangXboxLoginResponse? mcToken)
         {
             var (mockObjects, loginHandler) = CreateMockEnvironment();
             var testcase = CreateDefaultTestCase();
@@ -193,6 +182,45 @@ namespace CmlLib.Core.Auth.Microsoft.Test
             });
         }
 
+        public static object?[] NullMSessions = new object?[]
+        {
+            null,
+            new MSession(null, null, null),
+            new MSession(null, "ac", "ud"),
+            new MSession("un", null, null),
+            new MSession("un", "ac", null)
+        };
+
+        [Test]
+        [TestCaseSource(nameof(NullMSessions))]
+        public async Task TestLoginFromCache_NullGameSession(MSession? session)
+        {
+            var (mockObjects, loginHandler) = CreateMockEnvironment();
+            var testcase = CreateDefaultTestCase();
+            testcase.GameSession = session;
+
+            await mockObjects.CacheManager.SaveCache(testcase);
+            var result = await loginHandler.LoginFromCache();
+            var cache = await mockObjects.CacheManager.ReadCache();
+
+            Assert.NotNull(cache?.MicrosoftOAuthToken);
+            Assert.NotNull(cache?.XboxTokens?.XstsToken);
+            Assert.NotNull(cache?.MojangXboxToken);
+            Assert.NotNull(cache?.GameSession);
+
+            Assert.AreEqual("OldOAuthAccessToken", result.MicrosoftOAuthToken?.AccessToken);
+            Assert.AreEqual("OldOAuthRefreshToken", result.MicrosoftOAuthToken?.RefreshToken);
+            Assert.AreEqual("OldXstsToken", result.XboxTokens?.XstsToken?.Token);
+            Assert.AreEqual("OldUserHash", result.XboxTokens?.XstsToken?.UserHash);
+            Assert.AreEqual("OldXboxUserId", result.XboxTokens?.XstsToken?.UserXUID);
+            Assert.AreEqual(testcase.MojangXboxToken?.AccessToken, result.MojangXboxToken?.AccessToken);
+            Assert.AreEqual(testcase.MojangXboxToken?.Username, result.MojangXboxToken?.Username);
+
+            Assert.AreEqual("MockMojangXboxApi_ProfileUsername", result.GameSession?.Username);
+            Assert.AreEqual("MockMojangXboxApi_ProfileUUID", result.GameSession?.UUID);
+            Assert.AreEqual(testcase.MojangXboxToken?.AccessToken, result.GameSession?.AccessToken);
+        }
+
         [Test]
         public async Task TestLoginFromOAuth()
         {
@@ -221,6 +249,101 @@ namespace CmlLib.Core.Auth.Microsoft.Test
 
             // check cached session is same as result
             Assert.AreEqual(result, cache);
+        }
+
+        public static object?[] MockOAuthResponse = new object?[]
+        {
+            null,
+            new MicrosoftOAuthResponse(),
+            new MicrosoftOAuthResponse
+            {
+                AccessToken = ""
+            }
+        };
+
+        [Test]
+        [TestCaseSource(nameof(MockOAuthResponse))]
+        public void TestGetOrRefreshTokens(MicrosoftOAuthResponse oauth)
+        {
+            var (mockObjects, loginHandler) = CreateMockEnvironment();
+            mockObjects.OAuthApi.GetOrRefreshTokensReturn = oauth;
+
+            var ex = Assert.ThrowsAsync<MicrosoftOAuthException>(async () =>
+            {
+                var result = await loginHandler.LoginFromCache();
+            });
+        }
+
+        [Test]
+        [TestCaseSource(nameof(MockOAuthResponse))]
+        public void TestRequestNewTokens(MicrosoftOAuthResponse oauth)
+        {
+            var (mockObjects, loginHandler) = CreateMockEnvironment();
+            mockObjects.OAuthApi.RequestNewTokensReturn = oauth;
+
+            var ex = Assert.ThrowsAsync<MicrosoftOAuthException>(async () =>
+            {
+                var result = await loginHandler.LoginFromOAuth();
+            });
+        }
+
+        public static object?[] MockXboxAuthTokens = new object?[]
+        {
+            null,
+            new XboxAuthTokens(),
+            new XboxAuthTokens
+            {
+                XstsToken = new XboxAuthResponse()
+            },
+            new XboxAuthTokens
+            {
+                XstsToken = new XboxAuthResponse
+                {
+                    Token = "token"
+                }
+            },
+            new XboxAuthTokens
+            {
+                XstsToken = new XboxAuthResponse
+                {
+                    XuiClaims = new XboxAuthXuiClaims
+                    {
+                        UserHash = "userhash"
+                    }
+                }
+            }
+        };
+
+        [Test]
+        [TestCaseSource(nameof(MockXboxAuthTokens))]
+        public void TestXboxLiveApi(XboxAuthTokens tokens)
+        {
+            var (mockObjects, loginHandler) = CreateMockEnvironment();
+            mockObjects.XboxLiveApi.ReturnObject = tokens;
+
+            var ex = Assert.ThrowsAsync<XboxAuthException>(async () =>
+            {
+                var result = await loginHandler.LoginFromOAuth();
+            });
+        }
+
+        [Test]
+        [TestCase(null, null, null)]
+        [TestCase(null, "uuid", "username")]
+        [TestCase("accesstoken", null, "username")]
+        [TestCase("accesstoken", "uuid", null)]
+        public void TestMojangXboxApi(string accessToken, string uuid, string username)
+        {
+            var (mockObjects, loginHandler) = CreateMockEnvironment();
+
+            mockObjects.MojangXboxApi.MockAccessToken = accessToken;
+            mockObjects.MojangXboxApi.MockProfileUUID = uuid;
+            mockObjects.MojangXboxApi.MockProfileUsername = username;
+
+            var ex = Assert.ThrowsAsync<MinecraftAuthException>(async () =>
+            {
+                var result = await loginHandler.LoginFromOAuth();
+            });
         }
     }
 }

@@ -10,25 +10,29 @@ namespace CmlLib.Core.Auth.Microsoft.Test.Mock
     {
         public bool OAuthCodeResult { get; set; } = true;
 
-        public Task<MicrosoftOAuthResponse> GetOrRefreshTokens(MicrosoftOAuthResponse refreshToken, CancellationToken cancellationToken)
+        public MicrosoftOAuthResponse? GetOrRefreshTokensReturn = new MicrosoftOAuthResponse
         {
-            if (refreshToken.ExpireIn < 10)
+            AccessToken = "MockOAuthApi_GetOrRefreshTokens_AccessToken",
+            RefreshToken = "MockOAuthApi_GetOrRefreshTokens_RefreshToken",
+        };
+
+        public Task<MicrosoftOAuthResponse> GetOrRefreshTokens(MicrosoftOAuthResponse? refreshToken, CancellationToken cancellationToken)
+        {
+            if (refreshToken != null && refreshToken.ExpireIn < 10)
                 throw new MicrosoftOAuthException("token was expired", 0);
 
-            return Task.FromResult(new MicrosoftOAuthResponse
-            {
-                AccessToken = "MockOAuthApi_GetOrRefreshTokens_AccessToken",
-                RefreshToken = "MockOAuthApi_GetOrRefreshTokens_RefreshToken",
-            });
+            return Task.FromResult(GetOrRefreshTokensReturn)!;
         }
+
+        public MicrosoftOAuthResponse? RequestNewTokensReturn = new MicrosoftOAuthResponse
+        {
+            AccessToken = "MockOAuthApi_RequestNewTokens_AccessToken",
+            RefreshToken = "MockOAuthApi_RequestNewTokens_RefreshToken",
+        };
 
         public Task<MicrosoftOAuthResponse> RequestNewTokens(CancellationToken cancellationToken)
         {
-            return Task.FromResult(new MicrosoftOAuthResponse
-            {
-                AccessToken = "MockOAuthApi_RequestNewTokens_AccessToken",
-                RefreshToken = "MockOAuthApi_RequestNewTokens_RefreshToken",
-            });
+            return Task.FromResult(RequestNewTokensReturn)!;
         }
 
         public bool CheckOAuthCodeResult(Uri uri, out MicrosoftOAuthCode authCode)

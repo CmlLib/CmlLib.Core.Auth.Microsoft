@@ -18,6 +18,12 @@ namespace CmlLib.Core.Auth.Microsoft.OAuth
         {
             var loginHandler = new MicrosoftOAuthWebUILoginHandler(_oAuth);
             var authCode = await _webUI.GetAuthCode(loginHandler, cancellationToken);
+
+            if (!authCode.IsSuccess)
+            {
+                throw new LoginCancelledException(authCode.Error, authCode.ErrorDescription ?? authCode.Error);
+            }
+
             var tokens = await _oAuth.GetTokens(authCode);
             return tokens;
         }

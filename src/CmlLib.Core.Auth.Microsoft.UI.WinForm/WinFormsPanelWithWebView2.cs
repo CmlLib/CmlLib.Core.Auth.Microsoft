@@ -101,7 +101,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
                 case DialogResult.OK:
                     break;
                 case DialogResult.Cancel:
-                    throw new LoginCancelledException("User canceled authentication. ");
+                    throw new LoginCancelledException(null, "User canceled authentication. ");
                 default:
                     throw new InvalidOperationException(
                         "WebView2 returned an unexpected result: " + uiResult);

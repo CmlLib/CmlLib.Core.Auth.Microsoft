@@ -1,15 +1,27 @@
 ﻿using System.Threading.Tasks;
 using XboxAuthNet.XboxLive;
+using XboxAuthNet.XboxLive.Entity;
 
 namespace CmlLib.Core.Auth.Microsoft.XboxLive
 {
     public class XboxAuthNetApi : IXboxLiveApi
     {
         private readonly XboxAuth xbox;
+        private readonly IXboxAuthTokenApi? deviceTokenApi;
+        private readonly IXboxAuthTokenApi? titleTokenApi;
 
-        public XboxAuthNetApi(XboxAuth xl)
+        public XboxAuthNetApi(XboxAuth xl) : this(xl, null, null)
+        {
+
+        }
+
+        public XboxAuthNetApi(XboxAuth xl,
+            IXboxAuthTokenApi? deviceTokenApi,
+            IXboxAuthTokenApi? titleTokenApi)
         {
             this.xbox = xl;
+            this.deviceTokenApi = deviceTokenApi;
+            this.titleTokenApi = titleTokenApi;
         }
 
         /// <summary>
@@ -28,18 +40,25 @@ namespace CmlLib.Core.Auth.Microsoft.XboxLive
             if (string.IsNullOrEmpty(rps.Token))
                 throw new XboxAuthException("rps.Token was empty", 200);
 
-            string? deviceToken = null;
-            string? titleToken = null;
+            XboxAuthResponse? deviceToken = null; 
+            XboxAuthResponse? titleToken = null;
+
+            if (deviceTokenApi != null)
+                deviceToken = await deviceTokenApi.GetToken(previousTokens?.DeviceToken);
+            if (titleTokenApi != null)
+                titleToken = await titleTokenApi.GetToken(previousTokens?.TitleToken);
 
             var xsts = await xbox.ExchangeTokensForXstsIdentity(
                 userToken: rps.Token!,
-                deviceToken,
-                titleToken,
+                deviceToken?.Token,
+                titleToken?.Token,
                 xstsRelyingParty,
                 null);
 
             return new XboxAuthTokens
             {
+                DeviceToken = deviceToken,
+                TitleToken = titleToken,
                 XstsToken = xsts
             };
         }

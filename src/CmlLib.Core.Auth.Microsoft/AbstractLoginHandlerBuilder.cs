@@ -12,23 +12,17 @@ namespace CmlLib.Core.Auth.Microsoft
         where TBuilder : AbstractLoginHandlerBuilder<TBuilder, TSession>
         where TSession : SessionCacheBase
     {
-        public AbstractLoginHandlerBuilder(HttpClient httpClient)
+        public AbstractLoginHandlerBuilder(LoginHandlerBuilderContext context)
         {
-            this.Context = new LoginBuilderContext
-            {
-                HttpClient = httpClient,
-                CachePath = Path.Combine(MinecraftPath.GetOSDefaultPath(), "cml_xsession.json")
-            };
+            this.Context = context;
             this.Parameters = new LoginHandlerParameters();
-
-            WithCacheManager(new JsonFileCacheManager<TSession>(this.Context.CachePath));
         }
 
         private LoginHandlerParameters Parameters { get; set; }
-        protected LoginBuilderContext Context { get; private set; }
+        protected LoginHandlerBuilderContext Context { get; private set; }
         public ICacheManager<TSession>? CacheManager { get; private set; }
 
-        public TBuilder With(Action<TBuilder, LoginBuilderContext> action)
+        public TBuilder With(Action<TBuilder, LoginHandlerBuilderContext> action)
         {
             action.Invoke((TBuilder)this, Context);
             return (TBuilder)this;

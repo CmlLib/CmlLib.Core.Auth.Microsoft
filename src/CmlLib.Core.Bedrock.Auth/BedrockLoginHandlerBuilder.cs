@@ -9,11 +9,11 @@ namespace CmlLib.Core.Bedrock.Auth
     public class BedrockLoginHandlerBuilder
         : AbstractLoginHandlerBuilder<BedrockLoginHandlerBuilder, BedrockSessionCache>
     {
-        public BedrockLoginHandlerBuilder(HttpClient httpClient) : base(httpClient)
+        public BedrockLoginHandlerBuilder(LoginHandlerBuilderContext context) : base(context)
         {
             Context.CachePath = Path.Combine(MinecraftPath.GetOSDefaultPath(), "cml_bedrock.json");
             WithCacheManager(new JsonFileCacheManager<BedrockSessionCache>(Context.CachePath));
-            BedrockXboxApi = new BedrockXboxApi(httpClient);
+            BedrockXboxApi = new BedrockXboxApi(context.HttpClient);
             WithRelyingParty("https://multiplayer.minecraft.net/");
         }
 

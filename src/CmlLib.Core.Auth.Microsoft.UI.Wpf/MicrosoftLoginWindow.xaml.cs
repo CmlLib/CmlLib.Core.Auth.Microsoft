@@ -12,9 +12,6 @@ using XboxAuthNet.XboxLive;
 
 namespace CmlLib.Core.Auth.Microsoft.UI.Wpf
 {
-    /// <summary>
-    /// MicrosoftLoginWindow.xaml에 대한 상호 작용 논리
-    /// </summary>
     public partial class MicrosoftLoginWindow : Window
     {
         public MicrosoftLoginWindow()
