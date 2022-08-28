@@ -15,6 +15,7 @@ namespace CmlLib.Core.Auth.Microsoft.OAuth
         private string Scope;
         private HttpClient? HttpClient;
         private IWebUI? WebUI;
+        private MicrosoftOAuthParameters? Parameters;
 
         private MicrosoftOAuthApiBuilder(string clientId)
         {
@@ -40,6 +41,12 @@ namespace CmlLib.Core.Auth.Microsoft.OAuth
             return this;
         }
 
+        public MicrosoftOAuthApiBuilder WithOAuthParameters(MicrosoftOAuthParameters parm)
+        {
+            this.Parameters = parm;
+            return this;
+        }
+
         public MicrosoftOAuthApi Build()
         {
             if (HttpClient == null)
@@ -50,7 +57,7 @@ namespace CmlLib.Core.Auth.Microsoft.OAuth
             if (WebUI == null)
                 return new MicrosoftOAuthApi(oauth);
             else
-                return new MicrosoftOAuthApiWithWebUI(WebUI, oauth);
+                return new MicrosoftOAuthApiWithWebUI(WebUI, oauth, Parameters ?? new MicrosoftOAuthParameters());
         }
     }
 }

@@ -29,7 +29,7 @@ namespace CmlLib.Core.Auth.Microsoft
                         throw new InvalidOperationException("context.ClientId was null");
 
                     this._oauth = new MicrosoftOAuth(context.ClientId!, XboxAuth.XboxScope, context.HttpClient);
-                    this._webUILoginHandler = new MicrosoftOAuthWebUILoginHandler(this._oauth);
+                    this._webUILoginHandler = new MicrosoftOAuthWebUILoginHandler(this._oauth, new MicrosoftOAuthParameters());
                     builder.WithMicrosoftOAuthApi(new MicrosoftOAuthApi(this._oauth));
                 })
                 .Build();
@@ -51,7 +51,7 @@ namespace CmlLib.Core.Auth.Microsoft
                 throw new InvalidOperationException("Legacy LoginHandler only can handle MicrosoftOAuth. Use JavaEditionLoginHandlerBuilder for others.");
 
             this._oauth = oauth;
-            this._webUILoginHandler = new MicrosoftOAuthWebUILoginHandler(_oauth);
+            this._webUILoginHandler = new MicrosoftOAuthWebUILoginHandler(_oauth, new MicrosoftOAuthParameters());
             this._loginHandler = builderObj.Build();
         }
 

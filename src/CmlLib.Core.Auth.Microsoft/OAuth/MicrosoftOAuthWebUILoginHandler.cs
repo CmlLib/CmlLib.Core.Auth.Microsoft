@@ -6,10 +6,12 @@ namespace CmlLib.Core.Auth.Microsoft.OAuth
     public class MicrosoftOAuthWebUILoginHandler : IWebUILoginHandler
     {
         private readonly MicrosoftOAuth _oAuth;
+        private readonly MicrosoftOAuthParameters _parameters;
 
-        public MicrosoftOAuthWebUILoginHandler(MicrosoftOAuth oauth)
+        public MicrosoftOAuthWebUILoginHandler(MicrosoftOAuth oauth, MicrosoftOAuthParameters param)
         {
             this._oAuth = oauth;
+            this._parameters = param;
         }
 
         public MicrosoftOAuthCodeCheckResult CheckOAuthCodeResult(Uri uri)
@@ -20,7 +22,7 @@ namespace CmlLib.Core.Auth.Microsoft.OAuth
 
         public string CreateOAuthUrl()
         {
-            return _oAuth.CreateUrlForOAuth();
+            return _oAuth.CreateUrlForOAuth(this._parameters);
         }
     }
 }

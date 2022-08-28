@@ -8,15 +8,29 @@ namespace CmlLib.Core.Auth.Microsoft.OAuth
     public class MicrosoftOAuthApiWithWebUI : MicrosoftOAuthApi
     {
         private readonly IWebUI _webUI;
+        private readonly MicrosoftOAuthParameters _parameters;
 
-        public MicrosoftOAuthApiWithWebUI(IWebUI webUI, MicrosoftOAuth oa) : base(oa)
+        public MicrosoftOAuthApiWithWebUI(
+            IWebUI webUI,
+            MicrosoftOAuth oa)
+            : this(webUI, oa, new MicrosoftOAuthParameters())
+        {
+
+        }
+
+        public MicrosoftOAuthApiWithWebUI(
+            IWebUI webUI, 
+            MicrosoftOAuth oa,
+            MicrosoftOAuthParameters parameters) 
+            : base(oa)
         {
             this._webUI = webUI;
+            this._parameters = parameters;
         }
 
         public override async Task<MicrosoftOAuthResponse> RequestNewTokens(CancellationToken cancellationToken)
         {
-            var loginHandler = new MicrosoftOAuthWebUILoginHandler(_oAuth);
+            var loginHandler = new MicrosoftOAuthWebUILoginHandler(_oAuth, _parameters);
             var authCode = await _webUI.GetAuthCode(loginHandler, cancellationToken);
 
             if (!authCode.IsSuccess)
