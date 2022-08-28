@@ -8,7 +8,7 @@ namespace CmlLib.Core.Auth.Microsoft.XboxLive
 {
     public class XboxSisuAuthBuilder
     {
-        private HttpClient? HttpClient;
+        public HttpClient? HttpClient { get; private set; }
         private IXboxSisuRequestSigner? Signer;
         private readonly XboxSisuAuthParameters _parameters;
 

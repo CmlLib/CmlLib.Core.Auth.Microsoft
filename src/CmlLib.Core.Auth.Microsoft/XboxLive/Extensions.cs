@@ -26,5 +26,23 @@ namespace CmlLib.Core.Auth.Microsoft.XboxLive
 
             return (TBuilder)builder;
         }
+
+        public static TBuilder WithXboxAuthNetApi<TBuilder, TSession>(this AbstractLoginHandlerBuilder<TBuilder, TSession> builder,
+            Func<XboxAuthNetApiBuilder, XboxAuthNetApiBuilder> func)
+            where TBuilder : AbstractLoginHandlerBuilder<TBuilder, TSession>
+            where TSession : SessionCacheBase
+        {
+            builder.With((_, context) =>
+            {
+                var authNet = new XboxAuthNetApiBuilder()
+                    .WithHttpClient(context.HttpClient);
+
+                authNet = func.Invoke(authNet);
+
+                builder.WithXboxLiveApi(authNet.Build());
+            });
+
+            return (TBuilder)builder;
+        }
     }
 }
