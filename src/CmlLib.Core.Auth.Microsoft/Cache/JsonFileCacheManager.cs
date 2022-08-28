@@ -43,7 +43,7 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
                 Directory.CreateDirectory(dirPath);
 
             using var file = File.Create(CacheFilePath);
-            await JsonSerializer.SerializeAsync(file, jsonOptions);
+            await JsonSerializer.SerializeAsync(file, obj, options: jsonOptions);
         }
 
         public virtual Task ClearCache()
