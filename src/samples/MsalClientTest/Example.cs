@@ -1,6 +1,5 @@
 ﻿using CmlLib.Core.Auth;
 using CmlLib.Core.Auth.Microsoft;
-using CmlLib.Core.Auth.Microsoft.Cache;
 using CmlLib.Core.Auth.Microsoft.MsalClient;
 using Microsoft.Identity.Client;
 
