@@ -12,7 +12,7 @@ Install Nuget package:
 ### Prepare
 
 Before to use MsalClient, You should acquire your own ClientID.
-[Create Client ID for MsalClient](https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft/wiki/Create-Client-ID-for-MsalClient)
+[Create Client ID for MsalClient](Create-Client-ID-for-MsalClient.md)
 
 Initialize MSAL application:
 

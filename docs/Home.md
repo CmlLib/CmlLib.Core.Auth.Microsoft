@@ -2,7 +2,7 @@
 
 Welcome to the CmlLib.Core.Auth.Microsoft.UI wiki!
 
-Current version: 2.1.0
+Current version: 2.1.0-rc
 
 This is library for new minecraft login feature which uses Microsoft Xbox account instead of classic mojang account.
 It provides two library that authenticate in different ways: `CmlLib.Core.Auth.Microsoft.UI.WinForm`, and `CmlLib.Core.Auth.Microsoft.MsalClient`.
@@ -12,7 +12,7 @@ It provides two library that authenticate in different ways: `CmlLib.Core.Auth.M
 This library has common features of other libraries.  
 You can extend this library to make your own login flows. 
 
-## [CmlLib.Core.Auth.Microsoft.UI.WinForm](WinForm)
+## [CmlLib.Core.Auth.Microsoft.UI.WinForm](WinForm.md)
 
 WinForm library for minecraft login. Using embeded WebView2 It shows Windows Form displaying Microsoft OAuth web page.
 
@@ -25,7 +25,7 @@ WinForm library for minecraft login. Using embeded WebView2 It shows Windows For
 
 This library also works with the WPF app. 
 
-## [CmlLib.Core.Auth.Microsoft.MsalClient](MsalClient)
+## [CmlLib.Core.Auth.Microsoft.MsalClient](MsalClient.md)
 
 Provides wrapper class for minecraft login with MSAL.NET library.
 All Microsoft OAuth process is handled by MSAL.NET. You can authenticate with embedded webview, system browser, or DeviceCode.

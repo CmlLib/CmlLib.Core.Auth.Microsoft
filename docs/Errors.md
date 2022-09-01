@@ -26,15 +26,15 @@ This resource is not available in the country associated with the user.
 
 #### 0x8015dc0c
 
-Access to this resource requires age verification.
+Access to this resource requires age verification. [Solution](XboxLiveApi.md)
 
 #### 0x8015dc0d
 
-Access to this resource requires age verification.
+Access to this resource requires age verification. [Solution](XboxLiveApi.md)
 
 #### 0x8015dc0e
 
-ACCOUNT_CHILD_NOT_IN_FAMILY
+ACCOUNT_CHILD_NOT_IN_FAMILY [Solution](XboxLiveApi.md)
 
 #### 0x8015dc09
 
