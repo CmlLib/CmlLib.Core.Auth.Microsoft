@@ -49,6 +49,7 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
 
             InitializeComponent();
 
+            CoreWebView2Environment.GetAvailableBrowserVersionString();
             _webView2!.CreationProperties = new CoreWebView2CreationProperties()
             {
                 UserDataFolder = Environment.ExpandEnvironmentVariables(WebView2UserDataFolder)

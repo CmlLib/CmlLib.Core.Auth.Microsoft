@@ -1,4 +1,5 @@
 ﻿using CmlLib.Core.Auth.Microsoft.OAuth;
+using Microsoft.Web.WebView2.Core;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,6 +33,24 @@ namespace CmlLib.Core.Auth.Microsoft.UI.WinForm
             var form = new WinFormsPanelWithWebView2(_ownerWindow);
             form.DisplayDialogAndNavigateUri(uri, cancellationToken);
             return Task.CompletedTask;
+        }
+
+        public static bool IsWebView2Available()
+        {
+            try
+            {
+                string wv2Version = CoreWebView2Environment.GetAvailableBrowserVersionString();
+                return !string.IsNullOrEmpty(wv2Version);
+            }
+            catch (WebView2RuntimeNotFoundException)
+            {
+                return false;
+            }
+            catch (Exception ex) when (ex is BadImageFormatException || ex is DllNotFoundException)
+            {
+                return false;
+                //throw new MsalClientException(MsalError.WebView2LoaderNotFound, MsalErrorMessage.WebView2LoaderNotFound, ex);
+            }
         }
     }
 }
