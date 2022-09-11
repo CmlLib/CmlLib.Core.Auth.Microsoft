@@ -1,60 +1,69 @@
-﻿using System;
-using System.Threading.Tasks;
-using XboxAuthNet.OAuth;
+﻿using System.Threading.Tasks;
 using XboxAuthNet.XboxLive;
+using XboxAuthNet.XboxLive.Entity;
 
 namespace CmlLib.Core.Auth.Microsoft.XboxLive
 {
     public class XboxAuthNetApi : IXboxLiveApi
     {
-        private readonly MicrosoftOAuth oAuth;
         private readonly XboxAuth xbox;
+        private readonly string? TokenPrefix;
+        private readonly IXboxAuthTokenApi? deviceTokenApi;
+        private readonly IXboxAuthTokenApi? titleTokenApi;
 
-        public XboxAuthNetApi(MicrosoftOAuth auth, XboxAuth xl)
+        public XboxAuthNetApi(XboxAuth xl) : this(xl, null, null, null)
         {
-            this.oAuth = auth;
+
+        }
+
+        public XboxAuthNetApi(XboxAuth xl,
+            string? tokenPrefix,
+            IXboxAuthTokenApi? deviceTokenApi,
+            IXboxAuthTokenApi? titleTokenApi)
+        {
             this.xbox = xl;
+            this.TokenPrefix = tokenPrefix;
+            this.deviceTokenApi = deviceTokenApi;
+            this.titleTokenApi = titleTokenApi;
         }
 
-        private MicrosoftOAuthCode? authCode;
-
-        public bool CheckOAuthCodeResult(Uri uri, out MicrosoftOAuthCode code)
+        /// <summary>
+        /// get xsts token
+        /// </summary>
+        /// <param name="token">token returned by microsoft oauth</param>
+        /// <param name="deviceToken"></param>
+        /// <param name="titleToken"></param>
+        /// <param name="xstsRelyingParty"></param>
+        /// <returns></returns>
+        public async Task<XboxAuthTokens> GetTokens(string token, XboxAuthTokens? previousTokens, string? xstsRelyingParty)
         {
-            var result = this.oAuth.CheckOAuthCodeResult(uri, out code);
-            this.authCode = code;
-            return result;
-        }
-
-        public string CreateOAuthUrl()
-        {
-            return this.oAuth.CreateUrlForOAuth();
-        }
-
-        public Task<MicrosoftOAuthResponse> GetTokens()
-        {
-            if (this.authCode == null)
-                throw new InvalidOperationException("authCode was null");
-
-            return this.oAuth.GetTokens(this.authCode);
-        }
-
-        public Task<MicrosoftOAuthResponse> RefreshTokens(string token)
-        {
-            return this.oAuth.RefreshToken(token);
-        }
-
-        public async Task<XboxAuthResponse> GetXSTS(string token, string? deviceToken, string? titleToken, string? xstsRelyingParty)
-        {
-            var rps = await xbox.ExchangeRpsTicketForUserToken(token)
+            var rps = await xbox.ExchangeRpsTicketForUserToken(TokenPrefix + token)
                 .ConfigureAwait(false);
 
+            if (string.IsNullOrEmpty(rps.Token))
+                throw new XboxAuthException("rps.Token was empty", 200);
+
+            XboxAuthResponse? deviceToken = null; 
+            XboxAuthResponse? titleToken = null;
+
+            if (deviceTokenApi != null)
+                deviceToken = await deviceTokenApi.GetToken(previousTokens?.DeviceToken);
+            if (titleTokenApi != null)
+                titleToken = await titleTokenApi.GetToken(previousTokens?.TitleToken);
+
             var xsts = await xbox.ExchangeTokensForXstsIdentity(
-                userToken: rps.Token, 
-                deviceToken,
-                titleToken,
+                userToken: rps.Token!,
+                deviceToken?.Token,
+                titleToken?.Token,
                 xstsRelyingParty,
                 null);
-            return xsts;
+
+            return new XboxAuthTokens
+            {
+                DeviceToken = deviceToken,
+                TitleToken = titleToken,
+                XstsToken = xsts
+            };
         }
     }
 }

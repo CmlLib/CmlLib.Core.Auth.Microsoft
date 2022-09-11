@@ -50,7 +50,7 @@ namespace CmlLib.Core.Auth.Microsoft.Jwt
         /// <returns>deserialized object of jwt payload</returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="FormatException">invalid jwt</exception>
-        public static T DecodePayload<T>(string jwt)
+        public static T? DecodePayload<T>(string jwt) where T : class
         {
             var payload = DecodePayloadString(jwt);
             return JsonSerializer.Deserialize<T>(payload);

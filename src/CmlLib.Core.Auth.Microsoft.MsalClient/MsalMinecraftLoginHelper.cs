@@ -1,11 +1,6 @@
 ﻿using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
 
@@ -57,6 +52,17 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
                 TokenType = result.TokenType,
                 Scope = string.Join(",", result.Scopes)
             };
+        }
+
+        public static async Task RemoveAccounts(IPublicClientApplication app)
+        {
+            var accounts = await app.GetAccountsAsync();
+            while (accounts.Any())
+            {
+                var first = accounts.First();
+                await app.RemoveAsync(first);
+                accounts = await app.GetAccountsAsync();
+            }
         }
     }
 }

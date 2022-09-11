@@ -1,8 +1,4 @@
 ﻿using CmlLib.Core.Auth.Microsoft.Mojang;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CmlLib.Core.Auth.Microsoft.Test.Mock
@@ -14,17 +10,26 @@ namespace CmlLib.Core.Auth.Microsoft.Test.Mock
             return Task.FromResult(true);
         }
 
+        public string MockProfileUsername = "MockMojangXboxApi_ProfileUsername";
+        public string MockProfileUUID = "MockMojangXboxApi_ProfileUUID";
+
         public Task<MSession> GetProfileUsingToken(string bearerToken)
         {
-            return Task.FromResult(new MSession("MockMojangXboxApi_ProfileUsername", bearerToken, "MockMojangXboxApi_ProfileUUID"));
+            return Task.FromResult(new MSession(
+                username: MockProfileUsername, 
+                accessToken: bearerToken, 
+                uuid: MockProfileUUID));
         }
+
+        public string MockAccessToken = "MockMojangXboxApi_AccessToken";
+        public string MockUsername = "MockMojangXboxApi_Username";
 
         public Task<MojangXboxLoginResponse> LoginWithXbox(string uhs, string xsts)
         {
             return Task.FromResult(new MojangXboxLoginResponse
             {
-                AccessToken = "MockMojangXboxApi_AccessToken",
-                Username = "MockMojangXboxApi_Username"
+                AccessToken = MockAccessToken,
+                Username = MockUsername
             });
         }
     }

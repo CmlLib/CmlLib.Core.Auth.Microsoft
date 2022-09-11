@@ -14,14 +14,14 @@
 	  <RepositoryUrl>https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft</RepositoryUrl>
 	  <Authors>ksi123456ab</Authors>
 	  <PackageTags>CmlLib Minecraft Login Auth Authentication Microsoft Xbox Live XboxLive MSAL</PackageTags>
-	  <Version>1.2.1</Version>
+	  <Version>2.0.0</Version>
 	  <PackageIcon>icon.png</PackageIcon>
 	  <RepositoryType>git</RepositoryType>
 	  <PackageId>CmlLib.Core.Auth.Microsoft.MsalClient</PackageId>
   </PropertyGroup>
 
 	<ItemGroup>
-		<None Include="../icon.png" Pack="true" Visible="false" PackagePath="" />
+		<None Include="../../icon.png" Pack="true" Visible="false" PackagePath="" />
 	</ItemGroup>
 	
 	<ItemGroup>

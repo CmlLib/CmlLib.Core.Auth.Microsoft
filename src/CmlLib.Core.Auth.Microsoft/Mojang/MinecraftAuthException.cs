@@ -30,9 +30,9 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
             if (!string.IsNullOrEmpty(error) && !string.IsNullOrEmpty(errorMessage))
                 return $"{error}, {errorMessage}";
             if (!string.IsNullOrEmpty(error))
-                return error;
+                return error!;
             if (!string.IsNullOrEmpty(errorMessage))
-                return errorMessage;
+                return errorMessage!;
             return "";
         }
 

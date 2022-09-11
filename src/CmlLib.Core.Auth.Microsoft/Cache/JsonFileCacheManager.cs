@@ -1,10 +1,16 @@
 ﻿using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace CmlLib.Core.Auth.Microsoft.Cache
 {
-    public class JsonFileCacheManager<T> : ICacheManager<T> where T : new()
+    public class JsonFileCacheManager<T> : ICacheManager<T> where T : class
     {
+        private static JsonSerializerOptions jsonOptions = new JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+        };
+
         public string CacheFilePath { get; private set; }
 
         public JsonFileCacheManager(string filepath)
@@ -12,17 +18,17 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
             this.CacheFilePath = filepath;
         }
 
-        public virtual T GetDefaultObject() => new T();
+        private T? GetDefaultObject() => default(T);
 
-        public virtual T ReadCache()
+        public async virtual Task<T?> ReadCache()
         {
             if (!File.Exists(CacheFilePath))
                 return GetDefaultObject();
 
             try
             {
-                string filecontent = File.ReadAllText(CacheFilePath);
-                return JsonSerializer.Deserialize<T>(filecontent) ?? new T();
+                using var file = File.OpenRead(CacheFilePath);
+                return await JsonSerializer.DeserializeAsync<T>(file);
             }
             catch
             {
@@ -30,12 +36,22 @@ namespace CmlLib.Core.Auth.Microsoft.Cache
             }
         }
 
-        public virtual void SaveCache(T obj)
+        public async virtual Task SaveCache(T? obj)
         {
             var dirPath = Path.GetDirectoryName(CacheFilePath);
             if (!string.IsNullOrEmpty(dirPath))
                 Directory.CreateDirectory(dirPath);
-            File.WriteAllText(CacheFilePath, JsonSerializer.Serialize(obj));
+
+            using var file = File.Create(CacheFilePath);
+            await JsonSerializer.SerializeAsync(file, obj, options: jsonOptions);
+        }
+
+        public virtual Task ClearCache()
+        {
+            if (File.Exists(CacheFilePath))
+                File.Delete(CacheFilePath);
+
+            return Task.CompletedTask;
         }
     }
 }

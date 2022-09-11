@@ -1,6 +1,5 @@
 ﻿using CmlLib.Core.Auth.Microsoft.Jwt;
 using System;
-using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -32,7 +31,7 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
         /// <returns></returns>
         /// <exception cref="InvalidOperationException">AccessToken is null or empty</exception>
         /// <exception cref="FormatException">AccessToken is not valid jwt</exception>
-        public MojangXboxAccessTokenPayload DecodeAccesTokenPayload()
+        public MojangXboxAccessTokenPayload? DecodeAccesTokenPayload()
         {
             if (string.IsNullOrEmpty(this.AccessToken))
                 throw new InvalidOperationException("AccessToken is null");
@@ -55,8 +54,10 @@ namespace CmlLib.Core.Auth.Microsoft.Mojang
             try
             {
                 var payload = DecodeAccesTokenPayload();
-                var exp = DateTimeOffset.FromUnixTimeSeconds(payload.Exp);
+                if (payload == null)
+                    return false;
 
+                var exp = DateTimeOffset.FromUnixTimeSeconds(payload.Exp);
                 if (exp <= DateTimeOffset.UtcNow)
                     return false;
             }

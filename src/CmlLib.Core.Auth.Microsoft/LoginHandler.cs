@@ -1,226 +1,102 @@
 ﻿using CmlLib.Core.Auth.Microsoft.Cache;
-using CmlLib.Core.Auth.Microsoft.Mojang;
-using CmlLib.Core.Auth.Microsoft.XboxLive;
+using CmlLib.Core.Auth.Microsoft.OAuth;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using XboxAuthNet.OAuth;
 using XboxAuthNet.XboxLive;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
+    // For backward compatibility, this class just wrap up JavaEditionLoginHandler
+
+    [Obsolete("Use JavaEditionLoginHandler")]
     public class LoginHandler
     {
-        private readonly IXboxLiveApi xboxLiveApi;
-        private readonly IMojangXboxApi mojangXboxApi;
-        private readonly ICacheManager<SessionCache>? cacheManager;
+        private readonly JavaEditionLoginHandler _loginHandler;
+        private MicrosoftOAuth _oauth;
+        private MicrosoftOAuthWebUILoginHandler _webUILoginHandler;
 
-        public LoginHandler() : this(builder => { })
+        private MicrosoftOAuthCode? _authCode;
+
+        public LoginHandler()
         {
-            
+            this._loginHandler = new LoginHandlerBuilder()
+                .ForJavaEdition()
+                .With((builder, context) =>
+                {
+                    if (string.IsNullOrEmpty(context.ClientId))
+                        throw new InvalidOperationException("context.ClientId was null");
+
+                    this._oauth = new MicrosoftOAuth(context.ClientId!, XboxAuth.XboxScope, context.HttpClient);
+                    this._webUILoginHandler = new MicrosoftOAuthWebUILoginHandler(this._oauth, new MicrosoftOAuthParameters());
+                    builder.WithMicrosoftOAuthApi(new MicrosoftOAuthApi(this._oauth));
+                })
+                .Build();
+
+            if (this._oauth == null)
+                throw new InvalidOperationException("_oauth was null");
+            if (this._webUILoginHandler == null)
+                throw new InvalidOperationException("_webUILoginHandler was null");
         }
 
-        public LoginHandler(Action<LoginHandlerBuilder> builder)
+        public LoginHandler(Action<JavaEditionLoginHandlerBuilder> builder)
         {
-            var builderObj = new LoginHandlerBuilder();
+            var builderObj = new LoginHandlerBuilder().ForJavaEdition();
             builder.Invoke(builderObj);
+            var parameters = builderObj.BuildParameters();
 
-            this.xboxLiveApi = builderObj.XboxLiveApi.Value;
-            this.mojangXboxApi = builderObj.MojangXboxApi.Value;
-            this.cacheManager = builderObj.CacheManager.Value;
-            this.RelyingParty = builderObj.XboxRelyingParty;
+            var oauth = parameters.MicrosoftOAuthApi as MicrosoftOAuth;
+            if (oauth == null)
+                throw new InvalidOperationException("Legacy LoginHandler only can handle MicrosoftOAuth. Use JavaEditionLoginHandlerBuilder for others.");
+
+            this._oauth = oauth;
+            this._webUILoginHandler = new MicrosoftOAuthWebUILoginHandler(_oauth, new MicrosoftOAuthParameters());
+            this._loginHandler = builderObj.Build();
         }
 
-        public string RelyingParty { get; set; }
-        public bool CheckGameOwnership { get; set; } = false;
-
-        /// <summary>
-        /// Get minecraft session from cached tokens. This method also try to refresh token if cached token is expired. 
-        /// Cached tokens is retrieved by internal cache manager.
-        /// </summary>
-        /// <returns>New valid session</returns>
-        /// <exception cref="MicrosoftOAuthException"></exception>
-        /// <exception cref="XboxAuthException"></exception>
-        /// <exception cref="MinecraftAuthException"></exception>
         public async Task<MSession> LoginFromCache()
         {
-            var sessionCache = readSessionCache() ?? new SessionCache();
-            sessionCache = await LoginFromCache(sessionCache);
-            saveSessionCache(sessionCache);
-            return sessionCache.GameSession!;
+            var sessionCache = await _loginHandler.LoginFromCache(CancellationToken.None);
+            return sessionCache.GameSession;
         }
 
-        /// <summary>
-        /// Get minecraft session from cached tokens. This method also try to refresh token if cached token is expired. 
-        /// </summary>
-        /// <param name="sessionCache">cached session</param>
-        /// <returns>valid sessions</returns>
-        /// <exception cref="MicrosoftOAuthException"></exception>
-        /// <exception cref="XboxAuthException"></exception>
-        /// <exception cref="MinecraftAuthException"></exception>
-        public virtual async Task<SessionCache> LoginFromCache(SessionCache sessionCache)
+        public Task<JavaEditionSessionCache> LoginFromCache(JavaEditionSessionCache sessionCache)
         {
-            // if current cached minecraft token is invalid,
-            // it try to refresh microsoft token, xbox token, and minecraft token
-            if (sessionCache.MojangXboxToken == null || !sessionCache.MojangXboxToken.CheckValidation())
-            {
-                if (string.IsNullOrEmpty(sessionCache.MicrosoftOAuthToken?.RefreshToken))
-                    throw new MicrosoftOAuthException("no refresh token", 0);
-
-                // RefreshTokens method throws exception when server fails to refresh token
-                var msToken = await xboxLiveApi.RefreshTokens(sessionCache.MicrosoftOAuthToken?.RefreshToken!);
-
-                // success to refresh ms
-                return await GetAllTokens(msToken);
-            }
-            else
-            {
-                // always refresh game session
-                sessionCache.GameSession = await GetMSession(sessionCache.MojangXboxToken, sessionCache.GameSession);
-                return sessionCache;
-            }
+            return _loginHandler.LoginFromCache(sessionCache, CancellationToken.None);
         }
 
-        /// <summary>
-        /// Get new Minecraft session
-        /// </summary>
-        /// <returns>New valid session</returns>
-        /// <exception cref="MicrosoftOAuthException"></exception>
-        /// <exception cref="XboxAuthException"></exception>
-        /// <exception cref="MinecraftAuthException"></exception>
         public async Task<MSession> LoginFromOAuth()
         {
-            // if CheckOAuthCodeResult returns true,
-            // the xboxLiveApi holds OAuth code and can get valid Microsoft OAuth token
+            if (_authCode == null)
+                throw new InvalidOperationException("authCode was null");
 
-            var msToken = await xboxLiveApi.GetTokens();
-            return await LoginFromOAuth(msToken);
+            var token = await _oauth.GetTokens(_authCode);
+            var sessionCache = await _loginHandler.LoginFromOAuth(token, CancellationToken.None);
+            return sessionCache.GameSession;
         }
 
-        /// <summary>
-        /// Get new Minecraft session using Microsoft OAuth token
-        /// </summary>
-        /// <returns>New valid session</returns>
-        /// <exception cref="MicrosoftOAuthException"></exception>
-        /// <exception cref="XboxAuthException"></exception>
-        /// <exception cref="MinecraftAuthException"></exception>
         public virtual async Task<MSession> LoginFromOAuth(MicrosoftOAuthResponse msToken)
         {
-            var sessionCache = await GetAllTokens(msToken);
-            saveSessionCache(sessionCache);
-            return sessionCache.GameSession!;
+            var sessionCache = await _loginHandler.LoginFromOAuth(msToken, CancellationToken.None);
+            return sessionCache.GameSession;
         }
 
-        protected SessionCache? readSessionCache()
+        public async Task ClearCache()
         {
-            return cacheManager?.ReadCache();
-        }
-
-        protected void saveSessionCache(SessionCache? sessionCache)
-        {
-            cacheManager?.SaveCache(sessionCache ?? new SessionCache());
-        }
-
-        public void ClearCache()
-        {
-            saveSessionCache(null);
-        }
-
-        protected async Task<SessionCache> GetAllTokens(MicrosoftOAuthResponse msToken)
-        {
-            var xsts = await GetXsts(msToken, null, null, this.RelyingParty);
-            var mojangToken = await GetMojangXboxToken(xsts);
-            var msession = await GetMSession(mojangToken, new MSession());
-
-            return new SessionCache
-            {
-                MicrosoftOAuthToken = msToken,
-                XstsToken = xsts,
-                MojangXboxToken = mojangToken,
-                GameSession = msession
-            };
-        }
-
-        protected virtual async Task<XboxAuthResponse> GetXsts(MicrosoftOAuthResponse msToken, string? deviceToken, string? titleToken, string? relyingParty)
-        {
-            if (msToken == null)
-                throw new ArgumentNullException(nameof(msToken));
-            if (msToken.AccessToken == null)
-                throw new ArgumentNullException(nameof(msToken.AccessToken));
-
-            var xsts = await xboxLiveApi.GetXSTS(msToken.AccessToken, deviceToken, titleToken, relyingParty);
-            return xsts;
-        }
-
-        protected virtual async Task<MojangXboxLoginResponse> GetMojangXboxToken(XboxAuthResponse xsts)
-        {
-            if (string.IsNullOrEmpty(xsts.UserHash))
-                throw new ArgumentException("xsts.UserHash was null");
-            if (string.IsNullOrEmpty(xsts.Token))
-                throw new ArgumentException("xsts.Token was null");
-
-            var mcToken = await mojangXboxApi.LoginWithXbox(xsts.UserHash!, xsts.Token!); // not null
-            return mcToken;
-        }
-
-        protected virtual async Task<MSession> GetMSession(MojangXboxLoginResponse mcToken, MSession? cachedSession)
-        {
-            if (cachedSession == null)
-                cachedSession = new MSession();
-
-            // update Username, UUID
-            if (string.IsNullOrEmpty(cachedSession.Username) ||
-                string.IsNullOrEmpty(cachedSession.UUID))
-            {
-                cachedSession = await createMinecraftSession(mcToken);
-            }
-
-            // update XUID (for CmlLib.Core 3.4.0)
-            //if (string.IsNullOrEmpty(sessionCache.GameSession.UserXUID))
-            //{
-            //    var payload = mcToken.DecodeAccesTokenPayload();
-            //    sessionCache.GameSession.UserXUID = payload.Xuid;
-            //}
-
-            // update AccessToken
-            cachedSession.AccessToken = mcToken.AccessToken;
-            return cachedSession;
-        }
-
-        private async Task<MSession> createMinecraftSession(MojangXboxLoginResponse mcToken)
-        {
-            if (mcToken == null)
-                throw new ArgumentNullException(nameof(mcToken));
-            if (mcToken.AccessToken == null)
-                throw new ArgumentNullException(nameof(mcToken.AccessToken));
-
-            if (CheckGameOwnership && !await mojangXboxApi.CheckGameOwnership(mcToken.AccessToken))
-                throw new MinecraftAuthException("mojang_nogame");
-
-            MSession session;
-            try
-            {
-                // throw 404 exception if profile is not exists
-                session = await mojangXboxApi.GetProfileUsingToken(mcToken.AccessToken);
-
-                if (!session.CheckIsValid())
-                    throw new MinecraftAuthException("mojang_noprofile");
-
-                return session;
-            }
-            catch (MinecraftAuthException ex)
-            {
-                throw new MinecraftAuthException("mojang_noprofile", ex);
-            }
+            await _loginHandler.ClearCache();
         }
 
         public virtual string CreateOAuthUrl()
         {
-            return xboxLiveApi.CreateOAuthUrl();
+            return _webUILoginHandler.CreateOAuthUrl();
         }
 
-        public virtual bool CheckOAuthCodeResult(Uri uri, out MicrosoftOAuthCode authCode)
+        public bool CheckOAuthCodeResult(Uri uri, out MicrosoftOAuthCode authCode)
         {
-            return xboxLiveApi.CheckOAuthCodeResult(uri, out authCode);
+            var result = _webUILoginHandler.CheckOAuthCodeResult(uri);
+            this._authCode = authCode = result.OAuthCode ?? throw new InvalidOperationException("OAuthCode was null");
+            return result.IsSuccess;
         }
     }
 }

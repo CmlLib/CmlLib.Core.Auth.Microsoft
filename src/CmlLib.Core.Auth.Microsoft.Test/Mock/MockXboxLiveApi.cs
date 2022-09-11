@@ -1,68 +1,27 @@
 ﻿using CmlLib.Core.Auth.Microsoft.XboxLive;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using XboxAuthNet.OAuth;
-using XboxAuthNet.XboxLive;
+using XboxAuthNet.XboxLive.Entity;
 
 namespace CmlLib.Core.Auth.Microsoft.Test.Mock
 {
     internal class MockXboxLiveApi : IXboxLiveApi
     {
-        public bool OAuthCodeResult { get; set; } = true;
-
-        public bool CheckOAuthCodeResult(Uri uri, out MicrosoftOAuthCode authCode)
+        public XboxAuthTokens ReturnObject = new XboxAuthTokens
         {
-            if (OAuthCodeResult)
-            {
-                authCode = new MicrosoftOAuthCode
-                {
-                    Code = "Code",
-                };
-                return true;
-            }
-            else
-            {
-                authCode = new MicrosoftOAuthCode
-                {
-                    Error = "Error",
-                    ErrorDescription = "ErrorDescription"
-                };
-                return false;
-            }
-        }
-
-        public string CreateOAuthUrl()
-        {
-            return "CreateOAuthUrl";
-        }
-
-        public Task<MicrosoftOAuthResponse> GetTokens()
-        {
-            return Task.FromResult(new MicrosoftOAuthResponse
-            {
-                AccessToken = "MockXboxLiveApi_AccessToken",
-                RefreshToken = "MockXboxLiveApi_RefreshToken",
-            });
-        }
-
-        public Task<XboxAuthResponse> GetXSTS(string token, string? deviceToken, string? titleToken, string? xstsRelyingParty)
-        {
-            return Task.FromResult(new XboxAuthResponse
+            XstsToken = new XboxAuthResponse
             {
                 Token = "MockXboxLiveApi_Token",
                 XuiClaims = new XboxAuthXuiClaims
                 {
-                    UserHash = "MockXboxLiveApi_UserHash"
+                    UserHash = "MockXboxLiveApi_UserHash",
+                    XboxUserId = "MockXboxLiveApi_XboxUserId"
                 }
-            });
-        }
+            }
+        };
 
-        public Task<MicrosoftOAuthResponse> RefreshTokens(string token)
+        public Task<XboxAuthTokens> GetTokens(string token, XboxAuthTokens? previousTokens, string? xstsRelyingParty)
         {
-            return GetTokens();
+            return Task.FromResult(ReturnObject);
         }
     }
 }
