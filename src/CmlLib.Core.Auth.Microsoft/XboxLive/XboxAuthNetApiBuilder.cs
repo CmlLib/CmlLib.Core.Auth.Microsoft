@@ -5,10 +5,10 @@ namespace CmlLib.Core.Auth.Microsoft.XboxLive
 {
     public class XboxAuthNetApiBuilder
     {
-        private XboxAuth? xboxAuth;
-        private IXboxAuthTokenApi? deviceTokenApi;
-        private IXboxAuthTokenApi? titleTokenApi;
-        private string? tokenPrefix;
+        private XboxAuth? _xboxAuth;
+        private IXboxAuthTokenApi? _deviceTokenApi;
+        private IXboxAuthTokenApi? _titleTokenApi;
+        private string? _tokenPrefix;
         public HttpClient? HttpClient { get; private set; }
 
         public XboxAuthNetApiBuilder()
@@ -18,19 +18,19 @@ namespace CmlLib.Core.Auth.Microsoft.XboxLive
 
         public XboxAuthNetApiBuilder WithHttpClient(HttpClient httpClient)
         {
-            this.HttpClient = HttpClient;
+            this.HttpClient = httpClient;
             return this;
         }
 
         public XboxAuthNetApiBuilder WithXboxAuth(XboxAuth xa)
         {
-            this.xboxAuth = xa;
+            this._xboxAuth = xa;
             return this;
         }
 
         public XboxAuthNetApiBuilder WithDeviceTokenApi(IXboxAuthTokenApi deviceToken)
         {
-            this.deviceTokenApi = deviceToken;
+            this._deviceTokenApi = deviceToken;
             return this;
         }
 
@@ -41,13 +41,13 @@ namespace CmlLib.Core.Auth.Microsoft.XboxLive
 
         public XboxAuthNetApiBuilder WithTitleTokenApi(IXboxAuthTokenApi titleToken)
         {
-            this.titleTokenApi = titleToken;
+            this._titleTokenApi = titleToken;
             return this;
         }
 
         public XboxAuthNetApiBuilder WithTokenPrefix(string prefix)
         {
-            this.tokenPrefix = prefix;
+            this._tokenPrefix = prefix;
             return this;
         }
 
@@ -63,16 +63,16 @@ namespace CmlLib.Core.Auth.Microsoft.XboxLive
 
         public XboxAuthNetApi Build()
         {
-            if (string.IsNullOrEmpty(tokenPrefix))
-                tokenPrefix = "";
-            if (xboxAuth == null)
-                xboxAuth = new XboxAuth(HttpClient);
+            if (string.IsNullOrEmpty(_tokenPrefix))
+                _tokenPrefix = "";
+            if (_xboxAuth == null)
+                _xboxAuth = new XboxAuth(HttpClient ?? HttpHelper.DefaultHttpClient.Value);
 
             return new XboxAuthNetApi(
-                xboxAuth, 
-                tokenPrefix, 
-                deviceTokenApi, 
-                titleTokenApi);
+                _xboxAuth, 
+                _tokenPrefix, 
+                _deviceTokenApi, 
+                _titleTokenApi);
         }
     }
 }
