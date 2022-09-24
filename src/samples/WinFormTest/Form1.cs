@@ -7,6 +7,7 @@ using CmlLib.Core.Auth.Microsoft.XboxLive;
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
+using XboxAuthNet.OAuth;
 using XboxAuthNet.Utils;
 using XboxAuthNet.XboxLive;
 
@@ -25,17 +26,18 @@ namespace WinFormTest
 
         private async void Form1_Load(object sender, EventArgs e)
         {
-            var loginHandler = new LoginHandlerBuilder()
+            this._loginHandler = new LoginHandlerBuilder()
                 .ForJavaEdition()
+                .WithXboxAuthNetApi(builder => builder.WithDummyDeviceTokenApi())
                 .Build();
-            
+
             setUIEnable(false);
 
             cbPresets.SelectedIndex = 0;
 
             try
             {
-                var result = await loginHandler.LoginFromCache();
+                var result = await _loginHandler.LoginFromCache();
                 loginSuccess(result.GameSession);
             }
             catch (Exception ex)
@@ -56,6 +58,10 @@ namespace WinFormTest
                 .ForJavaEdition()
                 .WithMicrosoftOAuthApi(builder => builder
                     .WithScope(scope)
+                    .WithOAuthParameters(new MicrosoftOAuthParameters
+                    {
+                        Prompt = MicrosoftOAuthPromptModes.SelectAccount
+                    })
                     .WithWebUI(new WebView2WebUI(this)))
                 .With((builder, context) =>
                 {
@@ -70,10 +76,9 @@ namespace WinFormTest
                     }
                     else
                     {
-                        builder.WithXboxLiveApi(
-                            new XboxAuthNetApi(
-                            new XboxAuth(context.HttpClient), 
-                            cbAzure.Checked ? "d=" : null, null, null));
+                        builder.WithXboxAuthNetApi(builder => builder
+                            .WithDummyDeviceTokenApi()
+                            .WithTokenPrefix(cbAzure.Checked ? XboxSecureAuth.AzureTokenPrefix : ""));
                     }
                 })
                 .Build();
@@ -113,7 +118,10 @@ namespace WinFormTest
         private async void btnLogout_Click(object sender, EventArgs e)
         {
             if (this._loginHandler == null)
-                throw new InvalidOperationException("_loginHandler was null");
+            {
+                MessageBox.Show("null loginhandler");
+                return;
+            }
 
             await this._loginHandler.ClearCache();
             txtAccessToken.Clear();
