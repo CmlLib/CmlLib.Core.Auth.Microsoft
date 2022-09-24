@@ -45,6 +45,8 @@ catch (Exception ex)
 }
 ```
 
+For more information about `loginHandler`, see [JavaEditionLoginHandler](JavaEditionLoginHandler.md).
+
 ### With optional parameters
 
 ```csharp
@@ -59,6 +61,18 @@ var loginHandler = new LoginHandlerBuilder()
             Prompt = MicrosoftOAuthPromptModes.SelectAccount
         })
     .Build();
+
+try
+{
+    var session = await loginHandler.LoginFromCache();
+    return session.GameSession;
+}
+catch (Exception ex)
+{
+    Console.WriteLine(ex);
+    var session = await loginHandler.LoginFromOAuth();
+    return session.GameSession;
+}
 ```
 
 #### WtihScope(string scope)
@@ -68,6 +82,15 @@ Set Microsoft OAuth scope.
 #### WithWebUI(IWebUI webUI)
 
 Set custom interface.
+
+example:
+
+```csharp
+WithWebUI(new WebView2WebUI()) // with CmlLib.Core.Auth.Microsoft.UI.WinForm package
+```
+```csharp
+WithWebUI(new WebView2WebUI(this.Handle)) // you can pass window handle
+```
 
 #### WithOAuthParameters(MicrosoftOAuthParameters param)
 

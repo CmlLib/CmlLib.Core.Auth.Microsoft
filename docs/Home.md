@@ -2,8 +2,6 @@
 
 Welcome to the CmlLib.Core.Auth.Microsoft.UI wiki!
 
-Current version: 2.1.0-rc
-
 This is library for new minecraft login feature which uses Microsoft Xbox account instead of classic mojang account.
 It provides two library that authenticate in different ways: `CmlLib.Core.Auth.Microsoft.UI.WinForm`, and `CmlLib.Core.Auth.Microsoft.MsalClient`.
 

@@ -109,6 +109,8 @@ catch (Exception ex)
 }
 ```
 
+For more information about `loginHandler`, see [JavaEditionLoginHandler](JavaEditionLoginHandler.md).
+
 WinForm:  
 
 <img src="https://user-images.githubusercontent.com/17783561/154950501-4ffbd21f-b780-4217-bd83-641ae3ac5e95.png" width="500">
