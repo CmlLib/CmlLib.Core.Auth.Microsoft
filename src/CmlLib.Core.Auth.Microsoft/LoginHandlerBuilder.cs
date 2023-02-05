@@ -1,46 +1,39 @@
-﻿using System.Net.Http;
+using System;
+using System.Net.Http;
+using CmlLib.Core.Auth.Microsoft.Cache;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
     public class LoginHandlerBuilder
     {
+        private static Lazy<HttpClient> lazyHttpClient = new Lazy<HttpClient>(() => new HttpClient());
+        public static HttpClient DefaultHttpClient => lazyHttpClient.Value;
+
         public static LoginHandlerBuilder Create()
         {
             return new LoginHandlerBuilder();
         }
 
-        private HttpClient? httpClient;
-        private string? clientId;
-        private string? cachePath;
+        private LoginHandlerBuilder() {}
+
+        public HttpClient? HttpClient { get; set; }
+        public ICacheStorage<XboxGameSession>? CacheStorage { get; set; }
 
         public LoginHandlerBuilder WithHttpClient(HttpClient httpClient)
         {
-            this.httpClient = httpClient;
+            this.HttpClient = httpClient;
             return this;
         }
 
-        public LoginHandlerBuilder WithClientId(string cid)
+        public LoginHandlerBuilder WithCacheStorage(ICacheStorage<XboxGameSession> cacheStorage)
         {
-            this.clientId = cid;
+            this.CacheStorage = cacheStorage;
             return this;
         }
 
-        public LoginHandlerBuilder WithCachePath(string cachePath)
+        public JELoginHandler ForJavaEdition()
         {
-            this.cachePath = cachePath;
-            return this;
-        }
-
-        public LoginHandlerBuilderContext Build()
-        {
-            if (httpClient == null)
-                httpClient = HttpHelper.DefaultHttpClient.Value;
-
-            return new LoginHandlerBuilderContext(httpClient)
-            {
-                ClientId = clientId,
-                CachePath = cachePath
-            };
+            return new JELoginHandler(HttpClient, CacheStorage);
         }
     }
 }
