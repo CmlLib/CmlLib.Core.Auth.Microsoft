@@ -17,7 +17,8 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
 
         public MicrosoftXboxAuthBuilder WithBasicXboxAuth()
         {
-            WithXboxAuthStrategy(oAuthStrategy => new BasicXboxAuthStrategy(Parameters.HttpClient, oAuthStrategy, XboxSessionSource));
+            var httpClient = Parameters.HttpClient ?? HttpHelper.DefaultHttpClient.Value;
+            WithXboxAuthStrategy(oAuthStrategy => new BasicXboxAuthStrategy(httpClient, oAuthStrategy, XboxSessionSource));
             return this;
         }
 

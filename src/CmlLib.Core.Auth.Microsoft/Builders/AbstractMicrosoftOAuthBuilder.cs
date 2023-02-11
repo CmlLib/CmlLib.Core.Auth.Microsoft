@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
@@ -16,13 +17,33 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             XboxGameAuthenticationParameters parameters,
             MicrosoftOAuthClientInfo clientInfo)
         {
-            this.Parameters = parameters;
-            this.OAuthClient = new MicrosoftOAuthCodeApiClient(clientInfo.ClientId, clientInfo.Scopes, Parameters.HttpClient);
+            if (string.IsNullOrEmpty(clientInfo.ClientId))
+                throw new ArgumentException("Cannot initialize Microsoft OAuth client using current client information. Please specify client id.");
+            
+            this.OAuthClient = new MicrosoftOAuthCodeApiClient(
+                clientInfo.ClientId, 
+                clientInfo.Scopes ?? "", 
+                parameters.HttpClient ?? HttpHelper.DefaultHttpClient.Value);
 
+            this.Parameters = parameters;
+            this.MicrosoftOAuthTokenSource = createOAuthTokenSource(parameters);
+        }
+
+        public AbstractMicrosoftOAuthBuilder(
+            XboxGameAuthenticationParameters parameters,
+            MicrosoftOAuthCodeApiClient client)
+        {
+            this.OAuthClient = client;
+            this.Parameters = parameters;
+            this.MicrosoftOAuthTokenSource = createOAuthTokenSource(parameters);
+        }
+
+        private ISessionSource<MicrosoftOAuthResponse> createOAuthTokenSource(XboxGameAuthenticationParameters parameters)
+        {
             if (parameters.SessionStorage == null)
-                this.MicrosoftOAuthTokenSource = new InMemorySessionSource<MicrosoftOAuthResponse>();
+                return new InMemorySessionSource<MicrosoftOAuthResponse>();
             else
-                this.MicrosoftOAuthTokenSource = new MicrosoftOAuthSessionSource(parameters.SessionStorage);
+                return new MicrosoftOAuthSessionSource(parameters.SessionStorage);
         }
 
         public AbstractMicrosoftOAuthBuilder WithOAuthTokenSource(ISessionSource<MicrosoftOAuthResponse> source)

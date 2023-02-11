@@ -6,18 +6,35 @@ namespace CmlLib.Core.Auth.Microsoft
 {
     public class LoginHandlerBuilder
     {
-        private static Lazy<HttpClient> lazyHttpClient = new Lazy<HttpClient>(() => new HttpClient());
-        public static HttpClient DefaultHttpClient => lazyHttpClient.Value;
-
         public static LoginHandlerBuilder Create()
         {
             return new LoginHandlerBuilder();
         }
 
-        private LoginHandlerBuilder() {}
+        private LoginHandlerBuilder() 
+        {
+            
+        }
 
-        public HttpClient? HttpClient { get; set; }
-        public ISessionStorage SessionStorage { get; set; }
+        private HttpClient? innerHttpClient;
+        public HttpClient HttpClient 
+        {
+            get => innerHttpClient ?? HttpHelper.DefaultHttpClient.Value;
+            set => innerHttpClient = value;
+        }
+
+        private ISessionStorage? innerSessionStorage;
+        public ISessionStorage SessionStorage
+        {
+            get => innerSessionStorage ?? createDefaultSessionStorage();
+            set => innerSessionStorage = value;
+        }
+
+        private ISessionStorage createDefaultSessionStorage()
+        {
+            var defaultSessionStoragePath = System.IO.Path.Combine(MinecraftPath.WindowsDefaultPath, "cmllib_session.json");
+            return new JsonFileSessionStorage(defaultSessionStoragePath);
+        }
 
         public LoginHandlerBuilder WithHttpClient(HttpClient httpClient)
         {
