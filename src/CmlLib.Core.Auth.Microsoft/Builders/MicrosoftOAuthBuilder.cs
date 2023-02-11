@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
+using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using XboxAuthNet.OAuth;
 using XboxAuthNet.OAuth.Models;
 
@@ -14,6 +15,13 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
              : base(parameters, clientInfo)
         {
 
+        }
+
+        // for method chaining the return type of `WithOAuthTokenSource` should be itself.
+        public new MicrosoftOAuthBuilder WithOAuthTokenSource(ISessionSource<MicrosoftOAuthResponse> source)
+        {
+            WithOAuthTokenSource(source);
+            return this;
         }
 
         public MicrosoftXboxAuthBuilder Interactive()
@@ -44,9 +52,11 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             return Interactive(codeFlow, parameters);
         }
 
-        public MicrosoftXboxAuthBuilder Interactive(MicrosoftOAuthCodeFlow codeFlow, MicrosoftOAuthParameters parameters)
+        public MicrosoftXboxAuthBuilder Interactive(
+            MicrosoftOAuthCodeFlow codeFlow, 
+            MicrosoftOAuthParameters parameters)
         {
-            var oauth = new InteractiveMicrosoftOAuthStrategy(codeFlow, parameters);
+            var oauth = new InteractiveMicrosoftOAuthStrategy(codeFlow, parameters, MicrosoftOAuthTokenSource);
             return WithOAuthStrategy(oauth);
         }
 

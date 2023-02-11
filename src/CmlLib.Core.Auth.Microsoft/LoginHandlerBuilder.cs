@@ -1,6 +1,6 @@
 using System;
 using System.Net.Http;
-using CmlLib.Core.Auth.Microsoft.Cache;
+using CmlLib.Core.Auth.Microsoft.SessionStorages;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
@@ -17,7 +17,7 @@ namespace CmlLib.Core.Auth.Microsoft
         private LoginHandlerBuilder() {}
 
         public HttpClient? HttpClient { get; set; }
-        public ICacheStorage<XboxGameSession>? CacheStorage { get; set; }
+        public ISessionStorage SessionStorage { get; set; }
 
         public LoginHandlerBuilder WithHttpClient(HttpClient httpClient)
         {
@@ -25,15 +25,15 @@ namespace CmlLib.Core.Auth.Microsoft
             return this;
         }
 
-        public LoginHandlerBuilder WithCacheStorage(ICacheStorage<XboxGameSession> cacheStorage)
+        public LoginHandlerBuilder WithSessionStorage(ISessionStorage sessionStorage)
         {
-            this.CacheStorage = cacheStorage;
+            this.SessionStorage = sessionStorage;
             return this;
         }
 
         public JELoginHandler ForJavaEdition()
         {
-            return new JELoginHandler(HttpClient, CacheStorage);
+            return new JELoginHandler(HttpClient, SessionStorage);
         }
     }
 }

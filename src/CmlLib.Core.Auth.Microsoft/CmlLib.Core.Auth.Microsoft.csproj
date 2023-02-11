@@ -9,7 +9,7 @@
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
     <Description>Minecraft login with Microsoft Xbox Live account</Description>
-    <Copyright>Copyright (c) 2022 AlphaBs</Copyright>
+    <Copyright>Copyright (c) 2023 AlphaBs</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft</PackageProjectUrl>
     <RepositoryUrl>https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft</RepositoryUrl>
@@ -25,6 +25,7 @@
       <Version>3.3.5</Version>
     </PackageReference>
     <PackageReference Include="ConfigureAwait.Fody" Version="3.3.1" PrivateAssets="All" />
+    <PackageReference Include="System.Text.Json" Version="7.0.1" />
     <PackageReference Include="XboxAuthNet" Version="3.0.0-beta.2" />
   </ItemGroup>
   <ItemGroup>

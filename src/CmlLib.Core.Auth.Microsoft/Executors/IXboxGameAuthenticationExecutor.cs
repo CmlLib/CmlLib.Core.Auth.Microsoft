@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using CmlLib.Core.Auth.Microsoft.XboxAuthStrategies;
 using CmlLib.Core.Auth.Microsoft.XboxGame;
-using CmlLib.Core.Auth.Microsoft.Cache;
+using CmlLib.Core.Auth.Microsoft.SessionStorages;
 
 namespace CmlLib.Core.Auth.Microsoft.Executors
 {
@@ -10,6 +10,6 @@ namespace CmlLib.Core.Auth.Microsoft.Executors
         Task<XboxGameSession> Authenticate(
             IXboxGameAuthenticator xboxGameAuthenticator,
             IXboxAuthStrategy xboxAuthStrategy,
-            ICacheStorage<XboxGameSession> cacheStorage);
+            ISessionStorage sessionStorage);
     }
 }

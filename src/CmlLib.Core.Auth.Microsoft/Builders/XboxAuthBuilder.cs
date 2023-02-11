@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using CmlLib.Core.Auth.Microsoft.XboxAuthStrategies;
 
 namespace CmlLib.Core.Auth.Microsoft.Builders
@@ -7,10 +8,22 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
     public class XboxAuthBuilder : IXboxGameAuthenticationExecutorBuilder
     {
         protected XboxGameAuthenticationParameters Parameters { get; private set; }
+        protected ISessionSource<XboxAuthTokens> XboxSessionSource { get; private set; }
 
         public XboxAuthBuilder(XboxGameAuthenticationParameters parameters)
         {
             this.Parameters = parameters;
+
+            if (parameters.SessionStorage == null)
+                XboxSessionSource = new InMemorySessionSource<XboxAuthTokens>();
+            else
+                XboxSessionSource = new XboxSessionSource(parameters.SessionStorage);
+        }
+
+        public XboxAuthBuilder WithXboxSessionSource(ISessionSource<XboxAuthTokens> source)
+        {
+            XboxSessionSource = source;
+            return this;
         }
 
         public XboxAuthBuilder WithXboxAuthStrategy(IXboxAuthStrategy xboxAuthStrategy)
@@ -23,7 +36,7 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
         {
             var gameAuthenticator = this.Parameters.GameAuthenticator;
             var xboxAuthStrategy = this.Parameters.XboxAuthStrategy;
-            var cacheStorage = this.Parameters.CacheStorage;
+            var cacheStorage = this.Parameters.SessionStorage;
 
             if (this.Parameters.Executor == null)
             {

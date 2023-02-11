@@ -1,5 +1,6 @@
 using System.Net.Http;
 using System.Threading.Tasks;
+using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
 using XboxAuthNet.XboxLive;
 
@@ -7,16 +8,15 @@ namespace CmlLib.Core.Auth.Microsoft.XboxAuthStrategies
 {
     public class BasicXboxAuthStrategy : IXboxAuthStrategy
     {
+        private readonly ISessionSource<XboxAuthTokens> _xboxTokenSource;
         private readonly HttpClient _httpClient;
         private readonly IMicrosoftOAuthStrategy _oAuthStrategy;
 
         public BasicXboxAuthStrategy(
             HttpClient httpClient,
-            IMicrosoftOAuthStrategy oAuthStrategy)
-        {
-            this._httpClient = httpClient;
-            this._oAuthStrategy = oAuthStrategy;
-        }
+            IMicrosoftOAuthStrategy oAuthStrategy,
+            ISessionSource<XboxAuthTokens> xboxTokenSource) =>
+            (_httpClient, _oAuthStrategy, _xboxTokenSource) = (httpClient, oAuthStrategy, xboxTokenSource);
 
         public async Task<XboxAuthTokens> Authenticate()
         {
@@ -29,6 +29,8 @@ namespace CmlLib.Core.Auth.Microsoft.XboxAuthStrategies
             var tokens = new XboxAuthTokens();
             tokens.UserToken = userToken;
             tokens.XstsToken = xsts;
+
+            await _xboxTokenSource.SetAsync(tokens);
             return tokens;
         }
     }

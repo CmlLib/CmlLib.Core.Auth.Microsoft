@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using CmlLib.Core.Auth.Microsoft.Cache;
+using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using XboxAuthNet.OAuth;
 using XboxAuthNet.OAuth.Models;
 
@@ -8,25 +8,25 @@ namespace CmlLib.Core.Auth.Microsoft.OAuthStrategies
 {
     public class SilentMicrosoftOAuthStrategy : IMicrosoftOAuthStrategy
     {
-        private readonly ICacheStorage<MicrosoftOAuthResponse> _oauthTokenSource;
+        private readonly ISessionSource<MicrosoftOAuthResponse> _oauthTokenSource;
         private readonly MicrosoftOAuthCodeApiClient _oauthHandler;
 
-        public SilentMicrosoftOAuthStrategy(MicrosoftOAuthCodeApiClient oauthFlow, ICacheStorage<MicrosoftOAuthResponse> oauthTokenSource)
-        {
-            this._oauthTokenSource = oauthTokenSource;
-            this._oauthHandler = oauthFlow;
-        }
+        public SilentMicrosoftOAuthStrategy(
+            MicrosoftOAuthCodeApiClient oauthFlow, 
+            ISessionSource<MicrosoftOAuthResponse> oauthTokenSource) =>
+            (_oauthTokenSource, _oauthHandler) = (oauthTokenSource, oauthFlow);
 
-        public Task<MicrosoftOAuthResponse> Authenticate()
+        public async Task<MicrosoftOAuthResponse> Authenticate()
         {
-            var token = _oauthTokenSource.Get();
-
+            var token = await _oauthTokenSource.GetAsync();
             if (string.IsNullOrEmpty(token?.RefreshToken))
                 throw new MicrosoftOAuthException("no refresh token", 0);
 
             // TODO: validate token
 
-            return _oauthHandler.RefreshToken(token.RefreshToken, CancellationToken.None);
+            token = await _oauthHandler.RefreshToken(token.RefreshToken, CancellationToken.None);
+            await _oauthTokenSource.SetAsync(token);
+            return token;
         }
     }
 }

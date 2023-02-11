@@ -1,5 +1,5 @@
 using System.Net.Http;
-using CmlLib.Core.Auth.Microsoft.Cache;
+using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using CmlLib.Core.Auth.Microsoft.Builders;
 
 namespace CmlLib.Core.Auth.Microsoft
@@ -13,15 +13,12 @@ namespace CmlLib.Core.Auth.Microsoft
         };
 
         private readonly HttpClient _httpClient;
-        private readonly ICacheStorage<XboxGameSession> _cacheStorage;
+        private readonly ISessionStorage _cacheStorage;
 
         public JELoginHandler(
             HttpClient httpClient, 
-            ICacheStorage<XboxGameSession> cacheStorage)
-        {
-            this._cacheStorage = cacheStorage;
-            this._httpClient = httpClient;
-        }
+            ISessionStorage sessionStorage) =>
+            (_httpClient, _cacheStorage) = (httpClient, sessionStorage);
 
         public JEAuthenticationBuilder Authenticate()
         {
@@ -37,7 +34,7 @@ namespace CmlLib.Core.Auth.Microsoft
         {
             var parameters = new XboxGameAuthenticationParameters();
             parameters.HttpClient = _httpClient;
-            parameters.CacheStorage = _cacheStorage;
+            parameters.SessionStorage = _cacheStorage;
             return parameters;
         }
     }
