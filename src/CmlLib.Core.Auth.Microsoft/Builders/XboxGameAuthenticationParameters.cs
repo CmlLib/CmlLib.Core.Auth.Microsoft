@@ -1,5 +1,6 @@
 using System.Net.Http;
 using CmlLib.Core.Auth.Microsoft.SessionStorages;
+using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
 using CmlLib.Core.Auth.Microsoft.XboxAuthStrategies;
 using CmlLib.Core.Auth.Microsoft.Executors;
 using CmlLib.Core.Auth.Microsoft.XboxGame;
@@ -10,6 +11,7 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
     {
         public HttpClient? HttpClient { get; set; }
         public ISessionStorage? SessionStorage { get; set; }
+        public IMicrosoftOAuthStrategy? OAuthStrategy { get; set; }
         public IXboxAuthStrategy? XboxAuthStrategy { get; set; }
         public IXboxGameAuthenticator? GameAuthenticator { get; set; }
         public IXboxGameAuthenticationExecutor? Executor { get; set; }

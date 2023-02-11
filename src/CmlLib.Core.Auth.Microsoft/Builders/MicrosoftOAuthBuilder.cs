@@ -24,26 +24,26 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             return this;
         }
 
-        public MicrosoftXboxAuthBuilder Interactive()
+        public XboxAuthBuilder Interactive()
         {
             var codeFlow = new MicrosoftOAuthCodeFlowBuilder(OAuthClient).Build();
             return Interactive(codeFlow, new MicrosoftOAuthParameters());
         }
 
-        public MicrosoftXboxAuthBuilder Interactive(MicrosoftOAuthParameters parameters)
+        public XboxAuthBuilder Interactive(MicrosoftOAuthParameters parameters)
         {
             var codeFlow = new MicrosoftOAuthCodeFlowBuilder(OAuthClient).Build();
             return Interactive(codeFlow, parameters);
         }
 
-        public MicrosoftXboxAuthBuilder Interactive(Func<MicrosoftOAuthCodeFlowBuilder, MicrosoftOAuthCodeFlow> builder)
+        public XboxAuthBuilder Interactive(Func<MicrosoftOAuthCodeFlowBuilder, MicrosoftOAuthCodeFlow> builder)
         {
             var builderObj = new MicrosoftOAuthCodeFlowBuilder(OAuthClient);
             var codeFlow = builder.Invoke(builderObj);
             return Interactive(codeFlow, new MicrosoftOAuthParameters());
         }
 
-        public MicrosoftXboxAuthBuilder Interactive(
+        public XboxAuthBuilder Interactive(
             Func<MicrosoftOAuthCodeFlowBuilder, MicrosoftOAuthCodeFlow> builder, 
             MicrosoftOAuthParameters parameters)
         {
@@ -52,7 +52,7 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             return Interactive(codeFlow, parameters);
         }
 
-        public MicrosoftXboxAuthBuilder Interactive(
+        public XboxAuthBuilder Interactive(
             MicrosoftOAuthCodeFlow codeFlow, 
             MicrosoftOAuthParameters parameters)
         {

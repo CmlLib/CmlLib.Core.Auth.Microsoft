@@ -12,33 +12,19 @@ namespace CmlLib.Core.Auth.Microsoft.XboxAuthStrategies
     {
         private readonly ISessionSource<XboxAuthTokens> _xboxTokenSource;
         protected HttpClient HttpClient { get; private set; }
-        private readonly IMicrosoftOAuthStrategy _oAuthStrategy;
 
         public BasicXboxAuthStrategy(
             HttpClient httpClient,
-            IMicrosoftOAuthStrategy oAuthStrategy,
             ISessionSource<XboxAuthTokens> xboxTokenSource) =>
-            (HttpClient, _oAuthStrategy, _xboxTokenSource) = (httpClient, oAuthStrategy, xboxTokenSource);
+            (HttpClient, _xboxTokenSource) = (httpClient, xboxTokenSource);
 
-        public async Task<XboxAuthTokens> Authenticate()
+        public async Task<XboxAuthTokens> Authenticate(MicrosoftOAuthResponse oAuthResponse)
         {
-            var oAuth = await _oAuthStrategy.Authenticate();
-            if (string.IsNullOrEmpty(oAuth.AccessToken))
-                throw new MicrosoftOAuthException("AccessToken was empty", 0);
-
-            var tokens = await AuthenticateFromOAuthResult(oAuth);
-
-            await _xboxTokenSource.SetAsync(tokens);
-            return tokens;
-        }
-
-        protected virtual async Task<XboxAuthTokens> AuthenticateFromOAuthResult(MicrosoftOAuthResponse oAuth)
-        {
-            if (string.IsNullOrEmpty(oAuth.AccessToken))
+            if (string.IsNullOrEmpty(oAuthResponse.AccessToken))
                 throw new ArgumentException("AccessToken was empty");
 
             var xboxApi = new XboxAuth(HttpClient);
-            var userToken = await xboxApi.ExchangeRpsTicketForUserToken(oAuth.AccessToken);
+            var userToken = await xboxApi.ExchangeRpsTicketForUserToken(oAuthResponse.AccessToken);
             
             if (string.IsNullOrEmpty(userToken.Token))
                 throw new XboxAuthException("UserToken was empty", 0);
@@ -50,6 +36,8 @@ namespace CmlLib.Core.Auth.Microsoft.XboxAuthStrategies
                 UserToken = userToken,
                 XstsToken = xsts
             };
+
+            await _xboxTokenSource.SetAsync(tokens);
             return tokens;
         }
     }

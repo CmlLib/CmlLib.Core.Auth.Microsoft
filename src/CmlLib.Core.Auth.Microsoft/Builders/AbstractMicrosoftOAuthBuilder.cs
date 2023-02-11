@@ -52,15 +52,16 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             return this;
         }
 
-        public MicrosoftXboxAuthBuilder FromOAuthResponse(MicrosoftOAuthResponse response)
+        public XboxAuthBuilder FromOAuthResponse(MicrosoftOAuthResponse response)
         {
             var strategy = new MockMicrosoftOAuthStrategy(response);
             return WithOAuthStrategy(strategy);
         }
 
-        public MicrosoftXboxAuthBuilder WithOAuthStrategy(IMicrosoftOAuthStrategy oAuthStrategy)
+        public XboxAuthBuilder WithOAuthStrategy(IMicrosoftOAuthStrategy oAuthStrategy)
         {
-            return new MicrosoftXboxAuthBuilder(oAuthStrategy, Parameters);
+            Parameters.OAuthStrategy = oAuthStrategy;
+            return new XboxAuthBuilder(Parameters);
         }
 
         public abstract Task<XboxGameSession> ExecuteAsync();

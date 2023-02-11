@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
 using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using CmlLib.Core.Auth.Microsoft.XboxGame;
 using CmlLib.Core.Auth.Microsoft.XboxAuthStrategies;
@@ -15,8 +16,9 @@ namespace CmlLib.Core.Auth.Microsoft.Executors
         }
 
         public async Task<XboxGameSession> Authenticate(
-            IXboxGameAuthenticator xboxGameAuthenticator,
+            IMicrosoftOAuthStrategy oAuthStrategy,
             IXboxAuthStrategy xboxAuthStrategy,
+            IXboxGameAuthenticator xboxGameAuthenticator,
             ISessionStorage sessionStorage)
         {
             var cachedSession = await sessionStorage.GetAsync<XboxGameSession>("G");
@@ -27,7 +29,7 @@ namespace CmlLib.Core.Auth.Microsoft.Executors
             }
             else
             {
-                return await _executor.Authenticate(xboxGameAuthenticator, xboxAuthStrategy, sessionStorage);
+                return await _executor.Authenticate(oAuthStrategy, xboxAuthStrategy, xboxGameAuthenticator, sessionStorage);
             }
         }
     }
