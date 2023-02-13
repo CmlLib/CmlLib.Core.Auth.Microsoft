@@ -1,5 +1,5 @@
 
-namespace CmlLib.Core.Auth.Microsoft.Builders
+namespace CmlLib.Core.Auth.Microsoft.Builders.OAuth
 {
     public class MicrosoftOAuthClientInfo
     {

@@ -2,10 +2,11 @@ using System;
 using System.Threading.Tasks;
 using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
 using CmlLib.Core.Auth.Microsoft.SessionStorages;
+using CmlLib.Core.Auth.Microsoft.Builders.XboxAuth;
 using XboxAuthNet.OAuth;
 using XboxAuthNet.OAuth.Models;
 
-namespace CmlLib.Core.Auth.Microsoft.Builders
+namespace CmlLib.Core.Auth.Microsoft.Builders.OAuth
 {
     public class MicrosoftOAuthBuilder : AbstractMicrosoftOAuthBuilder
     {

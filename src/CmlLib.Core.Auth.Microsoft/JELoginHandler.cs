@@ -1,6 +1,7 @@
 using System.Net.Http;
 using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using CmlLib.Core.Auth.Microsoft.Builders;
+using CmlLib.Core.Auth.Microsoft.Builders.OAuth;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
@@ -20,14 +21,14 @@ namespace CmlLib.Core.Auth.Microsoft
             ISessionStorage sessionStorage) =>
             (_httpClient, _cacheStorage) = (httpClient, sessionStorage);
 
-        public JEAuthenticationBuilder Authenticate()
+        public XboxGameAuthenticationBuilder Authenticate()
         {
-            return new JEAuthenticationBuilder(createParameters());
+            return new XboxGameAuthenticationBuilder(createParameters(), DefaultMicrosoftOAuthClientInfo);
         }
 
-        public JESilentAuthenticationBuilder AuthenticateSilently()
+        public SilentXboxGameAuthenticationBuilder AuthenticateSilently()
         {
-            return new JESilentAuthenticationBuilder(createParameters());
+            return new SilentXboxGameAuthenticationBuilder(createParameters(), DefaultMicrosoftOAuthClientInfo);
         }
 
         private XboxGameAuthenticationParameters createParameters()

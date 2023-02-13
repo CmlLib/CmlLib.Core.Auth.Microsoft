@@ -4,7 +4,7 @@ using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
 using CmlLib.Core.Auth.Microsoft.XboxAuthStrategies;
 
-namespace CmlLib.Core.Auth.Microsoft.Builders
+namespace CmlLib.Core.Auth.Microsoft.Builders.XboxAuth
 {
     public class XboxAuthBuilder : IXboxGameAuthenticationExecutorBuilder
     {
