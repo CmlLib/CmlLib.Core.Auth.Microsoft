@@ -17,8 +17,6 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             MicrosoftOAuthClientInfo? oAuthClientInfo)
         {
             this._parameters = parameters;
-            if (this._parameters.Executor == null)
-                this._parameters.Executor = new XboxGameAuthenticationExecutor();
             this._oAuthClientInfo = oAuthClientInfo;
         }
 
