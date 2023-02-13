@@ -16,5 +16,10 @@ namespace CmlLib.Core.Auth.Microsoft.OAuthStrategies
         {
             return Task.FromResult(_response);
         }
+
+        public Task<MicrosoftOAuthResponse> Authenticate(MicrosoftOAuthResponse cachedResponse)
+        {
+            return Task.FromResult(_response);
+        }
     }
 }

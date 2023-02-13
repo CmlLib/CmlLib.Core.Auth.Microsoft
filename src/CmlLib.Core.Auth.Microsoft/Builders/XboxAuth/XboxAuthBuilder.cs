@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
 using CmlLib.Core.Auth.Microsoft.XboxAuthStrategies;
 
@@ -9,7 +8,6 @@ namespace CmlLib.Core.Auth.Microsoft.Builders.XboxAuth
     public class XboxAuthBuilder : IXboxGameAuthenticationExecutorBuilder
     {
         private readonly XboxGameAuthenticationParameters _parameters;
-        private ISessionSource<XboxAuthTokens> XboxSessionSource;
 
         public XboxAuthBuilder(
             XboxGameAuthenticationParameters parameters)
@@ -18,17 +16,12 @@ namespace CmlLib.Core.Auth.Microsoft.Builders.XboxAuth
 
             if (parameters.OAuthStrategy == null)
                 throw new ArgumentException("OAuthStrategy was null");
-
-            if (parameters.SessionStorage == null)
-                XboxSessionSource = new InMemorySessionSource<XboxAuthTokens>();
-            else
-                XboxSessionSource = new XboxSessionSource(parameters.SessionStorage);
         }
 
         public XboxAuthBuilder WithBasicXboxAuth()
         {
             var httpClient = _parameters.HttpClient ?? HttpHelper.DefaultHttpClient.Value;
-            WithXboxAuthStrategy(oAuthStrategy => new BasicXboxAuthStrategy(httpClient, XboxSessionSource));
+            WithXboxAuthStrategy(oAuthStrategy => new BasicXboxAuthStrategy(httpClient));
             return this;
         }
 
@@ -46,12 +39,6 @@ namespace CmlLib.Core.Auth.Microsoft.Builders.XboxAuth
         public XboxAuthBuilder WithXboxAuthStrategy(IXboxAuthStrategy xboxAuthStrategy)
         {
             _parameters.XboxAuthStrategy = xboxAuthStrategy;
-            return this;
-        }
-
-        public XboxAuthBuilder WithXboxSessionSource(ISessionSource<XboxAuthTokens> source)
-        {
-            XboxSessionSource = source;
             return this;
         }
 

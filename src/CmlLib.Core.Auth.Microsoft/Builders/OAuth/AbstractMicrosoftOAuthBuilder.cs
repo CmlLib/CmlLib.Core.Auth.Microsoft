@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
 using CmlLib.Core.Auth.Microsoft.Builders.XboxAuth;
 using XboxAuthNet.OAuth;
@@ -12,7 +11,6 @@ namespace CmlLib.Core.Auth.Microsoft.Builders.OAuth
     {
         protected XboxGameAuthenticationParameters Parameters { get; private set; }
         protected MicrosoftOAuthCodeApiClient OAuthClient { get; private set; }
-        protected ISessionSource<MicrosoftOAuthResponse> MicrosoftOAuthTokenSource { get; private set; }
 
         public AbstractMicrosoftOAuthBuilder(
             XboxGameAuthenticationParameters parameters,
@@ -27,7 +25,6 @@ namespace CmlLib.Core.Auth.Microsoft.Builders.OAuth
                 parameters.HttpClient ?? HttpHelper.DefaultHttpClient.Value);
 
             this.Parameters = parameters;
-            this.MicrosoftOAuthTokenSource = createOAuthTokenSource(parameters);
         }
 
         public AbstractMicrosoftOAuthBuilder(
@@ -36,21 +33,6 @@ namespace CmlLib.Core.Auth.Microsoft.Builders.OAuth
         {
             this.OAuthClient = client;
             this.Parameters = parameters;
-            this.MicrosoftOAuthTokenSource = createOAuthTokenSource(parameters);
-        }
-
-        private ISessionSource<MicrosoftOAuthResponse> createOAuthTokenSource(XboxGameAuthenticationParameters parameters)
-        {
-            if (parameters.SessionStorage == null)
-                return new InMemorySessionSource<MicrosoftOAuthResponse>();
-            else
-                return new MicrosoftOAuthSessionSource(parameters.SessionStorage);
-        }
-
-        public AbstractMicrosoftOAuthBuilder WithOAuthTokenSource(ISessionSource<MicrosoftOAuthResponse> source)
-        {
-            MicrosoftOAuthTokenSource = source;
-            return this;
         }
 
         public XboxAuthBuilder FromOAuthResponse(MicrosoftOAuthResponse response)

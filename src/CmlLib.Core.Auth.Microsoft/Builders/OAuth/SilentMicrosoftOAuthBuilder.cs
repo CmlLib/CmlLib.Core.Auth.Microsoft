@@ -1,8 +1,6 @@
 using System.Threading.Tasks;
 using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
-using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using CmlLib.Core.Auth.Microsoft.Builders.XboxAuth;
-using XboxAuthNet.OAuth.Models;
 
 namespace CmlLib.Core.Auth.Microsoft.Builders.OAuth
 {
@@ -16,16 +14,9 @@ namespace CmlLib.Core.Auth.Microsoft.Builders.OAuth
 
         }
 
-        // for method chaining the return type of `WithOAuthTokenSource` should be itself.
-        public new SilentMicrosoftOAuthBuilder WithOAuthTokenSource(ISessionSource<MicrosoftOAuthResponse> source)
-        {
-            WithOAuthTokenSource(source);
-            return this;
-        }
-
         public XboxAuthBuilder Silent()
         {
-            var oauth = new SilentMicrosoftOAuthStrategy(OAuthClient, MicrosoftOAuthTokenSource);
+            var oauth = new SilentMicrosoftOAuthStrategy(OAuthClient);
             return WithOAuthStrategy(oauth);
         }
 
