@@ -28,7 +28,7 @@ namespace CmlLib.Core.Auth.Microsoft
                 .ExecuteAsync();
             
             var sresult1 = await loginHandler.AuthenticateSilently()
-                .WithMicrosoftOAuth()
+                .WithSilentMicrosoftOAuth()
                 .Silent()
                 .ExecuteAsync();
         }

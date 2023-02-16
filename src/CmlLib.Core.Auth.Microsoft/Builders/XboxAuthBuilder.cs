@@ -38,10 +38,6 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             var xboxAuthStrategy = this.Parameters.XboxAuthStrategy;
             var cacheStorage = this.Parameters.SessionStorage;
 
-            if (this.Parameters.Executor == null)
-            {
-                throw new InvalidOperationException();
-            }
             if (gameAuthenticator == null)
             {
                 throw new InvalidOperationException();
@@ -50,12 +46,8 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             {
                 throw new InvalidOperationException();
             }
-            if (cacheStorage == null)
-            {
-                throw new InvalidOperationException();
-            }
 
-            return this.Parameters.Executor.Authenticate(gameAuthenticator, xboxAuthStrategy, cacheStorage);
+            return gameAuthenticator.Authenticate(xboxAuthStrategy);
         }
     }
 }

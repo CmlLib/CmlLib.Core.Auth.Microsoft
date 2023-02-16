@@ -1,6 +1,7 @@
 using System.Net.Http;
 using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using CmlLib.Core.Auth.Microsoft.Builders;
+using CmlLib.Core.Auth.Microsoft.XboxGame;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
@@ -20,14 +21,22 @@ namespace CmlLib.Core.Auth.Microsoft
             ISessionStorage sessionStorage) =>
             (_httpClient, _cacheStorage) = (httpClient, sessionStorage);
 
-        public JEAuthenticationBuilder Authenticate()
+        public XboxGameAuthenticationBuilder Authenticate()
         {
-            return new JEAuthenticationBuilder(createParameters());
+            return new XboxGameAuthenticationBuilder(createParameters(), DefaultMicrosoftOAuthClientInfo)
+                .WithGameAuthenticator(createGameAuthenticator())
+                .WithExecutor(builder => builder // define default behavior
+                    .WithMicrosoftOAuth()
+                    .ExecuteAsync());
         }
 
-        public JESilentAuthenticationBuilder AuthenticateSilently()
+        public XboxGameAuthenticationBuilder AuthenticateSilently()
         {
-            return new JESilentAuthenticationBuilder(createParameters());
+            return new XboxGameAuthenticationBuilder(createParameters(), DefaultMicrosoftOAuthClientInfo)
+                .WithGameAuthenticator(createSilentGameAuthenticator())
+                .WithExecutor(builder => builder // define default behavior
+                    .WithSilentMicrosoftOAuth()
+                    .ExecuteAsync());
         }
 
         private XboxGameAuthenticationParameters createParameters()
@@ -36,6 +45,17 @@ namespace CmlLib.Core.Auth.Microsoft
             parameters.HttpClient = _httpClient;
             parameters.SessionStorage = _cacheStorage;
             return parameters;
+        }
+
+        private IXboxGameAuthenticator createGameAuthenticator()
+        {
+            return new DummyGameAuthenticator();
+        }
+
+        private IXboxGameAuthenticator createSilentGameAuthenticator()
+        {
+            var authenticator = createGameAuthenticator();
+            return new SilentXboxGameAuthenticator(new InMemorySessionSource<XboxGameSession>(), authenticator);
         }
     }
 }
