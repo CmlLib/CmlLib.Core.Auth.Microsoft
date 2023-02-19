@@ -9,9 +9,15 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
 {
     public abstract class AbstractMicrosoftOAuthBuilder : IXboxGameAuthenticationExecutorBuilder
     {
-        protected XboxGameAuthenticationParameters Parameters { get; private set; }
-        protected MicrosoftOAuthCodeApiClient OAuthClient { get; private set; }
-        protected ISessionSource<MicrosoftOAuthResponse> MicrosoftOAuthTokenSource { get; private set; }
+        public XboxGameAuthenticationParameters Parameters { get; private set; }
+        public MicrosoftOAuthCodeApiClient OAuthClient { get; private set; }
+
+        private ISessionSource<MicrosoftOAuthResponse>? _microsoftOAuthTokenSource;
+        public ISessionSource<MicrosoftOAuthResponse> MicrosoftOAuthTokenSource
+        {
+            get => _microsoftOAuthTokenSource ??= createOAuthTokenSource(Parameters);
+            set => _microsoftOAuthTokenSource = value;
+        }
 
         public AbstractMicrosoftOAuthBuilder(
             XboxGameAuthenticationParameters parameters,
@@ -23,10 +29,9 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             this.OAuthClient = new MicrosoftOAuthCodeApiClient(
                 clientInfo.ClientId, 
                 clientInfo.Scopes ?? "", 
-                parameters.HttpClient ?? HttpHelper.DefaultHttpClient.Value);
+                parameters.HttpClient);
 
             this.Parameters = parameters;
-            this.MicrosoftOAuthTokenSource = createOAuthTokenSource(parameters);
         }
 
         public AbstractMicrosoftOAuthBuilder(
@@ -35,7 +40,6 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
         {
             this.OAuthClient = client;
             this.Parameters = parameters;
-            this.MicrosoftOAuthTokenSource = createOAuthTokenSource(parameters);
         }
 
         private ISessionSource<MicrosoftOAuthResponse> createOAuthTokenSource(XboxGameAuthenticationParameters parameters)
@@ -52,15 +56,21 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             return this;
         }
 
-        public MicrosoftXboxAuthBuilder FromOAuthResponse(MicrosoftOAuthResponse response)
+        public XboxAuthBuilder FromOAuthResponse(MicrosoftOAuthResponse response)
         {
             var strategy = new MockMicrosoftOAuthStrategy(response);
             return WithOAuthStrategy(strategy);
         }
 
-        public MicrosoftXboxAuthBuilder WithOAuthStrategy(IMicrosoftOAuthStrategy oAuthStrategy)
+        public XboxAuthBuilder WithOAuthStrategy(IMicrosoftOAuthStrategy oAuthStrategy)
         {
-            return new MicrosoftXboxAuthBuilder(oAuthStrategy, Parameters);
+            return new XboxAuthBuilder(oAuthStrategy, Parameters);
+        }
+
+        public XboxAuthBuilder WithOAuthCachingStrategy(IMicrosoftOAuthStrategy oAuthStrategy)
+        {
+            var strategy = new CachingMicrosoftOAuthStrategy(oAuthStrategy, MicrosoftOAuthTokenSource);
+            return WithOAuthStrategy(strategy);
         }
 
         public abstract Task<XboxGameSession> ExecuteAsync();

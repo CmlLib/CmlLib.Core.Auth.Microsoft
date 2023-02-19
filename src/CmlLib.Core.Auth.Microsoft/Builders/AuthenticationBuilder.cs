@@ -1,31 +1,32 @@
 using System;
 using System.Threading.Tasks;
 using CmlLib.Core.Auth.Microsoft.XboxGame;
+using CmlLib.Core.Auth.Microsoft.SessionStorages;
 
 namespace CmlLib.Core.Auth.Microsoft.Builders
 {
-    public class XboxGameAuthenticationBuilder : IXboxGameAuthenticationExecutorBuilder
+    public class AuthenticationBuilder : IXboxGameAuthenticationExecutorBuilder
     {
         private readonly XboxGameAuthenticationParameters _parameters;
-        private Func<XboxGameAuthenticationBuilder, Task<XboxGameSession>>? _executor;
+        private Func<AuthenticationBuilder, Task<XboxGameSession>>? _executor;
 
         public MicrosoftOAuthClientInfo? OAuthClientInfo { get; private set; }
 
-        public XboxGameAuthenticationBuilder(XboxGameAuthenticationParameters parameters, MicrosoftOAuthClientInfo? clientInfo)
+        public AuthenticationBuilder(XboxGameAuthenticationParameters parameters, MicrosoftOAuthClientInfo? clientInfo)
         {
             this._parameters = parameters;
             OAuthClientInfo = clientInfo;
         }
 
-        public XboxGameAuthenticationBuilder WithExecutor(Func<XboxGameAuthenticationBuilder, Task<XboxGameSession>> executor)
+        public AuthenticationBuilder WithExecutor(Func<AuthenticationBuilder, Task<XboxGameSession>> executor)
         {
             this._executor = executor;
             return this;
         }
 
-        public XboxGameAuthenticationBuilder WithGameAuthenticator(IXboxGameAuthenticator authenticator)
+        public AuthenticationBuilder WithSessionStorage(ISessionStorage sessionStorage)
         {
-            this._parameters.GameAuthenticator = authenticator;
+            this._parameters.SessionStorage = sessionStorage;
             return this;
         }
 

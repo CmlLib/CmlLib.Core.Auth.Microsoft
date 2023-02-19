@@ -25,7 +25,6 @@ namespace CmlLib.Core.Auth.Microsoft.OAuthStrategies
             // TODO: validate token
 
             token = await _oauthHandler.RefreshToken(token.RefreshToken, CancellationToken.None);
-            await _oauthTokenSource.SetAsync(token);
             return token;
         }
     }

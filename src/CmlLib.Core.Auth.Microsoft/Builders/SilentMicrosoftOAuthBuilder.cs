@@ -22,10 +22,10 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             return this;
         }
 
-        public MicrosoftXboxAuthBuilder Silent()
+        public XboxAuthBuilder Silent()
         {
             var oauth = new SilentMicrosoftOAuthStrategy(OAuthClient, MicrosoftOAuthTokenSource);
-            return WithOAuthStrategy(oauth);
+            return WithOAuthCachingStrategy(oauth);
         }
 
         public override Task<XboxGameSession> ExecuteAsync()
