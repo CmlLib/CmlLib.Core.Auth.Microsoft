@@ -19,18 +19,6 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
                 _sessionSource = new SessionFromStorage<XboxGameSession>("G", parameters.SessionStorage);
         }
 
-        public JEAuthBuilder WithSessionStorage(ISessionStorage sessionStorage)
-        {
-            this._parameters.SessionStorage = sessionStorage;
-            return this;
-        }
-
-        public JEAuthBuilder WithSessionSource(ISessionSource<XboxGameSession> sessionSource)
-        {
-            this._sessionSource = sessionSource;
-            return this;
-        }
-
         public AuthenticationBuilder Interactively()
         {
             var authenticator = new DummyGameAuthenticator();
@@ -79,6 +67,18 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
         private IXboxGameAuthenticator createCachingAuthenticator(IXboxGameAuthenticator authenticator)
         {
             return new CachingXboxGameSession(_sessionSource, authenticator);
+        }
+
+        public JEAuthBuilder WithSessionStorage(ISessionStorage sessionStorage)
+        {
+            this._parameters.SessionStorage = sessionStorage;
+            return this;
+        }
+
+        public JEAuthBuilder WithSessionSource(ISessionSource<XboxGameSession> sessionSource)
+        {
+            this._sessionSource = sessionSource;
+            return this;
         }
 
         public Task<XboxGameSession> ExecuteAsync()

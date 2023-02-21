@@ -40,6 +40,11 @@ namespace CmlLib.Core.Auth.Microsoft
                 .Authenticate().Interactively()
                 .ExecuteAsync();
 
+            var result5 = await loginHandler
+                .Authenticate().Interactively()
+                .WithMicrosoftOAuth()
+                .ExecuteAsync();
+
             var sresult1 = await loginHandler
                 .Authenticate().Silently()
                 .WithSilentMicrosoftOAuth().Silent()
