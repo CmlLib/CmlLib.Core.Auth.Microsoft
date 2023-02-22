@@ -23,9 +23,12 @@ namespace CmlLib.Core.Auth.Microsoft
 
         public JEAuthBuilder Authenticate()
         {
-            var parameters = new XboxGameAuthenticationParameters(_httpClient);
-            parameters.SessionStorage = SessionStorage;
-            return new JEAuthBuilder(parameters);
+            return new JEAuthBuilder();
+        }
+
+        public JEAuthBuilder AuthenticateSilently()
+        {
+            return new JEAuthBuilder();
         }
     }
 }
