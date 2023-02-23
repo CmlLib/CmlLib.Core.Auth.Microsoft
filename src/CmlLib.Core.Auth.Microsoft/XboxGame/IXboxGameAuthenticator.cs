@@ -1,10 +1,11 @@
 using System.Threading.Tasks;
+using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using CmlLib.Core.Auth.Microsoft.XboxAuthStrategies;
 
 namespace CmlLib.Core.Auth.Microsoft.XboxGame
 {
     public interface IXboxGameAuthenticator
     {
-        Task<XboxGameSession> Authenticate(IXboxAuthStrategy xboxAuthStrategy);
+        Task<XboxGameSession> Authenticate(IXboxAuthStrategy xboxAuthStrategy, ISessionSource<XboxGameSession> sessionSource);
     }
 }

@@ -4,7 +4,7 @@ using XboxAuthNet.OAuth.Models;
 
 namespace CmlLib.Core.Auth.Microsoft.Builders
 {
-    public class MicrosoftOAuthBuilderContext
+    public class MicrosoftOAuthStrategyFactoryContext
     {
         public HttpClient? HttpClient { get; set; }
         public ISessionSource<MicrosoftOAuthResponse>? SessionSource { get; set; }

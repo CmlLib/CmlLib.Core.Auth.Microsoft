@@ -1,21 +1,61 @@
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
 using CmlLib.Core.Auth.Microsoft.XboxAuthStrategies;
 using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using CmlLib.Core.Auth.Microsoft.XboxGame;
-using XboxAuthNet.OAuth;
-using XboxAuthNet.OAuth.Models;
 
 namespace CmlLib.Core.Auth.Microsoft.Builders
 {
-    public class JEAuthBuilder
+    public class JEAuthBuilder : 
+        IBuilderWithMicrosoftOAuthStrategy<JEAuthBuilder>, 
+        IBuilderWithXboxAuthStrategy<JEAuthBuilder>
     {
+        private readonly HttpClient _httpClient;
+        private readonly MicrosoftOAuthClientInfo _clientInfo;
+
         private IXboxGameAuthenticator? _gameAuthenticator;
         private IMicrosoftOAuthStrategy? _oAuthStrategy;
         private IXboxAuthStrategy? _xboxAuthStrategy;
         private ISessionStorage? _sessionStorage;
         private ISessionSource<XboxGameSession>? _sessionSource;
+
+        public JEAuthBuilder(HttpClient httpClient, MicrosoftOAuthClientInfo clientInfo)
+        {
+            this._httpClient = httpClient;
+            this._clientInfo = clientInfo;
+        }
+
+        public MicrosoftOAuthStrategyFactoryContext MicrosoftOAuthBuilderContext => 
+            createMicrosoftOAuthBuilderContext();
+
+        public XboxAuthStrategyFactoryContext XboxAuthStrategyBuilderContext =>
+            createXboxAuthStrategyFactoryContext();
+
+        private MicrosoftOAuthStrategyFactoryContext createMicrosoftOAuthBuilderContext()
+        {
+            var context = new MicrosoftOAuthStrategyFactoryContext()
+            {
+                ClientId = _clientInfo.ClientId,
+                Scopes = _clientInfo.Scopes,
+                HttpClient = _httpClient
+            };
+
+            if (_sessionStorage != null)
+                context.SessionSource = new MicrosoftOAuthSessionSource(_sessionStorage);
+
+            return context;
+        }
+
+        private XboxAuthStrategyFactoryContext createXboxAuthStrategyFactoryContext()
+        {
+            return new XboxAuthStrategyFactoryContext
+            {
+                HttpClient = _httpClient,
+                OAuthStrategy = _oAuthStrategy
+            };
+        }
 
         public JEAuthBuilder WithSessionStorage(ISessionStorage sessionStorage)
         {
@@ -35,71 +75,16 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             return this;
         }
 
-        public JEAuthBuilder WithMicrosoftOAuth(Func<MicrosoftOAuthBuilderContext, IMicrosoftOAuthStrategy> factory)
-        {
-            var context = new MicrosoftOAuthBuilderContext()
-            {
-                ClientId = clientID,
-                Scopes = scopes,
-                HttpClient = httpClient
-            };
-
-            if (_sessionStorage != null)
-                context.SessionSource = new MicrosoftOAuthSessionSource(_sessionStorage);
-
-            var strategy = factory.Invoke(context);
-            return WithMicrosoftOAuth(strategy);
-        }
-
-        public JEAuthBuilder WithSilentMicrosoftOAuth()
-        {
-            return WithMicrosoftOAuth(context => {
-                var apiClient = createMicrosoftOAuthApiClient(context);
-                var factory = new MicrosoftOAuthStrategyFactory(apiClient);
-                factory.SessionSource = context.SessionSource;
-                var strategy = factory.CreateSilentStrategy();
-                return factory.CreateCachingStrategy(strategy);
-            });
-        }
-
-        public JEAuthBuilder WithInteractiveMicrosoftOAuth(MicrosoftOAuthParameters parameters)
-        {
-            return WithInteractiveMicrosoftOAuth(builder => builder, parameters);
-        }
-
-        public JEAuthBuilder WithInteractiveMicrosoftOAuth(
-            Func<MicrosoftOAuthCodeFlowBuilder, MicrosoftOAuthCodeFlowBuilder> builderInvoker, 
-            MicrosoftOAuthParameters parameters)
-        {
-            return WithMicrosoftOAuth(context => {
-                var apiClient = createMicrosoftOAuthApiClient(context);
-                var factory = new MicrosoftOAuthStrategyFactory(apiClient);
-                factory.SessionSource = context.SessionSource;
-                var strategy = factory.CreateInteractiveStrategy(builderInvoker, parameters);
-                return factory.CreateCachingStrategy(strategy);
-            });
-        }
-
-        private MicrosoftOAuthCodeApiClient createMicrosoftOAuthApiClient(MicrosoftOAuthBuilderContext context)
-        {
-            var apiClient = new MicrosoftOAuthCodeApiClient(
-                context.ClientId ?? throw new InvalidOperationException(),
-                context.Scopes ?? throw new InvalidOperationException(),
-                context.HttpClient ?? HttpHelper.DefaultHttpClient.Value);
-            return apiClient;
-        }
-
         public JEAuthBuilder WithXboxAuth(IXboxAuthStrategy xboxAuthStrategy)
         {
             this._xboxAuthStrategy = xboxAuthStrategy;
             return this;
         }
 
-        public JEAuthBuilder WithXboxAuth(Func<XboxAuthStrategyBuilder, IXboxAuthStrategy> builderInvoker)
+        public JEAuthBuilder WithGameAuthenticator(IXboxGameAuthenticator authenticator)
         {
-            var builder = new XboxAuthStrategyBuilder();
-            var strategy = builderInvoker.Invoke(builder);
-            return WithXboxAuth(strategy);
+            this._gameAuthenticator = authenticator;
+            return this;
         }
 
         public Task<XboxGameSession> ExecuteAsync()
@@ -112,8 +97,12 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             {
                 throw new InvalidOperationException();
             }
+            if (_sessionSource == null)
+            {
+                throw new InvalidOperationException();
+            }
 
-            return _gameAuthenticator.Authenticate(_xboxAuthStrategy);
+            return _gameAuthenticator.Authenticate(_xboxAuthStrategy, _sessionSource);
         }
     }
 }
