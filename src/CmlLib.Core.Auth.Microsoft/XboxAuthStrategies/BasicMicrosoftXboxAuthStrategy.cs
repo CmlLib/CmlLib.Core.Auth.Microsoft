@@ -16,18 +16,18 @@ namespace CmlLib.Core.Auth.Microsoft.XboxAuthStrategies
             IMicrosoftOAuthStrategy oAuthStrategy) =>
             (HttpClient, _oAuthStrategy) = (httpClient, oAuthStrategy);
 
-        public async Task<XboxAuthTokens> Authenticate()
+        public async Task<XboxAuthTokens> Authenticate(string relyingParty)
         {
             var oAuth = await _oAuthStrategy.Authenticate();
             if (string.IsNullOrEmpty(oAuth.AccessToken))
                 throw new MicrosoftOAuthException("AccessToken was empty", 0);
 
-            var tokens = await AuthenticateFromOAuthResult(oAuth);
+            var tokens = await AuthenticateFromOAuthResult(oAuth, relyingParty);
 
             return tokens;
         }
 
-        protected virtual async Task<XboxAuthTokens> AuthenticateFromOAuthResult(MicrosoftOAuthResponse oAuth)
+        protected virtual async Task<XboxAuthTokens> AuthenticateFromOAuthResult(MicrosoftOAuthResponse oAuth, string relyingParty)
         {
             var xboxApi = new XboxAuth(HttpClient);
             var userToken = await xboxApi.ExchangeRpsTicketForUserToken(oAuth.AccessToken!);
@@ -35,7 +35,13 @@ namespace CmlLib.Core.Auth.Microsoft.XboxAuthStrategies
             if (string.IsNullOrEmpty(userToken.Token))
                 throw new XboxAuthException("UserToken was empty", 0);
 
-            var xsts = await xboxApi.ExchangeTokensForXstsIdentity(userToken.Token, null, null, null, null);
+            var xsts = await xboxApi.ExchangeTokensForXstsIdentity(
+                userToken: userToken.Token,
+                deviceToken: null,
+                titleToken: null,
+                xstsRelyingParty: relyingParty,
+                optionalDisplayClaims: null
+            );
 
             var tokens = new XboxAuthTokens
             {

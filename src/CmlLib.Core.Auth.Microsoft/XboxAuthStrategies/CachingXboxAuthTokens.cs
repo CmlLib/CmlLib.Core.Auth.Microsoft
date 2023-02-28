@@ -13,9 +13,9 @@ namespace CmlLib.Core.Auth.Microsoft.XboxAuthStrategies
             ISessionSource<XboxAuthTokens> sessionSource) =>
             (_innerStrategy, _sessionSource) = (innerStrategy, sessionSource);
 
-        public async Task<XboxAuthTokens> Authenticate()
+        public async Task<XboxAuthTokens> Authenticate(string relyingParty)
         {
-            var result = await _innerStrategy.Authenticate();
+            var result = await _innerStrategy.Authenticate(relyingParty);
             await _sessionSource.SetAsync(result);
             return result;
         }

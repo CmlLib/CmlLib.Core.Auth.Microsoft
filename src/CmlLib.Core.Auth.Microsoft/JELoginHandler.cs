@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using CmlLib.Core.Auth.Microsoft.Builders;
 using CmlLib.Core.Auth.Microsoft.XboxGame;
+using CmlLib.Core.Auth.Microsoft.Executors;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
@@ -34,18 +35,18 @@ namespace CmlLib.Core.Auth.Microsoft
             }
         }
 
-        public JEAuthBuilder AuthenticateInteractively()
+        public XboxGameAuthenticationBuilder AuthenticateInteractively()
         {
-            return new JEAuthBuilder(_httpClient, DefaultMicrosoftOAuthClientInfo)
+            return createAuthenticationBuilder()
                 .WithSessionStorage(SessionStorage)
                 .WithGameAuthenticator(createGameAuthenticator())
                 .WithInteractiveMicrosoftOAuth()
                 .WithBasicXboxAuth();
         }
 
-        public JEAuthBuilder AuthenticateSilently()
+        public XboxGameAuthenticationBuilder AuthenticateSilently()
         {
-            return new JEAuthBuilder(_httpClient, DefaultMicrosoftOAuthClientInfo)
+            return createAuthenticationBuilder()
                 .WithSessionStorage(SessionStorage)
                 .WithGameAuthenticator(createSilentGameAuthenticator())
                 .WithSilentMicrosoftOAuth()
@@ -60,6 +61,31 @@ namespace CmlLib.Core.Auth.Microsoft
         private IXboxGameAuthenticator createSilentGameAuthenticator()
         {
             return new SilentXboxGameAuthenticator(createGameAuthenticator());
+        }
+
+        private XboxGameAuthenticationBuilder createAuthenticationBuilder()
+        {
+            var oAuthContext = createOAuthContext();
+            var xboxAuthContext = createXboxAuthContext();
+            return new XboxGameAuthenticationBuilder(new XboxGameAuthenticationExecutor(), oAuthContext, xboxAuthContext);
+        }
+
+        private MicrosoftOAuthStrategyFactoryContext createOAuthContext()
+        {
+            return new MicrosoftOAuthStrategyFactoryContext
+            {
+                HttpClient = _httpClient,
+                ClientId = DefaultMicrosoftOAuthClientInfo.ClientId,
+                Scopes = DefaultMicrosoftOAuthClientInfo.Scopes,
+            };
+        }
+
+        private XboxAuthStrategyFactoryContext createXboxAuthContext()
+        {
+            return new XboxAuthStrategyFactoryContext
+            {
+                HttpClient = _httpClient
+            };
         }
     }
 }

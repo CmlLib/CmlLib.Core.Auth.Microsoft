@@ -8,7 +8,7 @@ namespace CmlLib.Core.Auth.Microsoft.XboxGame
     {
         public async Task<XboxGameSession> Authenticate(IXboxAuthStrategy xboxAuthStrategy, ISessionSource<XboxGameSession> sessionSource)
         {
-            var xboxTokens = await xboxAuthStrategy.Authenticate();
+            var xboxTokens = await xboxAuthStrategy.Authenticate("relyingParty");
             var dummySession = new XboxGameSession();
             await sessionSource.SetAsync(dummySession);
             return dummySession;

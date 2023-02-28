@@ -17,10 +17,7 @@ namespace CmlLib.Core.Auth.Microsoft
 
             var result2 = await loginHandler.AuthenticateInteractively()
                 .WithInteractiveMicrosoftOAuth(builder => builder
-                    .WithUIOptions(new WebUIOptions
-                    {
-                        ParentObject = new object()
-                    }), 
+                    .WithUIParent(new object()),
                     new MicrosoftOAuthParameters())
                 .WithBasicXboxAuth()
                 .ExecuteAsync();
