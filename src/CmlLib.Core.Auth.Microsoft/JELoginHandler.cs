@@ -1,9 +1,11 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using CmlLib.Core.Auth.Microsoft.SessionStorages;
+using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
+using CmlLib.Core.Auth.Microsoft.XboxAuthStrategies;
 using CmlLib.Core.Auth.Microsoft.Builders;
 using CmlLib.Core.Auth.Microsoft.XboxGame;
-using CmlLib.Core.Auth.Microsoft.Executors;
+using XboxAuthNet.OAuth.Models;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
@@ -35,23 +37,25 @@ namespace CmlLib.Core.Auth.Microsoft
             }
         }
 
-        public XboxGameAuthenticationBuilder AuthenticateInteractively()
+        public JEAuthenticationBuilder AuthenticateInteractively()
         {
-            return createAuthenticationBuilder()
-                .WithSessionStorage(SessionStorage)
+            return new JEAuthenticationBuilder()
                 .WithGameAuthenticator(createGameAuthenticator())
-                .WithInteractiveMicrosoftOAuth()
-                .WithBasicXboxAuth();
+                .WithSessionSource(createSessionSource());
         }
 
-        public XboxGameAuthenticationBuilder AuthenticateSilently()
+        public Task<XboxGameSession> AuthenticateInteractively(IXboxAuthStrategy xboxAuthStrategy) =>
+            AuthenticateInteractively().WithXboxAuth(xboxAuthStrategy).ExecuteAsync();
+
+        public JEAuthenticationBuilder AuthenticateSilently()
         {
-            return createAuthenticationBuilder()
-                .WithSessionStorage(SessionStorage)
+            return new JEAuthenticationBuilder()
                 .WithGameAuthenticator(createSilentGameAuthenticator())
-                .WithSilentMicrosoftOAuth()
-                .WithBasicXboxAuth();
+                .WithSessionSource(createSessionSource());
         }
+
+        public Task<XboxGameSession> AuthenticateSilently(IXboxAuthStrategy xboxAuthStrategy) =>
+            AuthenticateSilently().WithXboxAuth(xboxAuthStrategy).ExecuteAsync();
 
         private IXboxGameAuthenticator createGameAuthenticator()
         {
@@ -63,29 +67,23 @@ namespace CmlLib.Core.Auth.Microsoft
             return new SilentXboxGameAuthenticator(createGameAuthenticator());
         }
 
-        private XboxGameAuthenticationBuilder createAuthenticationBuilder()
+        private ISessionSource<XboxGameSession> createSessionSource()
         {
-            var oAuthContext = createOAuthContext();
-            var xboxAuthContext = createXboxAuthContext();
-            return new XboxGameAuthenticationBuilder(new XboxGameAuthenticationExecutor(), oAuthContext, xboxAuthContext);
+            return new SessionFromStorage<XboxGameSession>("G", SessionStorage);
         }
 
-        private MicrosoftOAuthStrategyFactoryContext createOAuthContext()
+        public MicrosoftOAuthStrategyBuilder CreateMicrosoftOAuthBuilder()
         {
-            return new MicrosoftOAuthStrategyFactoryContext
-            {
-                HttpClient = _httpClient,
-                ClientId = DefaultMicrosoftOAuthClientInfo.ClientId,
-                Scopes = DefaultMicrosoftOAuthClientInfo.Scopes,
-            };
+            return new MicrosoftOAuthStrategyBuilder(DefaultMicrosoftOAuthClientInfo, _httpClient)
+                .WithCaching(true)
+                .WithSessionSource(new SessionFromStorage<MicrosoftOAuthResponse>("O", SessionStorage));
         }
 
-        private XboxAuthStrategyFactoryContext createXboxAuthContext()
+        public XboxAuthStrategyBuilder CreateXboxAuthBuilder(IMicrosoftOAuthStrategy oAuthStrategy)
         {
-            return new XboxAuthStrategyFactoryContext
-            {
-                HttpClient = _httpClient
-            };
+            return new XboxAuthStrategyBuilder(_httpClient, oAuthStrategy)
+                .WithCaching(true)
+                .WithSessionSource(new SessionFromStorage<XboxAuthTokens>("X", SessionStorage));
         }
     }
 }
