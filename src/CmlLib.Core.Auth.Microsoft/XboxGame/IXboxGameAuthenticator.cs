@@ -6,6 +6,6 @@ namespace CmlLib.Core.Auth.Microsoft.XboxGame
 {
     public interface IXboxGameAuthenticator
     {
-        Task<XboxGameSession> Authenticate(IXboxAuthStrategy xboxAuthStrategy, ISessionSource<XboxGameSession> sessionSource);
+        Task<XboxGameSession> Authenticate(IXboxAuthStrategy xboxAuthStrategy);
     }
 }

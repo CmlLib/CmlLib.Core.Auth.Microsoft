@@ -9,10 +9,9 @@ namespace CmlLib.Core.Auth.Microsoft.Executors
     {
         public Task<XboxGameSession> ExecuteAsync(
             IXboxGameAuthenticator gameAuthenticator, 
-            IXboxAuthStrategy xboxAuthStrategy,
-            ISessionSource<XboxGameSession> sessionSource)
+            IXboxAuthStrategy xboxAuthStrategy)
         {
-            return gameAuthenticator.Authenticate(xboxAuthStrategy, sessionSource);
+            return gameAuthenticator.Authenticate(xboxAuthStrategy);
         }
     }
 }

@@ -12,9 +12,9 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
         public MicrosoftOAuthCodeApiClient CreateApiClientForOAuthCode(HttpClient httpClient)
         {   
             if (string.IsNullOrEmpty(ClientId))
-                throw new InvalidOperationException();
+                throw new InvalidOperationException("ClientId was empty");
             if (string.IsNullOrEmpty(Scopes))
-                throw new InvalidCastException();
+                throw new InvalidCastException("Scopes was empty");
 
             return new MicrosoftOAuthCodeApiClient(ClientId, Scopes, httpClient);
         }

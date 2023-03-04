@@ -7,64 +7,81 @@ using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
 
 namespace CmlLib.Core.Auth.Microsoft.Builders
 {
-    public class MicrosoftOAuthStrategyBuilder : JEAuthenticationBuilder
+    public class MicrosoftOAuthStrategyBuilder<T> : MethodChaining<T>
     {
         private readonly MicrosoftOAuthCodeApiClient _oAuthClient;
         public ISessionSource<MicrosoftOAuthResponse>? SessionSource { get; set; }
         public bool UseCaching { get; set; } = true;
-        private IMicrosoftOAuthStrategy? strategy;
+        private Func<IMicrosoftOAuthStrategy>? strategyGenerator;
 
-        public MicrosoftOAuthStrategyBuilder(MicrosoftOAuthClientInfo clientInfo, HttpClient httpClient)
-         : this(clientInfo.CreateApiClientForOAuthCode(httpClient)) {}
+        public MicrosoftOAuthStrategyBuilder(T returning, MicrosoftOAuthClientInfo clientInfo, HttpClient httpClient)
+         : this(returning, clientInfo.CreateApiClientForOAuthCode(httpClient)) {}
 
-        public MicrosoftOAuthStrategyBuilder(MicrosoftOAuthCodeApiClient apiClient)
+        public MicrosoftOAuthStrategyBuilder(T returning, MicrosoftOAuthCodeApiClient apiClient) : base(returning)
              => _oAuthClient = apiClient;
 
-        public MicrosoftOAuthStrategyBuilder WithSessionSource(ISessionSource<MicrosoftOAuthResponse> sessionSource)
+        public T WithSessionSource(ISessionSource<MicrosoftOAuthResponse> sessionSource)
         {
             SessionSource = sessionSource;
-            return this;
+            return GetThis();
         }
 
-        public MicrosoftOAuthStrategyBuilder WithCaching(bool useCaching)
+        public T WithCaching(bool useCaching)
         {
             UseCaching = useCaching;
-            return this;
+            return GetThis();
         }
 
-        public MicrosoftOAuthStrategyBuilder UseSilentStrategy()
+        public T UseSilentStrategy()
         {
-            var strategy = new SilentMicrosoftOAuthStrategy(_oAuthClient, getOrCreateSessionSource());
-            UseStrategy(withCachingIfRequired(strategy));
-            return this;
+            UseStrategy(() => 
+            {
+                var strategy = new SilentMicrosoftOAuthStrategy(_oAuthClient, getOrCreateSessionSource());
+                return withCachingIfRequired(strategy);
+            });
+            return GetThis();
         }
 
-        public MicrosoftOAuthStrategyBuilder UseInteractiveStrategy() => 
+        public T UseInteractiveStrategy() => 
             UseInteractiveStrategy(builder => builder, new MicrosoftOAuthParameters());
         
-        public MicrosoftOAuthStrategyBuilder CreateInteractiveStrategy(MicrosoftOAuthParameters parameters) =>
+        public T UseInteractiveStrategy(MicrosoftOAuthParameters parameters) =>
             UseInteractiveStrategy(builder => builder, parameters);
 
-        public MicrosoftOAuthStrategyBuilder CreateInteractiveStrategy(Func<MicrosoftOAuthCodeFlowBuilder, MicrosoftOAuthCodeFlowBuilder> builderInvoker) =>
+        public T UseInteractiveStrategy(Func<MicrosoftOAuthCodeFlowBuilder, MicrosoftOAuthCodeFlowBuilder> builderInvoker) =>
             UseInteractiveStrategy(builderInvoker, new MicrosoftOAuthParameters());
 
-        public MicrosoftOAuthStrategyBuilder UseInteractiveStrategy(
+        public T UseInteractiveStrategy(
             Func<MicrosoftOAuthCodeFlowBuilder, MicrosoftOAuthCodeFlowBuilder> builderInvoker, 
             MicrosoftOAuthParameters parameters)
         {
-            var builder = new MicrosoftOAuthCodeFlowBuilder(_oAuthClient);
-            builderInvoker.Invoke(builder);
+            UseStrategy(() => 
+            {
+                var builder = new MicrosoftOAuthCodeFlowBuilder(_oAuthClient);
+                builderInvoker.Invoke(builder);
 
-            var codeFlow = builder.Build();
-            var strategy = new InteractiveMicrosoftOAuthStrategy(codeFlow, parameters);
-            UseStrategy(withCachingIfRequired(strategy));
-            return this;
+                var codeFlow = builder.Build();
+                var strategy = new InteractiveMicrosoftOAuthStrategy(codeFlow, parameters);
+
+                return withCachingIfRequired(strategy);
+            });
+            return GetThis();
         }
 
-        private MicrosoftOAuthStrategyBuilder UseStrategy(IMicrosoftOAuthStrategy strategy)
+        public T FromMicrosoftOAuthResponse(MicrosoftOAuthResponse response)
         {
-            this.strategy = strategy;
-            return this;
+            UseStrategy(() => 
+            {
+                var strategy = new MicrosoftOAuthStrategyFromResponse(response);
+                return withCachingIfRequired(strategy);
+            });
+            return GetThis();
+        }
+
+        public T UseStrategy(Func<IMicrosoftOAuthStrategy> strategy)
+        {
+            this.strategyGenerator = strategy;
+            return GetThis();
         }
 
         public IMicrosoftOAuthStrategy CreateCachingStrategy(IMicrosoftOAuthStrategy strategy)
@@ -90,7 +107,9 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
 
         public IMicrosoftOAuthStrategy Build()
         {
-            return strategy;
+            if (strategyGenerator == null)
+                throw new InvalidOperationException("Set OAuth strategy first");
+            return strategyGenerator.Invoke();
         }
     }
 }

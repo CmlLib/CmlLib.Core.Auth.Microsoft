@@ -3,11 +3,11 @@ using XboxAuthNet.OAuth.Models;
 
 namespace CmlLib.Core.Auth.Microsoft.OAuthStrategies
 {
-    public class MockMicrosoftOAuthStrategy : IMicrosoftOAuthStrategy
+    public class MicrosoftOAuthStrategyFromResponse : IMicrosoftOAuthStrategy
     {
         private readonly MicrosoftOAuthResponse _response;
 
-        public MockMicrosoftOAuthStrategy(MicrosoftOAuthResponse response)
+        public MicrosoftOAuthStrategyFromResponse(MicrosoftOAuthResponse response)
         {
             this._response = response;
         }

@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
 using CmlLib.Core.Auth.Microsoft.XboxAuthStrategies;
@@ -5,41 +6,66 @@ using CmlLib.Core.Auth.Microsoft.SessionStorages;
 
 namespace CmlLib.Core.Auth.Microsoft.Builders
 {
-    public class XboxAuthStrategyBuilder : JEAuthenticationBuilder
+    public class XboxAuthStrategyBuilder<T> : MethodChaining<T>
     {
         private readonly HttpClient _httpClient;
-        private readonly IMicrosoftOAuthStrategy _oAuthStrategy;
         public ISessionSource<XboxAuthTokens>? SessionSource { get; set; }
+
         public bool UseCaching { get; set; } = true;
-        private IXboxAuthStrategy? strategy;
+        private IMicrosoftOAuthStrategy? oAuthStrategy;
+        private Func<IXboxAuthStrategy>? strategyGenerator;
 
         public XboxAuthStrategyBuilder(
-            HttpClient httpClient,
-            IMicrosoftOAuthStrategy oAuthStrategy) =>
-            (_httpClient, _oAuthStrategy) = (httpClient, oAuthStrategy);
+            T returning,
+            HttpClient httpClient) : base(returning)
+        {
+            _httpClient = httpClient;
+        }
 
-        public XboxAuthStrategyBuilder WithSessionSource(ISessionSource<XboxAuthTokens> sessionSource)
+        public T WithMicrosoftOAuthStrategy(IMicrosoftOAuthStrategy strategy)
+        {
+            this.oAuthStrategy = strategy;
+            return GetThis();
+        }
+
+        public T WithSessionSource(ISessionSource<XboxAuthTokens> sessionSource)
         {
             SessionSource = sessionSource;
-            return this;
+            return GetThis();
         }
 
-        public XboxAuthStrategyBuilder WithCaching(bool useCaching)
+        public T WithCaching(bool useCaching)
         {
             UseCaching = useCaching;
-            return this;
+            return GetThis();
         }
 
-        public XboxAuthStrategyBuilder UseBasicStrategy()
+        public T UseBasicStrategy()
         {
-            UseStrategy(new BasicXboxAuthStrategy(_httpClient, _oAuthStrategy));
-            return this;
+            UseStrategy(() => 
+            {
+                if (oAuthStrategy == null)
+                    throw new InvalidOperationException("this strategy require OAuthStrategy");
+                var strategy = new BasicXboxAuthStrategy(_httpClient, oAuthStrategy);
+                return withCachingIfRequired(strategy);
+            });
+            return GetThis();
         }
 
-        public XboxAuthStrategyBuilder UseStrategy(IXboxAuthStrategy strategy)
+        public T UseStrategy(Func<IXboxAuthStrategy> strategy)
         {
-            this.strategy = strategy;
-            return this;
+            this.strategyGenerator = strategy;
+            return GetThis();
+        }
+
+        public T FromXboxAuthTokens(XboxAuthTokens authTokens)
+        {
+            UseStrategy(() => 
+            {
+                var strategy = new XboxAuthStrategyFromTokens(authTokens);
+                return withCachingIfRequired(strategy);
+            });
+            return GetThis();
         }
 
         public IXboxAuthStrategy CreateCachingStrategy(IXboxAuthStrategy strategy)
@@ -65,7 +91,9 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
 
         public IXboxAuthStrategy Build()
         {
-            return strategy;
+            if (strategyGenerator == null)
+                throw new InvalidOperationException("set strategy");
+            return strategyGenerator.Invoke();
         }
     }
 }

@@ -6,11 +6,10 @@ namespace CmlLib.Core.Auth.Microsoft.XboxGame
 {
     public class DummyGameAuthenticator : IXboxGameAuthenticator
     {
-        public async Task<XboxGameSession> Authenticate(IXboxAuthStrategy xboxAuthStrategy, ISessionSource<XboxGameSession> sessionSource)
+        public async Task<XboxGameSession> Authenticate(IXboxAuthStrategy xboxAuthStrategy)
         {
             var xboxTokens = await xboxAuthStrategy.Authenticate("relyingParty");
             var dummySession = new XboxGameSession();
-            await sessionSource.SetAsync(dummySession);
             return dummySession;
         }
     }

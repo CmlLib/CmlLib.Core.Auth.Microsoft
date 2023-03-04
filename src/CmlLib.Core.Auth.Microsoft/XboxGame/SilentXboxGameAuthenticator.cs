@@ -7,18 +7,20 @@ namespace CmlLib.Core.Auth.Microsoft.XboxGame
     public class SilentXboxGameAuthenticator : IXboxGameAuthenticator
     {
         private readonly IXboxGameAuthenticator _innerAuthenticator;
+        private readonly ISessionSource<XboxGameSession> _sessionSource;
 
         public SilentXboxGameAuthenticator(
-            IXboxGameAuthenticator authenticator) =>
-            _innerAuthenticator = authenticator;
+            IXboxGameAuthenticator authenticator,
+            ISessionSource<XboxGameSession> sessionSource) =>
+            (_innerAuthenticator, _sessionSource) = (authenticator, sessionSource);
 
-        public async Task<XboxGameSession> Authenticate(IXboxAuthStrategy xboxAuthStrategy, ISessionSource<XboxGameSession> sessionSource)
+        public async Task<XboxGameSession> Authenticate(IXboxAuthStrategy xboxAuthStrategy)
         {
-            var storedSession = await sessionSource.GetAsync();
+            var storedSession = await _sessionSource.GetAsync();
             if (storedSession != null && storedSession.Validate())
                 return storedSession;
             else
-                return await _innerAuthenticator.Authenticate(xboxAuthStrategy, sessionSource);
+                return await _innerAuthenticator.Authenticate(xboxAuthStrategy);
         }
     }
 }
