@@ -2,7 +2,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using CmlLib.Core.Auth.Microsoft.Builders;
-using CmlLib.Core.Auth.Microsoft.XboxGame;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
@@ -22,16 +21,19 @@ namespace CmlLib.Core.Auth.Microsoft
             ISessionStorage sessionStorage) =>
             (_httpClient, SessionStorage) = (httpClient, sessionStorage);
 
-        public Task<XboxGameSession> Authenticate()
+        public async Task<MSession> Authenticate()
         {
+            JESession session;
             try
             {
-                return AuthenticateSilently().ExecuteAsync();
+                session = await AuthenticateSilently().ExecuteAsync();
             }
             catch (SessionExpiredException)
             {
-                return AuthenticateInteractively().ExecuteAsync();
+                session = await AuthenticateInteractively().ExecuteAsync();
             }
+
+            return session.ToLauncherSession();
         }
 
         public JEAuthenticationBuilder AuthenticateInteractively()

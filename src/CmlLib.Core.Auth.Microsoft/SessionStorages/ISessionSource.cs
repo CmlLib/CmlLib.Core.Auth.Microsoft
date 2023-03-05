@@ -2,9 +2,9 @@ using System.Threading.Tasks;
 
 namespace CmlLib.Core.Auth.Microsoft.SessionStorages
 {
-    public interface ISessionSource<T> where T : class
+    public interface ISessionSource<T>
     {
-        ValueTask<T?> GetAsync();
-        ValueTask SetAsync(T? obj);
+        ValueTask<T> GetAsync();
+        ValueTask SetAsync(T obj);
     }
 }

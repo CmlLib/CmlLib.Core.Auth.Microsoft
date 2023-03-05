@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using System.Threading.Tasks;
-using CmlLib.Core.Auth.Microsoft;
 using CmlLib.Core.Auth.Microsoft.Builders;
 using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
@@ -45,7 +44,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
                 .WithSessionStorage(newSessionStorage)
                 .MicrosoftOAuth.UseSilentStrategy();
 
-            builder.PreExecute();
+            builder.Build();
 
             await AssertSessionSourceIsFromSessionStorage(builder, newSessionStorage);
         }
@@ -58,7 +57,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
                 .MicrosoftOAuth.UseSilentStrategy()
                 .WithSessionStorage(newSessionStorage);
 
-            builder.PreExecute();
+            builder.Build();
 
             await AssertSessionSourceIsFromSessionStorage(builder, newSessionStorage);
         }
@@ -87,7 +86,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
                 .MicrosoftOAuth.WithSessionSource(newOAuthSessionSource)
                 .XboxAuth.WithSessionSource(newXboxSessionSource);
 
-            builder.PreExecute();
+            builder.Build();
 
             Assert.AreEqual(newSessionStorage, builder.SessionStorage);
             await AssertAreEqualOAuthSessionSource(
@@ -110,7 +109,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
                 .XboxAuth.WithSessionSource(newXboxSessionSource)
                 .WithSessionStorage(newSessionStorage);
 
-            builder.PreExecute();
+            builder.Build();
 
             Assert.AreEqual(newSessionStorage, builder.SessionStorage);
             await AssertAreEqualOAuthSessionSource(

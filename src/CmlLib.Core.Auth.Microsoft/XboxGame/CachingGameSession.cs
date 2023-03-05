@@ -4,20 +4,19 @@ using CmlLib.Core.Auth.Microsoft.XboxAuthStrategies;
 
 namespace CmlLib.Core.Auth.Microsoft.XboxGame
 {
-    public class CachingGameSession : IXboxGameAuthenticator
+    public class CachingGameSession<T> : IXboxGameAuthenticator<T> where T : ISession
     {
-        private readonly IXboxGameAuthenticator _inner;
-        private readonly ISessionSource<XboxGameSession> _sessionSource;
+        private readonly IXboxGameAuthenticator<T> _inner;
+        private readonly ISessionSource<T> _sessionSource;
 
-        public CachingGameSession(IXboxGameAuthenticator inner, ISessionSource<XboxGameSession> sessionSource) =>
+        public CachingGameSession(IXboxGameAuthenticator<T> inner, ISessionSource<T> sessionSource) =>
         (_inner, _sessionSource) = (inner, sessionSource);
 
-        public async Task<XboxGameSession> Authenticate(IXboxAuthStrategy strategy)
+        public async Task<T> Authenticate(IXboxAuthStrategy strategy)
         {
-            var cached = await _sessionSource.GetAsync();
-            if (cached != null && cached.Validate())
-                return cached;
-            return await _inner.Authenticate(strategy);
+            var result = await _inner.Authenticate(strategy);
+            await _sessionSource.SetAsync(result);
+            return result;
         }
     }
 }

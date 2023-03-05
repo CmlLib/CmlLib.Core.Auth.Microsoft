@@ -4,8 +4,8 @@ using CmlLib.Core.Auth.Microsoft.XboxAuthStrategies;
 
 namespace CmlLib.Core.Auth.Microsoft.XboxGame
 {
-    public interface IXboxGameAuthenticator
+    public interface IXboxGameAuthenticator<T>
     {
-        Task<XboxGameSession> Authenticate(IXboxAuthStrategy xboxAuthStrategy);
+        Task<T> Authenticate(IXboxAuthStrategy xboxAuthStrategy);
     }
 }

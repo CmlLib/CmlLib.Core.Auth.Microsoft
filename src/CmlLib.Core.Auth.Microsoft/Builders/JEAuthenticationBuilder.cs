@@ -1,16 +1,18 @@
 using System;
 using System.Net.Http;
+using System.Threading.Tasks;
 using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
 using CmlLib.Core.Auth.Microsoft.XboxGame;
+using CmlLib.Core.Auth.Microsoft.Executors;
 
 namespace CmlLib.Core.Auth.Microsoft.Builders
 {
     public sealed class JEAuthenticationBuilder : XboxGameAuthenticationBuilder<JEAuthenticationBuilder>
     {
         public bool UseCaching { get; set; } = true;
-        public ISessionSource<XboxGameSession>? SessionSource { get; set; }
-        private Func<JEAuthenticationBuilder, IXboxGameAuthenticator>? strategy;
+        public ISessionSource<JESession>? SessionSource { get; set; }
+        private Func<IXboxGameAuthenticator<JESession>>? strategy;
 
         public JEAuthenticationBuilder(MicrosoftOAuthClientInfo clientInfo)
         {
@@ -44,7 +46,7 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             return GetThis();
         }
 
-        public JEAuthenticationBuilder WithSessionSource(ISessionSource<XboxGameSession> sessionSource)
+        public JEAuthenticationBuilder WithSessionSource(ISessionSource<JESession> sessionSource)
         {
             this.SessionSource = sessionSource;
             return GetThis();
@@ -56,12 +58,12 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             return GetThis();
         }
 
-        private IXboxGameAuthenticator createInteractiveJEAuthenticator(JEAuthenticationBuilder builder)
+        private IXboxGameAuthenticator<JESession> createInteractiveJEAuthenticator()
         {
-            var authenticator = new DummyGameAuthenticator();
+            var authenticator = new JEAuthenticator(HttpClient!, SessionSource!);
 
-            if (builder.UseCaching)
-                return new CachingGameSession(authenticator, builder.SessionSource!);
+            if (UseCaching)
+                return new CachingGameSession<JESession>(authenticator, SessionSource!);
             else
                 return authenticator;
         }
@@ -72,13 +74,13 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             return GetThis();
         }
 
-        private IXboxGameAuthenticator createSilentJEAuthenticator(JEAuthenticationBuilder builder)
+        private IXboxGameAuthenticator<JESession> createSilentJEAuthenticator()
         {
-            var authenticator = createInteractiveJEAuthenticator(builder);
-            return new SilentXboxGameAuthenticator(authenticator, builder.SessionSource!);
+            var authenticator = createInteractiveJEAuthenticator();
+            return new SilentXboxGameAuthenticator<JESession>(authenticator, SessionSource!);
         }
 
-        internal override void PreExecute()
+        public override IAuthenticationExecutor Build()
         {
             // SessionStorage
             if (SessionStorage == null)
@@ -99,7 +101,21 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             // GameAuthenticator
             if (strategy == null)
                 throw new InvalidOperationException();
-            WithGameAuthenticator(strategy.Invoke(this));
+            
+            var gameAuthenticator = strategy.Invoke();
+            return new XboxGameAuthenticationExecutor<JESession>(xboxAuthStrategy, gameAuthenticator);
+        }
+
+        public new async Task<JESession> ExecuteAsync()
+        {
+            var result = await base.ExecuteAsync();
+            return (JESession)result;
+        }
+
+        public async Task<MSession> ExecuteForLauncherAsync()
+        {
+            var result = await ExecuteAsync();
+            return result.ToLauncherSession();
         }
     }
 }

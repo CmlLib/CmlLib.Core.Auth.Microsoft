@@ -1,30 +1,20 @@
-using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CmlLib.Core.Auth.Microsoft.XboxAuthStrategies;
 using CmlLib.Core.Auth.Microsoft.SessionStorages;
-using CmlLib.Core.Auth.Microsoft.XboxGame;
+using CmlLib.Core.Auth.Microsoft.Executors;
 
 namespace CmlLib.Core.Auth.Microsoft.Builders
 {
-    public class XboxGameAuthenticationBuilder<T> where T : XboxGameAuthenticationBuilder<T>
+    public abstract class XboxGameAuthenticationBuilder<T> where T : XboxGameAuthenticationBuilder<T>
     {
         private IXboxAuthStrategy? _xboxAuthStrategy;
-        private IXboxGameAuthenticator? _gameAuthenticator;
-
         public ISessionStorage? SessionStorage { get; set; }
-
         public HttpClient? HttpClient { get; set; }
 
         public T WithXboxAuth(IXboxAuthStrategy xboxAuthStrategy)
         {
             this._xboxAuthStrategy = xboxAuthStrategy;
-            return GetThis();
-        }
-
-        public T WithGameAuthenticator(IXboxGameAuthenticator authenticator)
-        {
-            this._gameAuthenticator = authenticator;
             return GetThis();
         }
 
@@ -45,21 +35,11 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             return (T)this;
         }
 
-        internal virtual void PreExecute()
+        public abstract IAuthenticationExecutor Build();
+
+        public virtual Task<ISession> ExecuteAsync()
         {
-            // hook
-        }
-
-        public Task<XboxGameSession> ExecuteAsync()
-        {
-            PreExecute();
-
-            if (_gameAuthenticator == null)
-                throw new InvalidOperationException();
-            if (_xboxAuthStrategy == null)
-                throw new InvalidOperationException();
-
-            return _gameAuthenticator.Authenticate(_xboxAuthStrategy);
+            return Build().ExecuteAsync();
         }
     }
 }
