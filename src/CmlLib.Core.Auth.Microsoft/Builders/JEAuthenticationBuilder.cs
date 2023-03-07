@@ -11,6 +11,7 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
     public sealed class JEAuthenticationBuilder : XboxGameAuthenticationBuilder<JEAuthenticationBuilder>
     {
         public bool UseCaching { get; set; } = true;
+        public bool CheckGameOwnership { get; set; } = false;
         public ISessionSource<JESession>? SessionSource { get; set; }
         private Func<IXboxGameAuthenticator<JESession>>? strategy;
 
@@ -35,14 +36,17 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             return builder;
         }
 
-        private HttpClient getHttpClient()
-        {
-            return HttpClient ?? HttpHelper.DefaultHttpClient.Value;
-        }
-
+        public JEAuthenticationBuilder WithCaching() => WithCaching(true);
         public JEAuthenticationBuilder WithCaching(bool useCaching)
         {
             this.UseCaching = useCaching;
+            return GetThis();
+        }
+
+        public JEAuthenticationBuilder WithCheckingGameOwnership() => WithCheckingGameOwnership(true);
+        public JEAuthenticationBuilder WithCheckingGameOwnership(bool checkGameOwnership)
+        {
+            this.CheckGameOwnership = checkGameOwnership;
             return GetThis();
         }
 
@@ -80,6 +84,11 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             return new SilentXboxGameAuthenticator<JESession>(authenticator, SessionSource!);
         }
 
+        private HttpClient getHttpClient()
+        {
+            return HttpClient ?? HttpHelper.DefaultHttpClient.Value;
+        }
+
         public override IAuthenticationExecutor Build()
         {
             // SessionStorage
@@ -92,18 +101,21 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             var oAuthStrategy = MicrosoftOAuth.Build();
 
             // XboxAuth
-            if (XboxAuth.SessionSource == null)
-                XboxAuth.SessionSource = new InMemorySessionSource<XboxAuthTokens>();
-            XboxAuth.WithMicrosoftOAuthStrategy(oAuthStrategy);
-            var xboxAuthStrategy = XboxAuth.Build();
-            WithXboxAuth(xboxAuthStrategy);
+            if (XboxAuthStrategy == null)
+            {
+                XboxAuth.WithMicrosoftOAuthStrategy(oAuthStrategy);
+                if (XboxAuth.SessionSource == null)
+                    XboxAuth.SessionSource = new InMemorySessionSource<XboxAuthTokens>();
+                XboxAuthStrategy = XboxAuth.Build();
+            }
 
             // GameAuthenticator
             if (strategy == null)
                 throw new InvalidOperationException();
-            
             var gameAuthenticator = strategy.Invoke();
-            return new XboxGameAuthenticationExecutor<JESession>(xboxAuthStrategy, gameAuthenticator);
+
+            // Executor
+            return new XboxGameAuthenticationExecutor<JESession>(XboxAuthStrategy, gameAuthenticator);
         }
 
         public new async Task<JESession> ExecuteAsync()
@@ -119,35 +131,3 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
         }
     }
 }
-
-            // problem
-            // Default SessionSource should be set if client does not set any SessionSource
-
-            // #1
-            // passing SessionStorage to MicrosoftOAuthBuilder and let it to decide which SessionSource should be used
-            // eg) WithSessionStorage(SessionStorage sessionStorage)
-            // make it active object, instead passively set
-            //     - why is this benefitial? -> idk for now
-
-            // #2
-            // add TrySetSessionSource method to MicrosoftOAuthBuilder to use default SessionSource when none of SessionSource was set
-            // eg) TrySetSessionSource(SessionSource<T> sessionSource)
-
-            // assumption
-            // What if new default setting is required? Add new property, HttpClient
-            // #1: passing HttpClient to MicrosoftOAuthBuilder and let it to decide HttpClient
-            // #2: add TrySetHttpClient method to MicrosoftOAuthBuilder to use default HttpClient when none of HttpClient was set
-            // Those methods force to modify MicrosoftOAuthBuilder and AuthenticationBuilder
-
-            // assumption
-            // What if another default SessionSource decision strategy is required? eg) `DefaultSessionSourceGenerator` decide default SessionSource
-            // #1: MicrosoftOAuthBuilder should be modified: add new method like WithSessionStorage(DefaultSessionSourceGenerator sg)
-            // #2: AuthenticationBuilder should be modified: add new code like MicrosoftOAuthBuilder.TrySetSessionSource(ssGenerator.Generate())
-
-            // conclusion
-            // #2 is better way, Encapsulation of MicrosoftOAuthBuilder is worth more
-            // #2 means the client should provide default SessionSource decision strategy
-
-            // more
-            // find more elegant way then #1, #2
-            // remove default SessionSource feature and simply internal API

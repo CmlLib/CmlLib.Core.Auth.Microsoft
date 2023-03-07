@@ -8,13 +8,13 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
 {
     public abstract class XboxGameAuthenticationBuilder<T> where T : XboxGameAuthenticationBuilder<T>
     {
-        private IXboxAuthStrategy? _xboxAuthStrategy;
+        public IXboxAuthStrategy? XboxAuthStrategy { get; set; }
         public ISessionStorage? SessionStorage { get; set; }
         public HttpClient? HttpClient { get; set; }
 
         public T WithXboxAuth(IXboxAuthStrategy xboxAuthStrategy)
         {
-            this._xboxAuthStrategy = xboxAuthStrategy;
+            this.XboxAuthStrategy = xboxAuthStrategy;
             return GetThis();
         }
 

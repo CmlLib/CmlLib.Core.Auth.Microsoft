@@ -29,7 +29,7 @@ namespace CmlLib.Core.Auth.Microsoft.SessionStorages
             this._map = new Dictionary<string, JsonElement>();
         }
 
-        public async ValueTask<T?> GetAsync<T>(string key) where T : class
+        public async ValueTask<T?> GetAsync<T>(string key)
         {
             if (!isLoaded)
             {
@@ -71,7 +71,7 @@ namespace CmlLib.Core.Auth.Microsoft.SessionStorages
             }
         }
 
-        private T? getData<T>(string key) where T : class
+        private T? getData<T>(string key)
         {
             if (_map.TryGetValue(key, out var element))
             {
@@ -79,17 +79,17 @@ namespace CmlLib.Core.Auth.Microsoft.SessionStorages
             }
             else
             {
-                return null;
+                return default(T);
             }
         }
 
-        public async ValueTask SetAsync<T>(string key, T? obj) where T : class
+        public async ValueTask SetAsync<T>(string key, T? obj)
         {
             setData<T>(key, obj);
             await saveToJson();
         }
 
-        private void setData<T>(string key, T? obj) where T : class
+        private void setData<T>(string key, T? obj)
         {
             if (obj == null)
             {

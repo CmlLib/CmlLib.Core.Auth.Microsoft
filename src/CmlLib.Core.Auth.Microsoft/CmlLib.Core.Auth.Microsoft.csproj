@@ -6,7 +6,7 @@
     <TargetFrameworks>netstandard2.1</TargetFrameworks>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
     <Description>Minecraft login with Microsoft Xbox Live account</Description>
     <Copyright>Copyright (c) 2023 AlphaBs</Copyright>

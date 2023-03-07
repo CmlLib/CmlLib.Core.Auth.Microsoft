@@ -2,9 +2,9 @@ using System.Threading.Tasks;
 
 namespace CmlLib.Core.Auth.Microsoft.SessionStorages
 {
-    public class InMemorySessionSource<T> : ISessionSource<T> where T : class
+    public class InMemorySessionSource<T> : ISessionSource<T>
     {
-        private T? session;
+        private T? session = default(T);
 
         public ValueTask<T?> GetAsync() => 
             new ValueTask<T?>(session);
