@@ -32,40 +32,46 @@ namespace CmlLib.Core.Auth.Microsoft.Test
             Assert.NotNull(builder.SessionStorage, "Default SessionStorage should be not null");
 
             Assert.IsTrue(builder.UseCaching);
-            Assert.IsTrue(builder.MicrosoftOAuth.UseCaching);
-            Assert.IsTrue(builder.XboxAuth.UseCaching);
+
+            var microsoftBuilder = builder.WithMicrosoftOAuth();
+            Assert.IsTrue(microsoftBuilder.MicrosoftOAuth.UseCaching);
+            Assert.IsTrue(microsoftBuilder.XboxAuth.UseCaching);
         }
 
         [Test]
         public async Task TestSessionStorage()
         {
             var newSessionStorage = new InMemorySessionStorage();
-            var builder = loginHandler.AuthenticateSilently()
-                .WithSessionStorage(newSessionStorage)
-                .MicrosoftOAuth.UseSilentStrategy();
+            var builder = loginHandler.AuthenticateSilently();
+            builder.WithSessionStorage(newSessionStorage);
+            var microsoftBuilder = builder.WithMicrosoftOAuth();
+            microsoftBuilder.MicrosoftOAuth.UseSilentStrategy();
+            microsoftBuilder.Build();
 
             builder.Build();
-
-            await AssertSessionSourceIsFromSessionStorage(builder, newSessionStorage);
+            await AssertSessionSourceIsFromSessionStorage(microsoftBuilder, newSessionStorage);
         }
 
         [Test]
         public async Task TestSessionStorageReverse()
         {
             var newSessionStorage = new InMemorySessionStorage();
-            var builder = loginHandler.AuthenticateSilently()
-                .MicrosoftOAuth.UseSilentStrategy()
-                .WithSessionStorage(newSessionStorage);
+            var builder = loginHandler.AuthenticateSilently();
 
+            var microsoftBuilder = builder.WithMicrosoftOAuth();
+            microsoftBuilder.MicrosoftOAuth.UseSilentStrategy();
+            microsoftBuilder.Build();
+
+            builder.WithSessionStorage(newSessionStorage);
             builder.Build();
 
-            await AssertSessionSourceIsFromSessionStorage(builder, newSessionStorage);
+            await AssertSessionSourceIsFromSessionStorage(microsoftBuilder, newSessionStorage);
         }
 
-        private async Task AssertSessionSourceIsFromSessionStorage(
-            JEAuthenticationBuilder builder, ISessionStorage newSessionStorage)
+        private async Task AssertSessionSourceIsFromSessionStorage<T>(
+            MicrosoftXboxBuilder<T> builder, ISessionStorage newSessionStorage)
+            where T : IBuilderWithXboxAuthStrategy
         {
-            Assert.AreEqual(newSessionStorage, builder.SessionStorage);
             await AssertAreEqualOAuthSessionSource(
                 new MicrosoftOAuthSessionSource(newSessionStorage),
                 builder.MicrosoftOAuth.SessionSource);
@@ -81,20 +87,23 @@ namespace CmlLib.Core.Auth.Microsoft.Test
             var newOAuthSessionSource = new InMemorySessionSource<MicrosoftOAuthResponse>();
             var newXboxSessionSource = new InMemorySessionSource<XboxAuthTokens>();
 
-            var builder = loginHandler.AuthenticateSilently()
-                .WithSessionStorage(newSessionStorage)
-                .MicrosoftOAuth.WithSessionSource(newOAuthSessionSource)
-                .XboxAuth.WithSessionSource(newXboxSessionSource);
+            var builder = loginHandler.AuthenticateSilently();
+            builder.WithSessionStorage(newSessionStorage);
+
+            var microsoftBuilder = builder.WithMicrosoftOAuth();
+            microsoftBuilder.MicrosoftOAuth.WithSessionSource(newOAuthSessionSource);
+            microsoftBuilder.XboxAuth.WithSessionSource(newXboxSessionSource);
+            microsoftBuilder.Build();
 
             builder.Build();
 
             Assert.AreEqual(newSessionStorage, builder.SessionStorage);
             await AssertAreEqualOAuthSessionSource(
                 newOAuthSessionSource,
-                builder.MicrosoftOAuth.SessionSource);
+                microsoftBuilder.MicrosoftOAuth.SessionSource);
             await AssertAreEqualXboxSessionSource(
                 newXboxSessionSource, 
-                builder.XboxAuth.SessionSource);
+                microsoftBuilder.XboxAuth.SessionSource);
         }
 
         [Test]
@@ -104,20 +113,21 @@ namespace CmlLib.Core.Auth.Microsoft.Test
             var newOAuthSessionSource = new InMemorySessionSource<MicrosoftOAuthResponse>();
             var newXboxSessionSource = new InMemorySessionSource<XboxAuthTokens>();
 
-            var builder = loginHandler.AuthenticateSilently()
-                .MicrosoftOAuth.WithSessionSource(newOAuthSessionSource)
-                .XboxAuth.WithSessionSource(newXboxSessionSource)
-                .WithSessionStorage(newSessionStorage);
+            var builder = loginHandler.AuthenticateSilently();
+            var microsoftBuilder = builder.WithMicrosoftOAuth();
+            microsoftBuilder.MicrosoftOAuth.WithSessionSource(newOAuthSessionSource);
+            microsoftBuilder.XboxAuth.WithSessionSource(newXboxSessionSource);
+            builder.WithSessionStorage(newSessionStorage);
 
             builder.Build();
 
             Assert.AreEqual(newSessionStorage, builder.SessionStorage);
             await AssertAreEqualOAuthSessionSource(
                 newOAuthSessionSource,
-                builder.MicrosoftOAuth.SessionSource);
+                microsoftBuilder.MicrosoftOAuth.SessionSource);
             await AssertAreEqualXboxSessionSource(
                 newXboxSessionSource, 
-                builder.XboxAuth.SessionSource);
+                microsoftBuilder.XboxAuth.SessionSource);
         }
 
         private async Task AssertAreEqualOAuthSessionSource(ISessionSource<MicrosoftOAuthResponse>? expected, ISessionSource<MicrosoftOAuthResponse>? actual)

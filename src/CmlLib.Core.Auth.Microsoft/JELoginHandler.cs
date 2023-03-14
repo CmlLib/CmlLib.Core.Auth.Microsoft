@@ -36,33 +36,18 @@ namespace CmlLib.Core.Auth.Microsoft
             return session.ToLauncherSession();
         }
 
-        public JEAuthenticationBuilder AuthenticateInteractively()
+        public JEInteractiveAuthenticationBuilder AuthenticateInteractively()
         {
-            return createAuthenticationBuilder()
+            return new JEInteractiveAuthenticationBuilder()
                 .WithHttpClient(_httpClient)
-                .WithSessionStorage(SessionStorage)
-                .MicrosoftOAuth.WithCaching(true)
-                .MicrosoftOAuth.UseInteractiveStrategy()
-                .XboxAuth.WithCaching(true)
-                .XboxAuth.UseBasicStrategy()
-                .UseInteractiveStrategy();
+                .WithSessionStorage(SessionStorage);
         }
 
-        public JEAuthenticationBuilder AuthenticateSilently()
+        public JESilentAuthenticationBuilder AuthenticateSilently()
         {
-            return createAuthenticationBuilder()
+            return new JESilentAuthenticationBuilder()
                 .WithHttpClient(_httpClient)
-                .WithSessionStorage(SessionStorage)
-                .MicrosoftOAuth.WithCaching(true)
-                .MicrosoftOAuth.UseSilentStrategy()
-                .XboxAuth.WithCaching(true)
-                .XboxAuth.UseBasicStrategy()
-                .UseSilentStrategy();
-        }
-
-        private JEAuthenticationBuilder createAuthenticationBuilder()
-        {
-            return new JEAuthenticationBuilder(JELoginHandler.DefaultMicrosoftOAuthClientInfo);
+                .WithSessionStorage(SessionStorage);
         }
     }
 }
