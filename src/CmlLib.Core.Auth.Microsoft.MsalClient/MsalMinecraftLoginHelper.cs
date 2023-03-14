@@ -2,7 +2,7 @@
 using Microsoft.Identity.Client.Extensions.Msal;
 using System.Linq;
 using System.Threading.Tasks;
-using XboxAuthNet.OAuth;
+using XboxAuthNet.OAuth.Models;
 
 namespace CmlLib.Core.Auth.Microsoft.MsalClient
 {

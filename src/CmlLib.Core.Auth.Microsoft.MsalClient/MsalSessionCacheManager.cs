@@ -1,24 +1,28 @@
-﻿using CmlLib.Core.Auth.Microsoft.Cache;
-using Microsoft.Identity.Client;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
+using CmlLib.Core.Auth.Microsoft.SessionStorages;
+using XboxAuthNet.OAuth.Models;
 
 namespace CmlLib.Core.Auth.Microsoft.MsalClient
 {
-    public class MsalSessionCacheManager<T> : JsonFileCacheManager<T>
-        where T : SessionCacheBase
+    public class CachingMsalOAuthStrategy : IMicrosoftOAuthStrategy
     {
-        public MsalSessionCacheManager(string filepath) : base(filepath)
+        private readonly IMicrosoftOAuthStrategy _inner;
+        private readonly ISessionSource<MicrosoftOAuthResponse> _sessionSource;
+
+        public CachingMsalOAuthStrategy(IMicrosoftOAuthStrategy inner, ISessionSource<MicrosoftOAuthResponse> sessionSource)
         {
-            
+            this._sessionSource = sessionSource;
+            this._inner = inner;
         }
 
         // Microsoft OAuth tokens should be managed by MSAL.NET
         // SaveCache method does not cache OAuth tokens. only caching GameSession and XboxSession
-        public override Task SaveCache(T? obj)
+        // This caching strategy only store the type of authentication (eg: MsalInteractive / MsalDeviceCode)
+        // Or, this strategy may be unneccesary
+        public async Task<MicrosoftOAuthResponse> Authenticate()
         {
-            if (obj != null)
-                obj.MicrosoftOAuthToken = null;
-            return base.SaveCache(obj);
+            return await _inner.Authenticate();
         }
     }
 }
