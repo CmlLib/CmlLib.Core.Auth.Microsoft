@@ -37,6 +37,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
             return session;
         }
 
+        /*
         public static async Task<MSession> InteractivelyWithOptions()
         {
             var loginHandler = LoginHandlerBuilder.Create()
@@ -149,6 +150,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
 
             return session;
         }
+        */
 
         public static async Task<MSession> InteractivelyWithOptionsNew5()
         {

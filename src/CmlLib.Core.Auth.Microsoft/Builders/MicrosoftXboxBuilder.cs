@@ -5,62 +5,71 @@ using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
 
 namespace CmlLib.Core.Auth.Microsoft.Builders
 {
-    public class MicrosoftXboxBuilder<T> where T : IBuilderWithXboxAuthStrategy
+    public class MicrosoftXboxBuilder
     {
-        private readonly T _parentBuilder;
-        private HttpClient? httpClient;
+        public HttpClient? HttpClient { get; set; }
+        public ISessionStorage? SessionStorage { get; set; }
 
         public MicrosoftXboxBuilder(
-            T parentBuilder,
             MicrosoftOAuthClientInfo clientInfo)
         {
-            _parentBuilder = parentBuilder;
             MicrosoftOAuth = createOAuthBuilder(clientInfo);
             XboxAuth = createXboxAuthBuilder();
         }
 
-        public MicrosoftXboxBuilder<T> WithHttpClient(HttpClient httpClient)
+        public MicrosoftXboxBuilder WithXboxGameAuthenticationBuilder<T>(XboxGameAuthenticationBuilder<T> builder)
+            where T : XboxGameAuthenticationBuilder<T>
         {
-            this.httpClient = httpClient;
+            if (builder.HttpClient != null)
+                WithHttpClient(builder.HttpClient);
+            if (builder.SessionStorage != null)
+                WithSessionStorage(builder.SessionStorage);
+
             return this;
         }
 
-        public MicrosoftOAuthStrategyBuilder<MicrosoftXboxBuilder<T>> MicrosoftOAuth { get; private set; }
-        public XboxAuthStrategyBuilder<MicrosoftXboxBuilder<T>> XboxAuth { get; private set; }
-
-        private MicrosoftOAuthStrategyBuilder<MicrosoftXboxBuilder<T>> createOAuthBuilder(MicrosoftOAuthClientInfo clientInfo)
+        public MicrosoftXboxBuilder WithHttpClient(HttpClient httpClient)
         {
-            var builder = new MicrosoftOAuthStrategyBuilder<MicrosoftXboxBuilder<T>>(this, clientInfo, getHttpClient());
+            this.HttpClient = httpClient;
+            return this;
+        }
+
+        public MicrosoftXboxBuilder WithSessionStorage(ISessionStorage sessionStorage)
+        {
+            this.SessionStorage = sessionStorage;
+            return this;
+        }
+
+        public MicrosoftOAuthStrategyBuilder<MicrosoftXboxBuilder> MicrosoftOAuth { get; private set; }
+        public XboxAuthStrategyBuilder<MicrosoftXboxBuilder> XboxAuth { get; private set; }
+
+        private MicrosoftOAuthStrategyBuilder<MicrosoftXboxBuilder> createOAuthBuilder(MicrosoftOAuthClientInfo clientInfo)
+        {
+            var builder = new MicrosoftOAuthStrategyBuilder<MicrosoftXboxBuilder>(this, clientInfo, getHttpClient());
             return builder;
         }
 
-        private XboxAuthStrategyBuilder<MicrosoftXboxBuilder<T>> createXboxAuthBuilder()
+        private XboxAuthStrategyBuilder<MicrosoftXboxBuilder> createXboxAuthBuilder()
         {
-            var builder = new XboxAuthStrategyBuilder<MicrosoftXboxBuilder<T>>(this, getHttpClient());
+            var builder = new XboxAuthStrategyBuilder<MicrosoftXboxBuilder>(this, getHttpClient());
             return builder;
         }
 
-        private HttpClient getHttpClient() => httpClient ?? _parentBuilder.HttpClient;
+        private HttpClient getHttpClient() => HttpClient ?? HttpHelper.DefaultHttpClient.Value;
 
-        public IXboxAuthStrategy BuildXboxAuthStrategy()
+        public IXboxAuthStrategy Build()
         {
             // MicrosoftOAuth
             // provide default SessionSource using _parentBuilder's SessionStorage
-            if (MicrosoftOAuth.SessionSource == null)
-                MicrosoftOAuth.WithSessionSource(new MicrosoftOAuthSessionSource(_parentBuilder.SessionStorage));
+            if (MicrosoftOAuth.SessionSource == null && this.SessionStorage != null)
+                MicrosoftOAuth.WithSessionSource(new MicrosoftOAuthSessionSource(this.SessionStorage));
             var oAuthStrategy = MicrosoftOAuth.Build();
 
             // XboxAuth
             XboxAuth.WithMicrosoftOAuthStrategy(oAuthStrategy);
-            if (XboxAuth.SessionSource == null)
-                XboxAuth.WithSessionSource(new XboxSessionSource(_parentBuilder.SessionStorage));
+            if (XboxAuth.SessionSource == null && this.SessionStorage != null)
+                XboxAuth.WithSessionSource(new XboxSessionSource(this.SessionStorage));
             return XboxAuth.Build();
-        }
-
-        public T Build()
-        {
-            _parentBuilder.XboxAuthStrategy = BuildXboxAuthStrategy();
-            return _parentBuilder;
         }
     }
 }

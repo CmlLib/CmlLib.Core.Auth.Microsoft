@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CmlLib.Core.Auth.Microsoft.XboxAuthStrategies;
@@ -6,20 +7,24 @@ using CmlLib.Core.Auth.Microsoft.Executors;
 
 namespace CmlLib.Core.Auth.Microsoft.Builders
 {
-    public abstract class XboxGameAuthenticationBuilder<T> : IBuilderWithXboxAuthStrategy
+    public abstract class XboxGameAuthenticationBuilder<T>
         where T : XboxGameAuthenticationBuilder<T>
     {
-        public IXboxAuthStrategy? XboxAuthStrategy { get; set; }
+        protected Func<T, IXboxAuthStrategy>? XboxAuthStrategyFactory;
         public ISessionStorage? SessionStorage { get; set; }
         public HttpClient? HttpClient { get; set; }
 
         public T WithXboxAuth(IXboxAuthStrategy xboxAuthStrategy)
         {
-            this.XboxAuthStrategy = xboxAuthStrategy;
+            this.XboxAuthStrategyFactory = (_ => xboxAuthStrategy);
             return GetThis();
         }
 
-        public abstract void SetXboxAuthStrategyFromBuilder(IXboxAuthStrategyBuilder builder);
+        public T WithXboxAuth(Func<T, IXboxAuthStrategy> factory)
+        {
+           this.XboxAuthStrategyFactory = factory;
+           return GetThis();
+        }
 
         public T WithSessionStorage(ISessionStorage sessionStorage)
         {
@@ -50,7 +55,7 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
 
         public abstract IAuthenticationExecutor Build();
 
-        public virtual Task<ISession> ExecuteAsync()
+        public Task<ISession> ExecuteAsync()
         {
             return Build().ExecuteAsync();
         }

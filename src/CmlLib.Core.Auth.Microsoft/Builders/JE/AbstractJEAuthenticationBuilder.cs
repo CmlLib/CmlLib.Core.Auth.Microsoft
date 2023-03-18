@@ -14,15 +14,6 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
         public ISessionSource<JESession>? SessionSource { get; set; }
         private Func<IXboxGameAuthenticator<JESession>>? strategy;
 
-        public override void SetXboxAuthStrategyFromBuilder(IXboxAuthStrategyBuilder builder)
-        {
-            if (builder.HttpClient == null)
-                builder.HttpClient = GetOrCreateHttpClient();
-            if (builder.SessionStorage == null)
-                builder.SessionStorage = GetOrCreateSessionStorage();
-            WithXboxAuth(builder.Build());
-        }
-
         public T WithCaching() => WithCaching(true);
         public T WithCaching(bool useCaching)
         {
@@ -50,14 +41,15 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
 
         public override IAuthenticationExecutor Build()
         {
-            if (XboxAuthStrategy == null)
+            if (XboxAuthStrategyFactory == null)
                 throw new InvalidOperationException("Set XboxAuthStrategy first");
+            var xboxAuthStrategy = XboxAuthStrategyFactory.Invoke((T)this);
 
             // GameAuthenticator
             var gameAuthenticator = CreateGameAuthenticator();
 
             // Executor
-            return new XboxGameAuthenticationExecutor<JESession>(XboxAuthStrategy, gameAuthenticator);
+            return new XboxGameAuthenticationExecutor<JESession>(xboxAuthStrategy, gameAuthenticator);
         }
 
         protected IXboxGameAuthenticator<JESession> CreateDefaultGameAuthenticator()

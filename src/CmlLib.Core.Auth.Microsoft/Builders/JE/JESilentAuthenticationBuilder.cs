@@ -1,14 +1,28 @@
+using System;
 using CmlLib.Core.Auth.Microsoft.XboxGame;
 
 namespace CmlLib.Core.Auth.Microsoft.Builders
 {
     public sealed class JESilentAuthenticationBuilder : AbstractJEAuthenticationBuilder<JESilentAuthenticationBuilder>
     {
-        public MicrosoftXboxBuilder<JESilentAuthenticationBuilder> WithMicrosoftOAuth()
+        public JESilentAuthenticationBuilder()
         {
-            return this.WithMicrosoftOAuth(JELoginHandler.DefaultMicrosoftOAuthClientInfo)
-                .MicrosoftOAuth.UseSilentStrategy()
-                .XboxAuth.UseBasicStrategy();
+            WithMicrosoftOAuth(builder => {}); // use default settings
+        }
+
+        public JESilentAuthenticationBuilder WithMicrosoftOAuth(Action<MicrosoftXboxBuilder> builderInvoker)
+        {
+            this.WithMicrosoftOAuth(JELoginHandler.DefaultMicrosoftOAuthClientInfo, builder => 
+            {
+                builder.WithXboxGameAuthenticationBuilder(this);
+                builder.MicrosoftOAuth.WithCaching(true);
+                builder.XboxAuth.WithCaching(true);
+                
+                builder.MicrosoftOAuth.UseSilentStrategy();
+                builder.XboxAuth.UseBasicStrategy();
+                builderInvoker.Invoke(builder);
+            });
+            return this;
         }
 
         protected override IXboxGameAuthenticator<JESession> CreateGameAuthenticator()
