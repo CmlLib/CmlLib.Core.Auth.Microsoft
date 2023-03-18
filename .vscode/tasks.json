@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/src/samples/WinFormTest/WinFormTest.csproj",
+                "${workspaceFolder}/src/CmlLib.Core.Auth.Microsoft.Test/CmlLib.Core.Auth.Microsoft.Test.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/src/samples/WinFormTest/WinFormTest.csproj",
+                "${workspaceFolder}/src/CmlLib.Core.Auth.Microsoft.Test/CmlLib.Core.Auth.Microsoft.Test.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -33,7 +33,7 @@
                 "watch",
                 "run",
                 "--project",
-                "${workspaceFolder}/src/samples/WinFormTest/WinFormTest.csproj"
+                "${workspaceFolder}/src/CmlLib.Core.Auth.Microsoft.Test/CmlLib.Core.Auth.Microsoft.Test.csproj"
             ],
             "problemMatcher": "$msCompile"
         }
