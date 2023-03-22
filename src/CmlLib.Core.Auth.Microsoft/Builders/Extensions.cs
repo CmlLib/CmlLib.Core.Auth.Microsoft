@@ -10,9 +10,11 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             Action<MicrosoftXboxBuilder> builderInvoker)
             where T : XboxGameAuthenticationBuilder<T>
         {
-            return self.WithXboxAuth(r => 
+            return self.WithXboxAuth(self => 
             {   
                 var builder = new MicrosoftXboxBuilder(clientInfo);
+                builder.WithXboxGameAuthenticationBuilder(self);
+
                 builderInvoker.Invoke(builder);
                 return builder.Build();
             });

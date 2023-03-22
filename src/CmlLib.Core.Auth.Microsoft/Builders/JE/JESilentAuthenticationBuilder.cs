@@ -14,10 +14,6 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
         {
             this.WithMicrosoftOAuth(JELoginHandler.DefaultMicrosoftOAuthClientInfo, builder => 
             {
-                builder.WithXboxGameAuthenticationBuilder(this);
-                builder.MicrosoftOAuth.WithCaching(true);
-                builder.XboxAuth.WithCaching(true);
-                
                 builder.MicrosoftOAuth.UseSilentStrategy();
                 builder.XboxAuth.UseBasicStrategy();
                 builderInvoker.Invoke(builder);
