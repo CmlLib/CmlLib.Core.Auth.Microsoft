@@ -32,7 +32,7 @@ namespace CmlLib.Core.Auth.Microsoft
 
         private ISessionStorage createDefaultSessionStorage()
         {
-            var defaultSessionStoragePath = System.IO.Path.Combine(MinecraftPath.WindowsDefaultPath, "cmllib_session.json");
+            var defaultSessionStoragePath = System.IO.Path.Combine(MinecraftPath.GetOSDefaultPath(), "cmllib_session.json");
             return new JsonFileSessionStorage(defaultSessionStoragePath);
         }
 
