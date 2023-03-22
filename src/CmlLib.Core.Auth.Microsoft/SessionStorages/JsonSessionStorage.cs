@@ -11,10 +11,7 @@ namespace CmlLib.Core.Auth.Microsoft.SessionStorages
         private readonly string _filePath;
         private readonly JsonSerializerOptions _jsonOptions;
         private JsonDocument? jsonDocument;
-
-        // Prevent to store null. Casting from null to primitive type is not allowed.
-        private readonly Dictionary<string, JsonElement> _map; 
-        private bool isLoaded = false;
+        private Dictionary<string, JsonElement>? documentMap;
 
         public JsonFileSessionStorage(string filepath)
          : this(filepath, JsonSerializerOptions.Default)
@@ -26,54 +23,18 @@ namespace CmlLib.Core.Auth.Microsoft.SessionStorages
         {
             this._filePath = filepath;
             this._jsonOptions = options;
-            this._map = new Dictionary<string, JsonElement>();
         }
 
         public async ValueTask<T?> GetAsync<T>(string key)
         {
-            if (!isLoaded)
-            {
-                await loadFromJson();
-                mapElements();
-            }
-
-            var value = getData<T>(key);
+            var value = await getData<T>(key);
             return value;
         }
 
-        private async Task loadFromJson()
+        private async ValueTask<T?> getData<T>(string key)
         {
-            if (!File.Exists(_filePath))
-                return;
-
-            if (jsonDocument != null)
-                jsonDocument.Dispose();
-
-            await using var fileStream = File.OpenRead(_filePath);
-            jsonDocument = await JsonDocument.ParseAsync(fileStream);
-        }
-
-        private void mapElements()
-        {
-            if (jsonDocument == null)
-                throw new InvalidOperationException("loadFromJson first");
-
-            _map.Clear();
-            
-            var root = jsonDocument.RootElement;
-            if (root.ValueKind != JsonValueKind.Object)
-                return;
-            
-            
-            foreach (var kv in root.EnumerateObject())
-            {
-                _map[kv.Name] = kv.Value;
-            }
-        }
-
-        private T? getData<T>(string key)
-        {
-            if (_map.TryGetValue(key, out var element))
+            var map = await getMap();
+            if (map.TryGetValue(key, out var element))
             {
                 return element.Deserialize<T>();
             }
@@ -85,26 +46,79 @@ namespace CmlLib.Core.Auth.Microsoft.SessionStorages
 
         public async ValueTask SetAsync<T>(string key, T? obj)
         {
-            setData<T>(key, obj);
+            await setData<T>(key, obj);
             await saveToJson();
         }
 
-        private void setData<T>(string key, T? obj)
+        private async ValueTask setData<T>(string key, T? obj)
         {
+            var map = await getMap();
             if (obj == null)
             {
-                _map.Remove(key);
+                map.Remove(key);
             }
             else
             {
-                _map[key] = JsonSerializer.SerializeToElement<T>(obj, _jsonOptions);
+                map[key] = JsonSerializer.SerializeToElement<T>(obj, _jsonOptions);
             }
         }
 
         private async Task saveToJson()
         {
+            var dirPath = Path.GetDirectoryName(_filePath);
+            if (!string.IsNullOrEmpty(dirPath))
+                Directory.CreateDirectory(dirPath);
+                
+            var map = await getMap();
             await using var fileStream = File.Create(_filePath);
-            await JsonSerializer.SerializeAsync(fileStream, _map, _jsonOptions);
+            await JsonSerializer.SerializeAsync(fileStream, map, _jsonOptions);
+        }
+
+        private async ValueTask<Dictionary<string, JsonElement>> getMap()
+        {
+            if (documentMap == null)
+            {
+                await loadJsonFile();
+                mapElements();
+            }
+
+            return documentMap;
+        }
+
+        private async Task loadJsonFile()
+        {
+            if (jsonDocument != null)
+                jsonDocument.Dispose();
+
+            if (File.Exists(_filePath))
+            {
+                await using var fileStream = File.OpenRead(_filePath);
+                jsonDocument = await JsonDocument.ParseAsync(fileStream);
+            }
+            else
+            {
+                jsonDocument = JsonDocument.Parse("{}");
+            }
+        }
+
+        private void mapElements()
+        {
+            if (jsonDocument == null)
+                throw new InvalidOperationException("loadFromJson first");
+
+            if (documentMap == null)    
+                documentMap = new Dictionary<string, JsonElement>();
+            else
+                documentMap.Clear();
+            
+            var root = jsonDocument.RootElement;
+            if (root.ValueKind != JsonValueKind.Object)
+                return;
+            
+            foreach (var kv in root.EnumerateObject())
+            {
+                documentMap[kv.Name] = kv.Value;
+            }
         }
 
         public void Dispose()
