@@ -37,6 +37,26 @@ namespace CmlLib.Core.Auth.Microsoft.Test
             return session;
         }
 
+        public static async Task<MSession> InteractivelyWithOptionsNew()
+        {
+            var loginHandler = LoginHandlerBuilder.Create()
+                .ForJavaEdition();
+
+            var sessionStorage = new InMemorySessionStorage();
+
+            var session = await loginHandler.AuthenticateSilently()
+                .WithSessionStorage(sessionStorage)
+                .WithCaching(true)
+                .WithMicrosoftOAuth(builder => builder
+                    .MicrosoftOAuth.WithCaching(true)
+                    .MicrosoftOAuth.UseInteractiveStrategy()
+                    .XboxAuth.WithCaching(true)
+                    .XboxAuth.UseBasicStrategy())
+                .ExecuteForLauncherAsync();
+            
+            return session;
+        }
+
         /*
         public static async Task<MSession> InteractivelyWithOptions()
         {
@@ -151,25 +171,5 @@ namespace CmlLib.Core.Auth.Microsoft.Test
             return session;
         }
         */
-
-        public static async Task<MSession> InteractivelyWithOptionsNew5()
-        {
-            var loginHandler = LoginHandlerBuilder.Create()
-                .ForJavaEdition();
-
-            var sessionStorage = new InMemorySessionStorage();
-
-            var session = await loginHandler.AuthenticateSilently()
-                .WithSessionStorage(sessionStorage)
-                .WithCaching(true)
-                .WithMicrosoftOAuth(builder => builder
-                    .MicrosoftOAuth.WithCaching(true)
-                    .MicrosoftOAuth.UseInteractiveStrategy()
-                    .XboxAuth.WithCaching(true)
-                    .XboxAuth.UseBasicStrategy())
-                .ExecuteForLauncherAsync();
-            
-            return session;
-        }
     }
 }

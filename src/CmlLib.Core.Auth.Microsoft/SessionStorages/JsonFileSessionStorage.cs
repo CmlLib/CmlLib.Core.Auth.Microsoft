@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace CmlLib.Core.Auth.Microsoft.SessionStorages
 {
-    public class JsonNodeStorage : ISessionStorage
+    public class JsonFileSessionStorage : ISessionStorage
     {
         private readonly string _filePath;
         private readonly JsonSerializerOptions _jsonOptions;
 
         private JsonObject? innerStorage;
 
-        public JsonNodeStorage(string filePath) : this(filePath, JsonSerializerOptions.Default) {}
+        public JsonFileSessionStorage(string filePath) : this(filePath, JsonSerializerOptions.Default) {}
 
-        public JsonNodeStorage(string filePath, JsonSerializerOptions jsonSerializerOptions)
+        public JsonFileSessionStorage(string filePath, JsonSerializerOptions jsonSerializerOptions)
         {
             this._filePath = filePath;
             this._jsonOptions = jsonSerializerOptions;

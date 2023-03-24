@@ -9,7 +9,7 @@ using CmlLib.Core.Auth.Microsoft.SessionStorages;
 namespace CmlLib.Core.Auth.Microsoft.Test
 {
     [TestFixture]
-    public class TestJsonSessionStorage
+    public class TestJsonFileSessionStorage
     {
         private ISessionStorage? sessionStorage;
         private string? filePath;
@@ -18,7 +18,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
         public void Setup()
         {
             filePath = $"tmp_test/{Path.GetTempFileName()}/{Path.GetTempFileName()}";
-            sessionStorage = new JsonNodeStorage(filePath);
+            sessionStorage = new JsonFileSessionStorage(filePath);
 
             Trace.Listeners.Add(new ConsoleTraceListener()); 
         }
@@ -64,10 +64,11 @@ namespace CmlLib.Core.Auth.Microsoft.Test
 
             // compare the value of object, not a reference.
             var copiedMockObject = mockObject with {}; // same value, new reference
+            Assert.True(!Object.ReferenceEquals(mockObject, copiedMockObject));
             Assert.AreEqual(copiedMockObject, savedValue);
         }
 
-        [TearDown]
+        [OneTimeTearDown]
         public void Teardown()
         {
             if (string.IsNullOrEmpty(filePath))
