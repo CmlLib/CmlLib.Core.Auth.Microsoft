@@ -6,9 +6,9 @@ using XboxAuthNet.OAuth.Models;
 
 namespace CmlLib.Core.Auth.Microsoft.MsalClient
 {
-    public static class MsalMinecraftLoginHelper
+    public static class MsalClientHelper
     {
-        public static readonly string[] DefaultScopes = new[] { "XboxLive.signin" };
+        public static readonly string[] XboxScopes = new[] { "XboxLive.signin" };
 
         public static PublicClientApplicationBuilder CreateDefaultApplicationBuilder(string cid)
             => PublicClientApplicationBuilder.Create(cid)

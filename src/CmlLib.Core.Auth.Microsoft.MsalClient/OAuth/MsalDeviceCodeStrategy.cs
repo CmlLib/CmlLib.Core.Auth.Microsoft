@@ -1,17 +1,16 @@
 ﻿using Microsoft.Identity.Client;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
 using XboxAuthNet.OAuth.Models;
 
-namespace CmlLib.Core.Auth.Microsoft.MsalClient
+namespace CmlLib.Core.Auth.Microsoft.MsalClient.OAuth
 {
     public class MsalDeviceCodeStrategy : IMicrosoftOAuthStrategy
     {
         private readonly IPublicClientApplication _app;
         private readonly Func<DeviceCodeResult, Task> _deviceCodeResultCallback;
-        private readonly string[] scopes;
+        public string[] Scopes { get; set; } = MsalClientHelper.XboxScopes;
 
         public MsalDeviceCodeStrategy(
             IPublicClientApplication app,
@@ -23,10 +22,10 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
 
         public async Task<MicrosoftOAuthResponse> Authenticate()
         {
-            var result = await _app.AcquireTokenWithDeviceCode(scopes, _deviceCodeResultCallback)
+            var result = await _app.AcquireTokenWithDeviceCode(Scopes, _deviceCodeResultCallback)
                 .ExecuteAsync();
 
-            return MsalMinecraftLoginHelper.ToMicrosoftOAuthResponse(result);
+            return MsalClientHelper.ToMicrosoftOAuthResponse(result);
         }
     }
 }

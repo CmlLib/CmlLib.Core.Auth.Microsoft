@@ -3,60 +3,77 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Client;
 using CmlLib.Core.Auth.Microsoft.Builders;
 using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
+using CmlLib.Core.Auth.Microsoft.SessionStorages;
+using CmlLib.Core.Auth.Microsoft.MsalClient.OAuth;
+using XboxAuthNet.OAuth.Models;
 
 namespace CmlLib.Core.Auth.Microsoft.MsalClient
 {
     public class MsalOAuthStrategyBuilder<T> : MethodChaining<T>
     {
-        private readonly IPublicClientApplication _app;
+        public bool UseCaching { get; set; } = true;
+        public ISessionSource<MicrosoftOAuthResponse>? SessionSource { get; set; }
+
         private Func<IMicrosoftOAuthStrategy>? strategyGenerator;
 
-        public MsalOAuthStrategyBuilder(T returning, IPublicClientApplication app)
+        public MsalOAuthStrategyBuilder(T returning)
          : base(returning)
         {
-            _app = app;
+
         }
 
-        public T UseInteractiveStrategy()
+        public T UseSilentStrategy(IPublicClientApplication app) => UseSilentStrategy(app, null);
+
+        public T UseSilentStrategy(IPublicClientApplication app, string? loginHint)
+        {
+            UseStrategy(() => 
+            {
+                var strategy = new MsalSilentStrategy(app, loginHint);
+                return withCachingIfRequired(strategy);
+            });
+            return GetThis();
+        }
+
+        public T UseInteractiveStrategy(IPublicClientApplication app)
         {
             UseStrategy(() =>
             {
-                var strategy = new MsalInteractiveStrategy(_app);
-                return strategy;
+                var strategy = new MsalInteractiveStrategy(app);
+                return withCachingIfRequired(strategy);
             });
             return GetThis();
         }
 
-        public T UseEmbeddedWebViewStrategy()
+        public T UseEmbeddedWebViewStrategy(IPublicClientApplication app)
         {
             UseStrategy(() => 
             {
-                var strategy = new MsalInteractiveStrategy(_app);
+                var strategy = new MsalInteractiveStrategy(app);
                 strategy.UseDefaultWebViewOption = false;
                 strategy.UseEmbeddedWebView = true;
-                return strategy;
+                return withCachingIfRequired(strategy);
             });
             return GetThis();
         }
 
-        public T UseSystemBrowserStrategy()
+        public T UseSystemBrowserStrategy(IPublicClientApplication app)
         {
             UseStrategy(() => 
             {
-                var strategy = new MsalInteractiveStrategy(_app);
+                var strategy = new MsalInteractiveStrategy(app);
                 strategy.UseDefaultWebViewOption = false;
                 strategy.UseEmbeddedWebView = false;
-                return strategy;
+                return withCachingIfRequired(strategy);
             });
             return GetThis();
         }
 
-        public T UseDeviceCodeStrategy(Func<DeviceCodeResult, Task> deviceResultCallback)
+        public T UseDeviceCodeStrategy(IPublicClientApplication app, Func<DeviceCodeResult, Task> deviceResultCallback)
         {
             UseStrategy(() => 
             {
-                var strategy = new MsalDeviceCodeStrategy(_app, deviceResultCallback);
-                return strategy;
+                var strategy = new MsalDeviceCodeStrategy(app, deviceResultCallback);
+                return withCachingIfRequired(strategy);
             });
             return GetThis();
         }
@@ -66,7 +83,7 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
             UseStrategy(() => 
             {
                 var strategy = new MsalOAuthStrategyFromResult(result);
-                return strategy;
+                return withCachingIfRequired(strategy);
             });
             return GetThis();
         }
@@ -77,7 +94,7 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
             UseStrategy(() => 
             {
                 var strategy = new MsalOAuthStrategyFromBuilder<TBuilder>(builder);
-                return strategy;
+                return withCachingIfRequired(strategy);
             });
             return GetThis();
         }
@@ -88,9 +105,41 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
             return GetThis();
         }
 
+        public T WithCaching() => WithCaching(true);
+
+        public T WithCaching(bool value)
+        {
+            UseCaching = value;
+            return GetThis();
+        }
+
+        public T WithSessionSource(ISessionSource<MicrosoftOAuthResponse> sessionSource)
+        {
+            this.SessionSource = sessionSource;
+            return GetThis();
+        }
+
         private IMicrosoftOAuthStrategy withCachingIfRequired(IMicrosoftOAuthStrategy strategy)
         {
-            
+            if (UseCaching)
+            {
+                return CreateCachingStrategy(strategy);
+            }
+            else
+                return strategy;
+        }
+
+        public IMicrosoftOAuthStrategy CreateCachingStrategy(IMicrosoftOAuthStrategy innerStrategy)        
+        {     
+            return new CachingMsalOAuthStrategy(innerStrategy, GetOrCreateSessionSource());
+        }
+
+        private ISessionSource<MicrosoftOAuthResponse> GetOrCreateSessionSource()
+        {
+            if (SessionSource == null)
+                return new InMemorySessionSource<MicrosoftOAuthResponse>();
+            else
+                return SessionSource;
         }
 
         public IMicrosoftOAuthStrategy Build()

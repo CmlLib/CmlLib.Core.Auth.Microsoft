@@ -3,7 +3,7 @@ using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
 using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using XboxAuthNet.OAuth.Models;
 
-namespace CmlLib.Core.Auth.Microsoft.MsalClient
+namespace CmlLib.Core.Auth.Microsoft.MsalClient.OAuth
 {
     public class CachingMsalOAuthStrategy : IMicrosoftOAuthStrategy
     {
@@ -22,7 +22,9 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
         // Or, this strategy may be unneccesary
         public async Task<MicrosoftOAuthResponse> Authenticate()
         {
-            return await _inner.Authenticate();
+            var result = await _inner.Authenticate();
+            await _sessionSource.SetAsync(null);
+            return result;
         }
     }
 }

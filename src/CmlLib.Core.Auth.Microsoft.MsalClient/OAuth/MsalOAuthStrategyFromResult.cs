@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
 using XboxAuthNet.OAuth.Models;
 
-namespace CmlLib.Core.Auth.Microsoft.MsalClient
+namespace CmlLib.Core.Auth.Microsoft.MsalClient.OAuth
 {
     public class MsalOAuthStrategyFromResult : IMicrosoftOAuthStrategy
     {
@@ -15,7 +15,7 @@ namespace CmlLib.Core.Auth.Microsoft.MsalClient
 
         public Task<MicrosoftOAuthResponse> Authenticate()
         {
-            var response = MsalMinecraftLoginHelper.ToMicrosoftOAuthResponse(_result);
+            var response = MsalClientHelper.ToMicrosoftOAuthResponse(_result);
             return Task.FromResult(response);
         }
     }
