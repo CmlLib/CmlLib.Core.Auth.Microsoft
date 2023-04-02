@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
 using XboxAuthNet.OAuth.Models;
 using XboxAuthNet.XboxLive;
+using XboxAuthNet.XboxLive.Requests;
 
 namespace CmlLib.Core.Auth.Microsoft.XboxAuthStrategies
 {
@@ -29,19 +30,17 @@ namespace CmlLib.Core.Auth.Microsoft.XboxAuthStrategies
 
         protected virtual async Task<XboxAuthTokens> AuthenticateFromOAuthResult(MicrosoftOAuthResponse oAuth, string relyingParty)
         {
-            var xboxApi = new XboxAuth(HttpClient);
-            var userToken = await xboxApi.ExchangeRpsTicketForUserToken(oAuth.AccessToken!);
+            var xboxAuthClient = new XboxAuthClient(HttpClient);
+            var userToken = await xboxAuthClient.RequestUserToken(oAuth.AccessToken!);
             
             if (string.IsNullOrEmpty(userToken.Token))
                 throw new XboxAuthException("UserToken was empty", 0);
 
-            var xsts = await xboxApi.ExchangeTokensForXstsIdentity(
-                userToken: userToken.Token,
-                deviceToken: null,
-                titleToken: null,
-                xstsRelyingParty: relyingParty,
-                optionalDisplayClaims: null
-            );
+            var xsts = await xboxAuthClient.RequestXsts(new XboxXstsRequest
+            {
+                UserToken = userToken.Token,
+                RelyingParty = relyingParty
+            });
 
             var tokens = new XboxAuthTokens
             {

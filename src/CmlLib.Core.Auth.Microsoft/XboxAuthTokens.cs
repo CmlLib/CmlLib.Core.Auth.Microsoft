@@ -1,5 +1,5 @@
 using System.Text.Json.Serialization;
-using XboxAuthNet.XboxLive.Models;
+using XboxAuthNet.XboxLive.Responses;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
