@@ -14,12 +14,12 @@ namespace CmlLib.Core.Auth.Microsoft.Test
     {
         public static async Task Main(string[] args)
         {
-            var test = new TestJELoginBuilder();
-            test.Setup();
-            await test.TestSessionSourceReverse();
+            var t1 = new TestJsonFileSessionStorage();
+            t1.Setup();
+            await t1.TestWithNewInstance();
 
-            This line sure that Program.cs is not compiled if TEST_SDK is enabled. 
-            Just remove this if you need to compile Program.cs and debug some unit test methods.
+            //This line sure that Program.cs is not compiled if TEST_SDK is enabled. 
+            //Just remove this if you need to compile Program.cs and debug some unit test methods.
         }
     }
 }

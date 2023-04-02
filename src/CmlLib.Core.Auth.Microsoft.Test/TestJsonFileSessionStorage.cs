@@ -17,10 +17,22 @@ namespace CmlLib.Core.Auth.Microsoft.Test
         [OneTimeSetUp]
         public void Setup()
         {
-            filePath = $"tmp_test/{Path.GetTempFileName()}/{Path.GetTempFileName()}";
-            sessionStorage = new JsonFileSessionStorage(filePath);
-
+            sessionStorage = createSessionStorage();
             Trace.Listeners.Add(new ConsoleTraceListener()); 
+        }
+
+        private ISessionStorage createSessionStorage()
+        {
+            if (string.IsNullOrEmpty(filePath))
+                filePath = Path.Combine(Path.GetTempPath(), Path.GetTempFileName());
+            return new JsonFileSessionStorage(filePath);
+        }
+
+        [Test]
+        public async Task TestEmpty()
+        {
+            var result = await sessionStorage!.GetAsync<string>("empty");
+            Assert.IsNull(result);
         }
 
         [Test]
@@ -68,6 +80,22 @@ namespace CmlLib.Core.Auth.Microsoft.Test
             Assert.AreEqual(copiedMockObject, savedValue);
         }
 
+        [Test]
+        public async Task TestWithNewInstance()
+        {
+            Assert.NotNull(sessionStorage);
+
+            var testKey = nameof(TestWithNewInstance);
+            var testData = "test_data_for_" + testKey;
+
+            await sessionStorage!.SetAsync<string>(testKey, testData);
+
+            var newSessionStorage = createSessionStorage();
+            var savedValue = await newSessionStorage.GetAsync<string>(testKey);
+
+            Assert.AreEqual(testData, savedValue);
+        }
+
         [OneTimeTearDown]
         public void Teardown()
         {
@@ -77,7 +105,6 @@ namespace CmlLib.Core.Auth.Microsoft.Test
             if (File.Exists(filePath))
             {
                 File.Delete(filePath);
-                Directory.Delete("tmp_test", true);
             }
 
             Trace.Flush();

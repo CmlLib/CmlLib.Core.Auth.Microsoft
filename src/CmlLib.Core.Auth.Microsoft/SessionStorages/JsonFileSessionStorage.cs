@@ -62,8 +62,15 @@ namespace CmlLib.Core.Auth.Microsoft.SessionStorages
 
             if (File.Exists(_filePath))
             {
-                using var fs = File.OpenRead(_filePath);
-                innerStorage = JsonNode.Parse(fs) as JsonObject;
+                try
+                {
+                    using var fs = File.OpenRead(_filePath);
+                    innerStorage = JsonNode.Parse(fs) as JsonObject;
+                }
+                catch (JsonException) // reset storage if json file is corrupted
+                {
+                    innerStorage = new JsonObject();
+                }
             }
 
             if (innerStorage == null)
