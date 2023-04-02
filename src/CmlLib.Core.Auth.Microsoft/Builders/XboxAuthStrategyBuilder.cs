@@ -92,8 +92,8 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
         public IXboxAuthStrategy Build()
         {
             if (strategyGenerator == null)
-                throw new InvalidOperationException("set strategy");
-            return strategyGenerator.Invoke();
+                UseBasicStrategy();
+            return strategyGenerator!.Invoke();
         }
     }
 }
