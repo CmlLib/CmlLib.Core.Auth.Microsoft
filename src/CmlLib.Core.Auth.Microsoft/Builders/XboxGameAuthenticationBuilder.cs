@@ -11,8 +11,20 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
         where T : XboxGameAuthenticationBuilder<T>
     {
         protected Func<T, IXboxAuthStrategy>? XboxAuthStrategyFactory;
-        public ISessionStorage? SessionStorage { get; set; }
-        public HttpClient? HttpClient { get; set; }
+
+        private ISessionStorage? _sessionStorage;
+        public ISessionStorage SessionStorage
+        {
+            get => _sessionStorage ??= new InMemorySessionStorage();
+            set => _sessionStorage = value;
+        }
+
+        private HttpClient? _httpClient;
+        public HttpClient HttpClient
+        {
+            get => _httpClient ??= HttpHelper.DefaultHttpClient.Value;
+            set => _httpClient = value;
+        }
 
         public T WithXboxAuth(IXboxAuthStrategy xboxAuthStrategy)
         {
@@ -36,16 +48,6 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
         {
             this.HttpClient = httpClient;
             return GetThis();
-        }
-
-        protected HttpClient GetOrCreateHttpClient()
-        {
-            return HttpClient ??= HttpHelper.DefaultHttpClient.Value;
-        }
-
-        protected ISessionStorage GetOrCreateSessionStorage()
-        {
-            return SessionStorage ??= new InMemorySessionStorage();
         }
 
         protected virtual T GetThis()

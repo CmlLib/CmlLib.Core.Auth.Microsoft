@@ -36,7 +36,7 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
 
         protected ISessionSource<JESession> GetOrCreateSessionSource()
         {
-            return SessionSource ??= new SessionFromStorage<JESession>("G", GetOrCreateSessionStorage());
+            return SessionSource ??= new SessionFromStorage<JESession>("G", SessionStorage);
         }
 
         public override IAuthenticationExecutor Build()
@@ -54,7 +54,7 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
 
         protected IXboxGameAuthenticator<JESession> CreateDefaultGameAuthenticator()
         {
-            var authenticator = new JEAuthenticator(GetOrCreateHttpClient(), GetOrCreateSessionSource());
+            var authenticator = new JEAuthenticator(HttpClient, GetOrCreateSessionSource());
             if (UseCaching)
                 return new CachingGameSession<JESession>(authenticator, SessionSource!);
             else
