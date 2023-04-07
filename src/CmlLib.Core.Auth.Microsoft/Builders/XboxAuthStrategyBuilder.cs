@@ -3,6 +3,7 @@ using System.Net.Http;
 using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
 using CmlLib.Core.Auth.Microsoft.XboxAuthStrategies;
 using CmlLib.Core.Auth.Microsoft.SessionStorages;
+using XboxAuthNet.XboxLive;
 
 namespace CmlLib.Core.Auth.Microsoft.Builders
 {
@@ -11,6 +12,9 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
         private readonly HttpClient _httpClient;
         public ISessionSource<XboxAuthTokens>? SessionSource { get; set; }
 
+        public string DeviceType { get; set; } = XboxDeviceTypes.Win32;
+        public string DeviceVersion { get; set; } = "0.0.0";
+        public string TokenPrefix { get; set; } = "";
         public bool UseCaching { get; set; } = true;
         private IMicrosoftOAuthStrategy? oAuthStrategy;
         private Func<IXboxAuthStrategy>? strategyGenerator;
@@ -40,16 +44,71 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             return GetThis();
         }
 
+        public T WithXboxTokenPrefix()
+        {
+            return WithTokenPrefix(XboxAuthConstants.XboxTokenPrefix);
+        }
+
+        public T WithAzureTokenPrefix()
+        {
+            return WithTokenPrefix(XboxAuthConstants.AzureTokenPrefix);
+        }
+
+        public T WithTokenPrefix(string tokenPrefix)
+        {
+            TokenPrefix = tokenPrefix;
+            return GetThis();
+        }
+
+        public T WithDeviceType(string deviceType)
+        {
+            DeviceType = deviceType;
+            return GetThis();
+        }
+
+        public T WithDeviceVersion(string deviceVersion)
+        {
+            DeviceVersion = deviceVersion;
+            return GetThis();
+        }
+
         public T UseBasicStrategy()
         {
             UseStrategy(() => 
             {
-                if (oAuthStrategy == null)
-                    throw new InvalidOperationException("this strategy require OAuthStrategy");
-                var strategy = new BasicXboxAuthStrategy(_httpClient, oAuthStrategy);
+                validateOAuth();
+                var strategy = new BasicXboxAuthStrategy(_httpClient, oAuthStrategy!);
                 return withCachingIfRequired(strategy);
             });
             return GetThis();
+        }
+
+        public T UseFullStrategy()
+        {
+            UseStrategy(() => 
+            {
+                validateOAuth();
+                var strategy = new FullXboxAuthStrategy(_httpClient, oAuthStrategy!, DeviceType, DeviceVersion);
+                return withCachingIfRequired(strategy);
+            });
+            return GetThis();
+        }
+
+        public T UseSisuStrategy(string clientId)
+        {
+            UseStrategy(() => 
+            {
+                validateOAuth();
+                var strategy = new XboxSisuAuthStrategy(_httpClient, oAuthStrategy!, clientId, TokenPrefix, DeviceType, DeviceVersion);
+                return withCachingIfRequired(strategy);
+            });
+            return GetThis();
+        }
+
+        private void validateOAuth()
+        {
+            if (oAuthStrategy == null)
+                throw new InvalidOperationException("this strategy require OAuthStrategy");
         }
 
         public T UseStrategy(Func<IXboxAuthStrategy> strategy)

@@ -7,44 +7,43 @@ using XboxAuthNet.XboxLive.Requests;
 
 namespace CmlLib.Core.Auth.Microsoft.XboxAuthStrategies
 {
-    public class BasicXboxAuthStrategy : IXboxAuthStrategy
+    public class FullXboxAuthStrategy : MicrosoftXboxAuthStrategy
     {
-        protected HttpClient HttpClient { get; private set; }
-        private IMicrosoftOAuthStrategy _oAuthStrategy;
+        private readonly string _deviceType;
+        private readonly string _deviceVersion;
 
-        public BasicXboxAuthStrategy(
-            HttpClient httpClient,
-            IMicrosoftOAuthStrategy oAuthStrategy) =>
-            (HttpClient, _oAuthStrategy) = (httpClient, oAuthStrategy);
-
-        public async Task<XboxAuthTokens> Authenticate(string relyingParty)
+        public FullXboxAuthStrategy(
+            HttpClient httpClient, 
+            IMicrosoftOAuthStrategy oAuth,
+            string deivceType,
+            string deviceVersion)
+         : base(httpClient, oAuth)
         {
-            var oAuth = await _oAuthStrategy.Authenticate();
-            if (string.IsNullOrEmpty(oAuth.AccessToken))
-                throw new MicrosoftOAuthException("AccessToken was empty", 0);
-
-            var tokens = await AuthenticateFromOAuthResult(oAuth, relyingParty);
-
-            return tokens;
+            this._deviceType = deivceType;
+            this._deviceVersion = deviceVersion;
         }
 
-        protected virtual async Task<XboxAuthTokens> AuthenticateFromOAuthResult(MicrosoftOAuthResponse oAuth, string relyingParty)
+        protected override async Task<XboxAuthTokens> AuthenticateFromOAuthResult(MicrosoftOAuthResponse oAuth, string relyingParty)
         {
             var xboxAuthClient = new XboxAuthClient(HttpClient);
+
+            var deviceToken = await xboxAuthClient.RequestDeviceToken(_deviceType, _deviceVersion);
             var userToken = await xboxAuthClient.RequestUserToken(oAuth.AccessToken!);
-            
+
             if (string.IsNullOrEmpty(userToken.Token))
                 throw new XboxAuthException("UserToken was empty", 0);
 
             var xsts = await xboxAuthClient.RequestXsts(new XboxXstsRequest
             {
                 UserToken = userToken.Token,
+                DeviceToken = deviceToken.Token,
                 RelyingParty = relyingParty
             });
 
             var tokens = new XboxAuthTokens
             {
                 UserToken = userToken,
+                DeviceToken = deviceToken,
                 XstsToken = xsts
             };
             return tokens;
