@@ -2,6 +2,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using CmlLib.Core.Auth.Microsoft.Builders;
+using XboxAuthNet.XboxLive;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
@@ -9,8 +10,8 @@ namespace CmlLib.Core.Auth.Microsoft
     {
         public static MicrosoftOAuthClientInfo DefaultMicrosoftOAuthClientInfo = new MicrosoftOAuthClientInfo
         {
-            ClientId = "test_jeloginhandler_client_id",
-            Scopes = "test_jeloginhandler_scopes"
+            ClientId = XboxGameTitles.MinecraftJava,
+            Scopes = XboxAuthConstants.XboxScope
         };
 
         private readonly HttpClient _httpClient;
@@ -46,6 +47,19 @@ namespace CmlLib.Core.Auth.Microsoft
         public JESilentAuthenticationBuilder AuthenticateSilently()
         {
             return new JESilentAuthenticationBuilder()
+                .WithHttpClient(_httpClient)
+                .WithSessionStorage(SessionStorage);
+        }
+
+        public Task Signout()
+        {
+            return CreateSignout()
+                .ExecuteAsync();
+        }
+
+        public JESignoutBuilder CreateSignout()
+        {
+            return new JESignoutBuilder()
                 .WithHttpClient(_httpClient)
                 .WithSessionStorage(SessionStorage);
         }

@@ -6,5 +6,6 @@ namespace CmlLib.Core.Auth.Microsoft.SessionStorages
     {
         ValueTask<T?> GetAsync();
         ValueTask SetAsync(T? obj);
+        ValueTask Clear();
     }
 }

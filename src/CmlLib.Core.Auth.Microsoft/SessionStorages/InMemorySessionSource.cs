@@ -14,5 +14,10 @@ namespace CmlLib.Core.Auth.Microsoft.SessionStorages
             session = obj;
             return new ValueTask();
         }
+
+        public ValueTask Clear()
+        {
+            return SetAsync(default(T?));
+        }
     }
 }

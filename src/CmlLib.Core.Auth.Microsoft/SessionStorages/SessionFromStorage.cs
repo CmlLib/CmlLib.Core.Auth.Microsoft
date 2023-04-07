@@ -15,5 +15,8 @@ namespace CmlLib.Core.Auth.Microsoft.SessionStorages
 
         public ValueTask SetAsync(T? obj) =>
             _sessionStorage.SetAsync(_keyName, obj);
+
+        public ValueTask Clear() =>
+            SetAsync(default(T?));
     }
 }

@@ -49,6 +49,13 @@ namespace CmlLib.Core.Auth.Microsoft.SessionStorages
             return new ValueTask();
         }
 
+        public ValueTask Clear()
+        {
+            getJson().Clear();
+            saveJson();
+            return new ValueTask();
+        }
+
         private JsonObject getJson()
         {
             if (innerStorage == null)

@@ -33,5 +33,11 @@ namespace CmlLib.Core.Auth.Microsoft.SessionStorages
         {
             _storage[key] = obj;
         }
+
+        public ValueTask Clear()
+        {
+            _storage.Clear();
+            return new ValueTask();
+        }
     }
 }
