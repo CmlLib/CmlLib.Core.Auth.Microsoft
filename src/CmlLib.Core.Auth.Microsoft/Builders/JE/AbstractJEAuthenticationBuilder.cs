@@ -1,8 +1,9 @@
 using System;
 using System.Threading.Tasks;
-using CmlLib.Core.Auth.Microsoft.SessionStorages;
+using CmlLib.Core.Auth.Microsoft.JE;
 using CmlLib.Core.Auth.Microsoft.XboxGame;
 using CmlLib.Core.Auth.Microsoft.Executors;
+using CmlLib.Core.Auth.Microsoft.SessionStorages;
 
 namespace CmlLib.Core.Auth.Microsoft.Builders
 {
@@ -36,7 +37,7 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
 
         protected ISessionSource<JESession> GetOrCreateSessionSource()
         {
-            return SessionSource ??= new SessionFromStorage<JESession>("G", SessionStorage);
+            return SessionSource ??= new JESessionSource(SessionStorage);
         }
 
         public override IAuthenticationExecutor Build()

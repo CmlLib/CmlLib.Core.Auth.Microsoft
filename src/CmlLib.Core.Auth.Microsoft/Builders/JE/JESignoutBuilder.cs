@@ -1,5 +1,5 @@
 using System;
-using CmlLib.Core.Auth.Microsoft.SessionStorages;
+using CmlLib.Core.Auth.Microsoft.JE;
 using CmlLib.Core.Auth.Microsoft.SignoutStrategy;
 using XboxAuthNet.OAuth;
 
@@ -24,7 +24,7 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
         {
             AddSignoutStrategy(
                 new SessionClearingStrategy<JESession>(
-                    new SessionFromStorage<JESession>("G", GetOrCreateSessionStorage())));
+                    new JESessionSource(SessionStorage)));
             return this;
         }
     }
