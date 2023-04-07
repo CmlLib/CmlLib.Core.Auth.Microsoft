@@ -17,6 +17,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
         [OneTimeSetUp]
         public void Setup()
         {
+            filePath = Path.Combine(Path.GetTempPath(), Path.GetTempFileName());
             sessionStorage = createSessionStorage();
             Trace.Listeners.Add(new ConsoleTraceListener()); 
         }
@@ -24,7 +25,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
         private ISessionStorage createSessionStorage()
         {
             if (string.IsNullOrEmpty(filePath))
-                filePath = Path.Combine(Path.GetTempPath(), Path.GetTempFileName());
+                throw new InvalidOperationException();
             return new JsonFileSessionStorage(filePath);
         }
 

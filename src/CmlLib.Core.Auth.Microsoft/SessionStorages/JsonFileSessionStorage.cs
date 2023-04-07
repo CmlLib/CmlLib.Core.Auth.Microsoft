@@ -91,7 +91,8 @@ namespace CmlLib.Core.Auth.Microsoft.SessionStorages
                 Directory.CreateDirectory(dirPath);
 
             using var fs = File.Create(_filePath);
-            getJson().WriteTo(new Utf8JsonWriter(fs), _jsonOptions);
+            using var jsonWriter = new Utf8JsonWriter(fs);
+            getJson().WriteTo(jsonWriter, _jsonOptions);
         }
     }
 }
