@@ -4,14 +4,27 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using CmlLib.Core.Auth.Microsoft.SessionStorages;
 using CmlLib.Core.Auth.Microsoft.SignoutStrategy;
+using CmlLib.Core.Auth.Microsoft.XboxAuthStrategies;
 
 namespace CmlLib.Core.Auth.Microsoft.Builders
 {
     public class XboxGameSignoutBuilder<T> where T : XboxGameSignoutBuilder<T>
     {
         private List<ISignoutStrategy> _strategies = new List<ISignoutStrategy>();
-        public HttpClient? HttpClient { get; set; }
-        public ISessionStorage? SessionStorage { get; set; }
+
+        private HttpClient? _httpClient;
+        public HttpClient HttpClient
+        {
+            get => _httpClient ??= HttpHelper.DefaultHttpClient.Value;
+            set => _httpClient = value;
+        }
+
+        private ISessionStorage? _sessionStorage;
+        public ISessionStorage SessionStorage
+        {
+            get => _sessionStorage ??= new InMemorySessionStorage();
+            set => _sessionStorage = value;
+        }
 
         public T WithHttpClient(HttpClient httpClient)
         {
@@ -22,6 +35,14 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
         public T WithSessionStorage(ISessionStorage sessionStorage)
         {
             SessionStorage = sessionStorage;
+            return getThis();
+        }
+
+        public T AddXboxSessionClearing()
+        {
+            AddSignoutStrategy(
+                new SessionClearingStrategy<XboxAuthTokens>(
+                    new XboxSessionSource(GetOrCreateSessionStorage())));
             return getThis();
         }
 
