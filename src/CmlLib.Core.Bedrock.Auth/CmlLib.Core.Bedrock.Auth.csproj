@@ -7,8 +7,8 @@
       <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
       <LangVersion>8.0</LangVersion>
       <Nullable>enable</Nullable>
-      <Version>0.0.1-dev</Version>
-      <Copyright>Copyright (c) 2022 AlphaBs</Copyright>
+      <Version>0.0.2</Version>
+      <Copyright>Copyright (c) 2023 AlphaBs</Copyright>
       <PackageLicenseExpression>MIT</PackageLicenseExpression>
       <PackageProjectUrl>https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft</PackageProjectUrl>
       <RepositoryUrl>https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft</RepositoryUrl>

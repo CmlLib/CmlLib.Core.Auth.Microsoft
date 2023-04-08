@@ -2,23 +2,23 @@
 using System;
 using System.Text.Json;
 
-namespace CmlLib.Core.Bedrock.Auth.Models
+namespace CmlLib.Core.Bedrock.Auth
 {
-    public class BedrockToken
+    public class BEToken
     {
-        public BedrockToken(string token)
+        public BEToken(string token)
         {
             this.Token = token;
         }
 
         public string Token { get; }
         
-        public BedrockTokenPayload? DecodeTokenPayload()
+        public BETokenPayload? DecodeTokenPayload()
         {
             if (string.IsNullOrEmpty(Token))
                 throw new InvalidOperationException("Token was empty");
 
-            var payload = JwtDecoder.DecodePayload<BedrockTokenPayload>(Token);
+            var payload = JwtDecoder.DecodePayload<BETokenPayload>(Token);
             return payload;
         }
 

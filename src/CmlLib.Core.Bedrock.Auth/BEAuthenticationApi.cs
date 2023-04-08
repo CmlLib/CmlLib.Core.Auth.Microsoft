@@ -1,5 +1,4 @@
-﻿using CmlLib.Core.Bedrock.Auth.Models;
-using System;
+﻿using System;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -8,19 +7,19 @@ using System.Threading.Tasks;
 
 namespace CmlLib.Core.Bedrock.Auth
 {
-    // 아래 소스코드를 상당 부분 참고하였음.
     // https://github.com/PrismarineJS/prismarine-auth/blob/master/src/TokenManagers/MinecraftBedrockTokenManager.js
 
-    public class BedrockXboxApi : IBedrockXboxApi
+    public class BEAuthenticationApi
     {
+        public static readonly string RelyingParty = "https://multiplayer.minecraft.net/";
         private readonly HttpClient _httpClient;
 
-        public BedrockXboxApi(HttpClient client)
+        public BEAuthenticationApi(HttpClient client)
         {
             this._httpClient = client;
         }
 
-        public async Task<BedrockToken[]> LoginWithXbox(string uhs, string xsts)
+        public async Task<BEToken[]> LoginWithXbox(string uhs, string xsts)
         {
             var req = JsonSerializer.Serialize(new
             {
@@ -48,7 +47,7 @@ namespace CmlLib.Core.Bedrock.Auth
                 var chains = doc.RootElement.GetProperty("chain").EnumerateArray();
 
                 var result = chains
-                    .Select(chain => new BedrockToken(chain.GetString()!))
+                    .Select(chain => new BEToken(chain.GetString()!))
                     .Where(chain => chain != null)
                     .ToArray();
 
