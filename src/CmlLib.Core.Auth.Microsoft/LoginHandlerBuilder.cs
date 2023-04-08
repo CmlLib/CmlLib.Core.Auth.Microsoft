@@ -1,4 +1,4 @@
-using System;
+using System.IO;
 using System.Net.Http;
 using CmlLib.Core.Auth.Microsoft.SessionStorages;
 
@@ -16,6 +16,8 @@ namespace CmlLib.Core.Auth.Microsoft
             
         }
 
+        public string DefaultSessionStoragePath => Path.Combine(MinecraftPath.GetOSDefaultPath(), "cmllib_session.json");
+
         private HttpClient? innerHttpClient;
         public HttpClient HttpClient 
         {
@@ -23,18 +25,7 @@ namespace CmlLib.Core.Auth.Microsoft
             set => innerHttpClient = value;
         }
 
-        private ISessionStorage? innerSessionStorage;
-        public ISessionStorage SessionStorage
-        {
-            get => innerSessionStorage ?? createDefaultSessionStorage();
-            set => innerSessionStorage = value;
-        }
-
-        private ISessionStorage createDefaultSessionStorage()
-        {
-            var defaultSessionStoragePath = System.IO.Path.Combine(MinecraftPath.GetOSDefaultPath(), "cmllib_session.json");
-            return new JsonFileSessionStorage(defaultSessionStoragePath);
-        }
+        public ISessionStorage? SessionStorage;
 
         public LoginHandlerBuilder WithHttpClient(HttpClient httpClient)
         {
@@ -50,7 +41,8 @@ namespace CmlLib.Core.Auth.Microsoft
 
         public JELoginHandler ForJavaEdition()
         {
-            return new JELoginHandler(HttpClient, SessionStorage);
+            var sessionStorage = this.SessionStorage ?? new JsonFileSessionStorage(DefaultSessionStoragePath);
+            return new JELoginHandler(HttpClient, sessionStorage);
         }
     }
 }
