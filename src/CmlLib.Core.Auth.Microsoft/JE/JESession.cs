@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using XboxAuthNet.Game;
 
 namespace CmlLib.Core.Auth.Microsoft
 {

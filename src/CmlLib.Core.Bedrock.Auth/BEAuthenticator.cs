@@ -1,7 +1,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
-using CmlLib.Core.Auth.Microsoft.XboxGame;
-using CmlLib.Core.Auth.Microsoft.XboxAuthStrategies;
+using XboxAuthNet.Game.XboxGame;
+using XboxAuthNet.Game.XboxAuthStrategies;
 
 namespace CmlLib.Core.Bedrock.Auth
 {

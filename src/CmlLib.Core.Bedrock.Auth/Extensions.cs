@@ -1,5 +1,7 @@
-using CmlLib.Core.Auth.Microsoft;
-using CmlLib.Core.Auth.Microsoft.SessionStorages;
+using System;
+using System.IO;
+using XboxAuthNet.Game;
+using XboxAuthNet.Game.SessionStorages;
 
 namespace CmlLib.Core.Bedrock.Auth
 {
@@ -7,7 +9,8 @@ namespace CmlLib.Core.Bedrock.Auth
     {
         public static BELoginHandler ForBedrockEdition(this LoginHandlerBuilder self)
         {
-            var sessionStorage = self.SessionStorage ?? new JsonFileSessionStorage(self.DefaultSessionStoragePath);
+            var sessionStorage = self.SessionStorage ?? 
+                new JsonFileSessionStorage(Path.Combine(Environment.CurrentDirectory, "cmllib_bedrock.json"));
             return new BELoginHandler(self.HttpClient, sessionStorage);
         }
     }

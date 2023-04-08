@@ -1,4 +1,4 @@
-using CmlLib.Core.Auth.Microsoft;
+using XboxAuthNet.Game;
 
 namespace CmlLib.Core.Bedrock.Auth
 {

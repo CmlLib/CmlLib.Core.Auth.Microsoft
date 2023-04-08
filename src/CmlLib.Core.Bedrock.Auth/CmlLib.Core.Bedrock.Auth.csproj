@@ -20,7 +20,7 @@
   </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\CmlLib.Core.Auth.Microsoft\CmlLib.Core.Auth.Microsoft.csproj" />
+        <ProjectReference Include="..\XboxAuthNet.Game\XboxAuthNet.Game.csproj" />
     </ItemGroup>
     <ItemGroup>
         <None Include="../../icon.png" Pack="true" Visible="false" PackagePath="" />

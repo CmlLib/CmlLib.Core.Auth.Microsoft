@@ -1,9 +1,10 @@
 using NUnit.Framework;
 using System.Threading.Tasks;
-using CmlLib.Core.Auth.Microsoft.Builders;
-using CmlLib.Core.Auth.Microsoft.SessionStorages;
-using CmlLib.Core.Auth.Microsoft.OAuthStrategies;
-using CmlLib.Core.Auth.Microsoft.XboxAuthStrategies;
+using XboxAuthNet.Game;
+using XboxAuthNet.Game.Builders;
+using XboxAuthNet.Game.SessionStorages;
+using XboxAuthNet.Game.OAuthStrategies;
+using XboxAuthNet.Game.XboxAuthStrategies;
 using XboxAuthNet.OAuth.Models;
 
 namespace CmlLib.Core.Auth.Microsoft.Test

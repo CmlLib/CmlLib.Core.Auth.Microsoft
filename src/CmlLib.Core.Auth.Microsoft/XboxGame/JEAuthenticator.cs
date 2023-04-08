@@ -1,8 +1,9 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using CmlLib.Core.Auth.Microsoft.SessionStorages;
-using CmlLib.Core.Auth.Microsoft.XboxAuthStrategies;
+using XboxAuthNet.Game.SessionStorages;
+using XboxAuthNet.Game.XboxAuthStrategies;
+using XboxAuthNet.Game.XboxGame;
 
 namespace CmlLib.Core.Auth.Microsoft.XboxGame
 {

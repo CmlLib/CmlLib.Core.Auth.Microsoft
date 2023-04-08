@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using CmlLib.Core.Auth.Microsoft.Builders;
-using CmlLib.Core.Auth.Microsoft.Executors;
+using XboxAuthNet.Game.Builders;
+using XboxAuthNet.Game.Executors;
 
 namespace CmlLib.Core.Bedrock.Auth
 {

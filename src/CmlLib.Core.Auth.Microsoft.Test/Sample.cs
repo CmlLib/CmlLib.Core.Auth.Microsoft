@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
-using CmlLib.Core.Auth.Microsoft.SessionStorages;
+using XboxAuthNet.Game;
+using XboxAuthNet.Game.SessionStorages;
 using XboxAuthNet.OAuth.Models;
 
 namespace CmlLib.Core.Auth.Microsoft.Test

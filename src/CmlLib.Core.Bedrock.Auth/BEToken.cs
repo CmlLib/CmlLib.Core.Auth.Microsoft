@@ -1,4 +1,4 @@
-﻿using CmlLib.Core.Auth.Microsoft.Jwt;
+﻿using XboxAuthNet.Game.Jwt;
 using System;
 using System.Text.Json;
 

@@ -1,8 +1,8 @@
 using System.Net.Http;
 using System.Threading.Tasks;
-using CmlLib.Core.Auth.Microsoft;
-using CmlLib.Core.Auth.Microsoft.Builders;
-using CmlLib.Core.Auth.Microsoft.SessionStorages;
+using XboxAuthNet.Game;
+using XboxAuthNet.Game.Builders;
+using XboxAuthNet.Game.SessionStorages;
 
 namespace CmlLib.Core.Bedrock.Auth
 {

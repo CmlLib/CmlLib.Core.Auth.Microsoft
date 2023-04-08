@@ -1,4 +1,4 @@
-using CmlLib.Core.Auth.Microsoft.SessionStorages;
+using XboxAuthNet.Game.SessionStorages;
 
 namespace CmlLib.Core.Auth.Microsoft.JE
 {

@@ -1,7 +1,8 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using CmlLib.Core.Auth.Microsoft.Jwt;
+using XboxAuthNet.Game.Jwt;
+using XboxAuthNet.Game;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
