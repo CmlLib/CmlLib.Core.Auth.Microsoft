@@ -1,15 +1,6 @@
 ﻿using Microsoft.Identity.Client;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
-namespace MsalClientTest
+namespace WinFormTest
 {
     public partial class DeviceCodeForm : Form
     {

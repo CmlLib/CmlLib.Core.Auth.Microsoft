@@ -1,4 +1,4 @@
-﻿namespace MsalClientTest
+﻿namespace WinFormTest
 {
     partial class DeviceCodeForm
     {

@@ -1,42 +1,40 @@
 ﻿using CmlLib.Core;
 using CmlLib.Core.Auth;
 using CmlLib.Core.Auth.Microsoft;
-using CmlLib.Core.Auth.Microsoft.OAuth;
-using CmlLib.Core.Auth.Microsoft.UI.WinForm;
-using CmlLib.Core.Auth.Microsoft.XboxLive;
-using System;
-using System.ComponentModel;
-using System.Windows.Forms;
-using XboxAuthNet.Utils;
+using XboxAuthNet.Game;
+using XboxAuthNet.Game.Msal;
+using XboxAuthNet.Game.Builders;
 using XboxAuthNet.XboxLive;
+using System.ComponentModel;
+using Microsoft.Identity.Client;
 
 namespace WinFormTest
 {
     public partial class Form1 : Form
     {
-        JavaEditionLoginHandler? _loginHandler;
+        IPublicClientApplication? _msalApp;
+        JELoginHandler _loginHandler;
         MSession? _session;
+
+        readonly string msalClientId = "499c8d36-be2a-4231-9ebd-ef291b7bb64c";
+        bool msalMode = false;
 
         public Form1()
         {
+            _loginHandler = LoginHandlerBuilder.Create().ForJavaEdition();
             InitializeComponent();
-            btnStart.Enabled = false;
         }
 
         private async void Form1_Load(object sender, EventArgs e)
         {
-            var loginHandler = new LoginHandlerBuilder()
-                .ForJavaEdition()
-                .Build();
-            
+            btnStart.Enabled = false;
             setUIEnable(false);
-
             cbPresets.SelectedIndex = 0;
 
             try
             {
-                var result = await loginHandler.LoginFromCache();
-                loginSuccess(result.GameSession);
+                var session = await authenticateSilently();
+                loginSuccess(session);
             }
             catch (Exception ex)
             {
@@ -47,49 +45,121 @@ namespace WinFormTest
 
         private async void btnLogin_Click(object sender, EventArgs e)
         {
-            var scope = cbAzure.Checked ?
-                "XboxLive.signin" :
-                XboxAuth.XboxScope;
-
-            this._loginHandler = new LoginHandlerBuilder()
-                .WithClientId(txtClientId.Text)
-                .ForJavaEdition()
-                .WithMicrosoftOAuthApi(builder => builder
-                    .WithScope(scope)
-                    .WithWebUI(new WebView2WebUI(this)))
-                .With((builder, context) =>
-                {
-                    if (cbSisuAuth.Checked)
-                    {
-                        var keyGenerator = KeyPairGeneratorFactory.CreateDefaultAsymmetricKeyPair();
-                        builder.WithXboxSisuAuthApi(builder => builder
-                            .WithECKeyPairGenerator(keyGenerator)
-                            .WithDeviceType(txtDeviceType.Text)
-                            .WithDeviceVersion(txtDeviceVersion.Text)
-                            .WithTokenPrefix(cbAzure.Checked ? XboxSecureAuth.AzureTokenPrefix : XboxSecureAuth.XboxTokenPrefix));
-                    }
-                    else
-                    {
-                        builder.WithXboxLiveApi(
-                            new XboxAuthNetApi(
-                            new XboxAuth(context.HttpClient), 
-                            cbAzure.Checked ? "d=" : null, null, null));
-                    }
-                })
-                .Build();
-
             setUIEnable(false);
 
             try
             {
-                var result = await this._loginHandler.LoginFromOAuth();
-                loginSuccess(result.GameSession);
+                MSession session;
+                if (cbSisuAuth.Checked)
+                {
+                    session = await authenticateInteractivelyWithSisu();
+                }
+                else
+                {
+                    session = await authenticateInteractively();
+                }
+                loginSuccess(session);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
                 setUIEnable(true);
             }
+        }
+
+        private async Task<MSession> authenticateSilently()
+        {
+            var session = await _loginHandler.AuthenticateSilently()
+                .ExecuteForLauncherAsync();
+            return session;
+        }
+
+        private async Task<MSession> authenticateInteractively()
+        {
+            var clientInfo = getMicrosoftOAuthClientInfo();
+            var session = await _loginHandler.AuthenticateInteractively()
+                .WithMicrosoftOAuth(clientInfo, builder => builder
+                    .MicrosoftOAuth.UseInteractiveStrategy(builder => builder
+                        .WithUIParent(this))
+                    .XboxAuth.WithTokenPrefix(cbAzure.Checked ? XboxAuthConstants.AzureTokenPrefix : ""))
+                .ExecuteForLauncherAsync();
+            return session;
+        }
+
+        private async Task<MSession> authenticateInteractivelyWithSisu()
+        {
+            var clientInfo = getMicrosoftOAuthClientInfo();
+            var session = await _loginHandler.AuthenticateInteractively()
+                .WithMicrosoftOAuth(clientInfo, builder => builder
+                    .MicrosoftOAuth.UseInteractiveStrategy(builder => builder
+                        .WithUIParent(this))
+                    .XboxAuth.WithDeviceType(txtDeviceType.Text)
+                    .XboxAuth.WithDeviceVersion(txtDeviceVersion.Text)
+                    .XboxAuth.WithTokenPrefix(cbAzure.Checked ? XboxAuthConstants.AzureTokenPrefix : XboxAuthConstants.XboxTokenPrefix))
+                .ExecuteForLauncherAsync();
+            return session;
+        }
+
+        private async Task<MSession> msalAuthenticateSilently()
+        {
+            var app = await getMsalApp();
+            var session = await _loginHandler.AuthenticateSilently()
+                .WithMsalOAuth(builder => builder
+                    .MsalOAuth.UseSilentStrategy(app))
+                .ExecuteForLauncherAsync();
+            return session;
+        }
+
+        private async Task<MSession> msalAuthenticateInteractively()
+        {
+            var app = await getMsalApp();
+            var session = await _loginHandler.AuthenticateInteractively()
+                .WithMsalOAuth(builder => builder
+                    .MsalOAuth.UseInteractiveStrategy(app))
+                .ExecuteForLauncherAsync();
+            return session;
+        }
+
+        private async Task<MSession> msalAuthenticateWithDeviceCode()
+        {
+            var deviceCodeForm = new DeviceCodeForm();
+            var handler = new Func<DeviceCodeResult, Task>(result => 
+            {
+                var tcs = new TaskCompletionSource();
+                deviceCodeForm.Invoke(() => 
+                {
+                    deviceCodeForm.SetDeviceCodeResult(result);
+                    deviceCodeForm.ShowDialog();
+                    tcs.SetResult();
+                });
+                return tcs.Task;
+            });
+
+            var app = await getMsalApp();
+            var session = await _loginHandler.AuthenticateInteractively()
+                .WithMsalOAuth(builder => builder
+                    .MsalOAuth.UseDeviceCodeStrategy(app, handler))
+                .ExecuteForLauncherAsync();
+            return session;
+        }
+
+        private async Task<IPublicClientApplication> getMsalApp()
+        {
+            return _msalApp ??= await createMsalApp();
+        }
+
+        private async Task<IPublicClientApplication> createMsalApp()
+        {
+            return await MsalClientHelper.BuildApplicationWithCache(msalClientId);
+        }
+
+        private MicrosoftOAuthClientInfo getMicrosoftOAuthClientInfo()
+        {
+            return new MicrosoftOAuthClientInfo()
+            {
+                ClientId = txtClientId.Text,
+                Scopes = cbAzure.Checked ? "XboxLive.signin" : XboxAuthConstants.XboxScope
+            };
         }
 
         private void setUIEnable(bool value)
@@ -112,10 +182,10 @@ namespace WinFormTest
 
         private async void btnLogout_Click(object sender, EventArgs e)
         {
-            if (this._loginHandler == null)
-                throw new InvalidOperationException("_loginHandler was null");
+            await this._loginHandler.CreateSignout()
+                .AddMicrosoftOAuthSignout()
+                .ExecuteAsync();
 
-            await this._loginHandler.ClearCache();
             txtAccessToken.Clear();
             txtUsername.Clear();
             txtUUID.Clear();
