@@ -17,6 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CmlLib.Core.Bedrock.Auth\CmlLib.Core.Bedrock.Auth.csproj" />
+    <ProjectReference Include="../../src/CmlLib.Core.Bedrock.Auth/CmlLib.Core.Bedrock.Auth.csproj" />
   </ItemGroup>
 </Project>

@@ -17,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CmlLib.Core.Auth.Microsoft\CmlLib.Core.Auth.Microsoft.csproj" />
-    <ProjectReference Include="..\XboxAuthNet.Game.Msal\XboxAuthNet.Game.Msal.csproj" />
+    <ProjectReference Include="../../src/CmlLib.Core.Auth.Microsoft/CmlLib.Core.Auth.Microsoft.csproj" />
+    <ProjectReference Include="../../src/XboxAuthNet.Game.Msal/XboxAuthNet.Game.Msal.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,5 @@
 using System;
-using CmlLib.Core.Auth.Microsoft.Jwt;
+using XboxAuthNet.Game.Jwt;
 using NUnit.Framework;
 
 namespace XboxAuthNet.Game.Test
