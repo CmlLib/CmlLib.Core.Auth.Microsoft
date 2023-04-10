@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using XboxAuthNet.Game.XboxAuthStrategies;
 using XboxAuthNet.Game.SessionStorages;
+using XboxAuthNet.Game.XboxGame;
 using XboxAuthNet.Game.Executors;
 
 namespace XboxAuthNet.Game.Builders
@@ -55,11 +56,26 @@ namespace XboxAuthNet.Game.Builders
             return (T)this;
         }
 
-        public abstract IAuthenticationExecutor Build();
+        protected abstract IXboxGameAuthenticator BuildAuthenticator();
+
+        public virtual IAuthenticationExecutor Build()
+        {
+            // XboxAuthStrategy
+            if (XboxAuthStrategyFactory == null)
+                throw new InvalidOperationException("Set XboxAuthStrategy first");
+            var xboxAuthStrategy = XboxAuthStrategyFactory.Invoke((T)this);
+
+            // XboxGameAuthenticator
+            var authenticator = BuildAuthenticator();
+
+            // Execute
+            return new XboxGameAuthenticationExecutor(xboxAuthStrategy, authenticator);
+        }
 
         public Task<ISession> ExecuteAsync()
         {
-            return Build().ExecuteAsync();
+            var executor = Build();
+            return executor.ExecuteAsync();
         }
     }
 }

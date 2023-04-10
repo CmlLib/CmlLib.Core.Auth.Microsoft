@@ -4,8 +4,8 @@ using XboxAuthNet.Game.XboxAuthStrategies;
 
 namespace XboxAuthNet.Game.XboxGame
 {
-    public interface IXboxGameAuthenticator<T>
+    public interface IXboxGameAuthenticator
     {
-        Task<T> Authenticate(IXboxAuthStrategy xboxAuthStrategy);
+        Task<ISession> Authenticate(IXboxAuthStrategy xboxAuthStrategy);
     }
 }

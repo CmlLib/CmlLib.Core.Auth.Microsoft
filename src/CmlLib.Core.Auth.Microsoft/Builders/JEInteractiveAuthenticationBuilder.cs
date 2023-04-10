@@ -1,4 +1,5 @@
 using System;
+using XboxAuthNet.Game;
 using XboxAuthNet.Game.Builders;
 using XboxAuthNet.Game.XboxGame;
 
@@ -12,17 +13,9 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
         }
 
         public JEInteractiveAuthenticationBuilder WithMicrosoftOAuth(Action<MicrosoftXboxBuilder> builderInvoker)
-        {
-            this.WithMicrosoftOAuth(JELoginHandler.DefaultMicrosoftOAuthClientInfo, builder => 
-            {
-                builder.MicrosoftOAuth.UseInteractiveStrategy();
-                builder.XboxAuth.UseBasicStrategy();
-                builderInvoker.Invoke(builder);
-            });
-            return this;
-        }
+            => this.WithInteractiveMicrosoftOAuth(JELoginHandler.DefaultMicrosoftOAuthClientInfo, builderInvoker);
 
-        protected override IXboxGameAuthenticator<JESession> CreateGameAuthenticator()
+        protected override IXboxGameAuthenticator BuildAuthenticator()
         {
             return CreateDefaultGameAuthenticator();
         }

@@ -1,11 +1,12 @@
 using System.Net.Http;
 using System.Threading.Tasks;
+using XboxAuthNet.Game;
 using XboxAuthNet.Game.XboxGame;
 using XboxAuthNet.Game.XboxAuthStrategies;
 
 namespace CmlLib.Core.Bedrock.Auth
 {
-    public class BEAuthenticator : IXboxGameAuthenticator<BESession>
+    public class BEAuthenticator : IXboxGameAuthenticator
     {
         private readonly BEAuthenticationApi _api;
 
@@ -14,7 +15,7 @@ namespace CmlLib.Core.Bedrock.Auth
             _api = new BEAuthenticationApi(httpClient);
         }
 
-        public async Task<BESession> Authenticate(IXboxAuthStrategy xboxAuthStrategy)
+        public async Task<ISession> Authenticate(IXboxAuthStrategy xboxAuthStrategy)
         {
             var xboxTokens = await xboxAuthStrategy.Authenticate(BEAuthenticationApi.RelyingParty);
 

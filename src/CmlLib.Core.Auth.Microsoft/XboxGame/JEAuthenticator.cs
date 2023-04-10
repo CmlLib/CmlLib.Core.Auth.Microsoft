@@ -1,13 +1,14 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using XboxAuthNet.Game;
 using XboxAuthNet.Game.SessionStorages;
 using XboxAuthNet.Game.XboxAuthStrategies;
 using XboxAuthNet.Game.XboxGame;
 
 namespace CmlLib.Core.Auth.Microsoft.XboxGame
 {
-    public class JEAuthenticator : IXboxGameAuthenticator<JESession>
+    public class JEAuthenticator : IXboxGameAuthenticator
     {
         private readonly JEAuthenticationApi _api;
         private readonly ISessionSource<JESession> _sessionSource;
@@ -20,7 +21,7 @@ namespace CmlLib.Core.Auth.Microsoft.XboxGame
             this._sessionSource = sessionSource;
         }
 
-        public async Task<JESession> Authenticate(IXboxAuthStrategy xboxAuthStrategy)
+        public async Task<ISession> Authenticate(IXboxAuthStrategy xboxAuthStrategy)
         {
             var cachedSession = await _sessionSource.GetAsync();
             if (cachedSession == null)

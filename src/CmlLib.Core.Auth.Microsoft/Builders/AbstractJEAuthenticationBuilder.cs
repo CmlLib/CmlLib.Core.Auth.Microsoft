@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using CmlLib.Core.Auth.Microsoft.JE;
 using CmlLib.Core.Auth.Microsoft.XboxGame;
-using XboxAuthNet.Game.Executors;
+using XboxAuthNet.Game;
 using XboxAuthNet.Game.SessionStorages;
 using XboxAuthNet.Game.Builders;
 using XboxAuthNet.Game.XboxGame;
@@ -41,20 +41,7 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             return SessionSource ??= new JESessionSource(SessionStorage);
         }
 
-        public override IAuthenticationExecutor Build()
-        {
-            if (XboxAuthStrategyFactory == null)
-                throw new InvalidOperationException("Set XboxAuthStrategy first");
-            var xboxAuthStrategy = XboxAuthStrategyFactory.Invoke((T)this);
-
-            // GameAuthenticator
-            var gameAuthenticator = CreateGameAuthenticator();
-
-            // Executor
-            return new XboxGameAuthenticationExecutor<JESession>(xboxAuthStrategy, gameAuthenticator);
-        }
-
-        protected IXboxGameAuthenticator<JESession> CreateDefaultGameAuthenticator()
+        protected IXboxGameAuthenticator CreateDefaultGameAuthenticator()
         {
             var authenticator = new JEAuthenticator(HttpClient, GetOrCreateSessionSource());
             if (UseCaching)
@@ -62,8 +49,6 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             else
                 return authenticator;
         }
-
-        protected abstract IXboxGameAuthenticator<JESession> CreateGameAuthenticator();
 
         public new async Task<JESession> ExecuteAsync()
         {

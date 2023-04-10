@@ -8,6 +8,34 @@ namespace XboxAuthNet.Game.Builders
 {
     public static class Extensions
     {
+        public static T WithInteractiveMicrosoftOAuth<T>(
+            this XboxGameAuthenticationBuilder<T> self,
+            MicrosoftOAuthClientInfo clientInfo,
+            Action<MicrosoftXboxBuilder> builderInvoker)
+            where T : XboxGameAuthenticationBuilder<T>
+        {
+            return self.WithMicrosoftOAuth<T>(clientInfo, builder => 
+            {
+                builder.MicrosoftOAuth.UseInteractiveStrategy();
+                builder.XboxAuth.UseBasicStrategy();
+                builderInvoker(builder);
+            });
+        }
+
+        public static T WithSilentMicrosoftOAuth<T>(
+            this XboxGameAuthenticationBuilder<T> self,
+            MicrosoftOAuthClientInfo clientInfo,
+            Action<MicrosoftXboxBuilder> builderInvoker)
+            where T : XboxGameAuthenticationBuilder<T>
+        {
+            return self.WithMicrosoftOAuth<T>(clientInfo, builder => 
+            {
+                builder.MicrosoftOAuth.UseSilentStrategy();
+                builder.XboxAuth.UseBasicStrategy();
+                builderInvoker(builder);
+            });
+        }
+
         public static T WithMicrosoftOAuth<T>(
             this XboxGameAuthenticationBuilder<T> self,
             MicrosoftOAuthClientInfo clientInfo,
