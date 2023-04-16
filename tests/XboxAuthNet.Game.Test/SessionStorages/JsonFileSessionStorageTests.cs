@@ -9,7 +9,7 @@ using XboxAuthNet.Game.SessionStorages;
 namespace XboxAuthNet.Game.Test
 {
     [TestFixture]
-    public class TestJsonFileSessionStorage
+    public class JsonFileSessionStorageTests
     {
         private ISessionStorage? sessionStorage;
         private string? filePath;
@@ -30,9 +30,9 @@ namespace XboxAuthNet.Game.Test
         }
 
         [Test]
-        public async Task TestEmpty()
+        public void TestEmpty()
         {
-            var result = await sessionStorage!.GetAsync<string>("empty");
+            var result = sessionStorage!.Get<string>("empty");
             Assert.IsNull(result);
         }
 
@@ -40,25 +40,25 @@ namespace XboxAuthNet.Game.Test
         [TestCase(1)]
         [TestCase(int.MaxValue)]
         [TestCase(int.MinValue)]
-        public async Task TestIntValue(int value)
+        public void TestIntValue(int value)
         {
             Assert.NotNull(sessionStorage);
-            await sessionStorage!.SetAsync<int>(nameof(TestIntValue), value);
-            var savedValue = await sessionStorage!.GetAsync<int>(nameof(TestIntValue));
+            sessionStorage!.Set<int>(nameof(TestIntValue), value);
+            var savedValue = sessionStorage!.Get<int>(nameof(TestIntValue));
 
             Assert.AreEqual(value, savedValue);
         }
 
         [Test]
-        public async Task TestNonExistsKey()
+        public void TestNonExistsKey()
         {
             Assert.NotNull(sessionStorage);
-            var returnValue = await sessionStorage!.GetAsync<object>("qwerqwerqwerqwer");
+            var returnValue = sessionStorage!.Get<object>("qwerqwerqwerqwer");
             Assert.Null(returnValue);
         }
 
         [Test]
-        public async Task TestObject()
+        public void TestObject()
         {
             Assert.NotNull(sessionStorage);
             
@@ -72,8 +72,8 @@ namespace XboxAuthNet.Game.Test
                 InnerData2 = new InnerMockObject("T2", 2)
             };
 
-            await sessionStorage!.SetAsync<MockObject>(nameof(TestObject), mockObject);
-            var savedValue = await sessionStorage.GetAsync<MockObject>(nameof(TestObject));
+            sessionStorage!.Set<MockObject>(nameof(TestObject), mockObject);
+            var savedValue = sessionStorage.Get<MockObject>(nameof(TestObject));
 
             // compare the value of object, not a reference.
             var copiedMockObject = mockObject with {}; // same value, new reference
@@ -82,17 +82,17 @@ namespace XboxAuthNet.Game.Test
         }
 
         [Test]
-        public async Task TestWithNewInstance()
+        public void TestWithNewInstance()
         {
             Assert.NotNull(sessionStorage);
 
             var testKey = nameof(TestWithNewInstance);
             var testData = "test_data_for_" + testKey;
 
-            await sessionStorage!.SetAsync<string>(testKey, testData);
+            sessionStorage!.Set<string>(testKey, testData);
 
             var newSessionStorage = createSessionStorage();
-            var savedValue = await newSessionStorage.GetAsync<string>(testKey);
+            var savedValue = newSessionStorage.Get<string>(testKey);
 
             Assert.AreEqual(testData, savedValue);
         }

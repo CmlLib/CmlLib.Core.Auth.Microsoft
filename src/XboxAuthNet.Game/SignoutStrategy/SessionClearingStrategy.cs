@@ -14,7 +14,8 @@ namespace XboxAuthNet.Game.SignoutStrategy
 
         public ValueTask Signout()
         {
-            return _sessionSource.Clear();
+            _sessionSource.Clear();
+            return default;
         }
     }
 }

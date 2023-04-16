@@ -7,13 +7,8 @@ namespace XboxAuthNet.Game.SessionStorages
     {
         private readonly Dictionary<string, object?> _storage = new Dictionary<string, object?>();
 
-        public IEnumerable<string> Keys => _storage.Keys;
-
-        public ValueTask<T?> GetAsync<T>(string key)
-        {
-            var obj = get<T>(key);
-            return new ValueTask<T?>(obj);
-        }
+        public T? Get<T>(string key) => 
+            get<T>(key);
 
         private T? get<T>(string key)
         {
@@ -23,21 +18,13 @@ namespace XboxAuthNet.Game.SessionStorages
                 throw new KeyNotFoundException();
         }
 
-        public ValueTask SetAsync<T>(string key, T? obj)
-        {
+        public void Set<T>(string key, T? obj) => 
             set<T>(key, obj);
-            return new ValueTask();
-        }
 
-        private void set<T>(string key, T? obj)
-        {
+        private void set<T>(string key, T? obj) =>
             _storage[key] = obj;
-        }
 
-        public ValueTask Clear()
-        {
+        public void Clear() =>
             _storage.Clear();
-            return new ValueTask();
-        }
     }
 }

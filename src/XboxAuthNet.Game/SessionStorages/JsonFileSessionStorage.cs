@@ -1,8 +1,6 @@
-using System;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Threading.Tasks;
 
 namespace XboxAuthNet.Game.SessionStorages
 {
@@ -11,7 +9,8 @@ namespace XboxAuthNet.Game.SessionStorages
         private readonly string _filePath;
         private readonly JsonSerializerOptions _jsonOptions;
 
-        private JsonObject? innerStorage;
+        private JsonObject? _object;
+        private JsonSessionStorage? _innerStorage;
 
         public JsonFileSessionStorage(string filePath) : this(filePath, JsonSerializerOptions.Default) {}
 
@@ -21,78 +20,66 @@ namespace XboxAuthNet.Game.SessionStorages
             this._jsonOptions = jsonSerializerOptions;
         }
 
-        public ValueTask<T?> GetAsync<T>(string key)
+        public T? Get<T>(string key)
         {
-            T? result;
-
-            var json = getJson();
-            var node = json[key];
-
-            if (node == null)
-                result = default(T);
-            else
-                result = node.Deserialize<T>();
-
-            return new ValueTask<T?>(result);
+            return getStorage().Get<T>(key);
         }
 
-        public ValueTask SetAsync<T>(string key, T? obj)
+        public void Set<T>(string key, T? obj)
         {
-            var json = getJson();
-
-            if (obj != null)
-                json[key] = JsonSerializer.SerializeToNode<T>(obj);
-            else
-                json.Remove(key);
-            
-            saveJson();
-            return new ValueTask();
+            getStorage().Set<T>(key, obj);
+            saveStorage();
         }
 
-        public ValueTask Clear()
+        public void Clear()
         {
-            getJson().Clear();
-            saveJson();
-            return new ValueTask();
+            getStorage().Clear();
+            saveStorage();
         }
 
-        private JsonObject getJson()
+        private JsonSessionStorage getStorage()
         {
-            if (innerStorage == null)
+            if (_innerStorage == null)
                 loadJson();
-            return innerStorage!;
+            return _innerStorage!;
         }
 
         private void loadJson()
         {
-            innerStorage = null;
+            _object = null;
+            _innerStorage = null;
 
             if (File.Exists(_filePath))
             {
                 try
                 {
                     using var fs = File.OpenRead(_filePath);
-                    innerStorage = JsonNode.Parse(fs) as JsonObject;
+                    _object = JsonNode.Parse(fs) as JsonObject;
                 }
                 catch (JsonException) // reset storage if json file is corrupted
                 {
-                    innerStorage = new JsonObject();
+                    _object = new JsonObject();
                 }
             }
 
-            if (innerStorage == null)
-                innerStorage = new JsonObject();
+            if (_object == null)
+                _object = new JsonObject();
+
+            _innerStorage = new JsonSessionStorage(_object, _jsonOptions);
         }
 
-        private void saveJson()
+        private void saveStorage()
         {
+            if (_object == null)
+                return;
+
             var dirPath = Path.GetDirectoryName(_filePath);
             if (!string.IsNullOrEmpty(dirPath))
                 Directory.CreateDirectory(dirPath);
 
             using var fs = File.Create(_filePath);
             using var jsonWriter = new Utf8JsonWriter(fs);
-            getJson().WriteTo(jsonWriter, _jsonOptions);
+            _object.WriteTo(jsonWriter, _jsonOptions);
         }
     }
 }

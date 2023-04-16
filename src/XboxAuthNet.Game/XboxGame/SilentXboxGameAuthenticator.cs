@@ -16,7 +16,7 @@ namespace XboxAuthNet.Game.XboxGame
 
         public async Task<ISession> Authenticate(IXboxAuthStrategy xboxAuthStrategy)
         {
-            var storedSession = await _sessionSource.GetAsync();
+            var storedSession = _sessionSource.Get();
             if (storedSession != null && storedSession.Validate())
                 return storedSession;
             else

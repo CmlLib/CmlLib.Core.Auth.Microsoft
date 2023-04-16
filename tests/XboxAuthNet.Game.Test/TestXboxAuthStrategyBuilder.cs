@@ -60,7 +60,7 @@ namespace XboxAuthNet.Game.Test
 
             var strategy = builder.Build();
             var actualResponse = await strategy.Authenticate("relyingParty");
-            var cachedResponse = await sessionSource.GetAsync();
+            var cachedResponse = sessionSource.Get();
 
             Assert.IsInstanceOf<CachingXboxAuthStrategy>(strategy);
             Assert.AreEqual(mockTokens, actualResponse);

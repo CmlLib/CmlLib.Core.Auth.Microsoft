@@ -10,13 +10,13 @@ namespace XboxAuthNet.Game.SessionStorages
         public SessionFromStorage(string keyName, ISessionStorage sessionStorage) =>
             (_keyName, _sessionStorage) = (keyName, sessionStorage);
 
-        public ValueTask<T?> GetAsync() =>
-            _sessionStorage.GetAsync<T>(_keyName);
+        public T? Get() =>
+            _sessionStorage.Get<T>(_keyName);
 
-        public ValueTask SetAsync(T? obj) =>
-            _sessionStorage.SetAsync(_keyName, obj);
+        public void Set(T? obj) =>
+            _sessionStorage.Set(_keyName, obj);
 
-        public ValueTask Clear() =>
-            SetAsync(default(T?));
+        public void Clear() =>
+            Set(default(T?));
     }
 }

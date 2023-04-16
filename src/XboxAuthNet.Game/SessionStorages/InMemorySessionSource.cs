@@ -1,23 +1,19 @@
-using System.Threading.Tasks;
-
 namespace XboxAuthNet.Game.SessionStorages
 {
     public class InMemorySessionSource<T> : ISessionSource<T>
     {
         private T? session = default(T);
 
-        public ValueTask<T?> GetAsync() => 
-            new ValueTask<T?>(session);
+        public T? Get() => session;
 
-        public ValueTask SetAsync(T? obj)
+        public void Set(T? obj)
         {
             session = obj;
-            return new ValueTask();
         }
 
-        public ValueTask Clear()
+        public void Clear()
         {
-            return SetAsync(default(T?));
+            Set(default(T?));
         }
     }
 }

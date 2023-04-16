@@ -54,7 +54,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
         }
 
         [Test]
-        public async Task TestSessionStorage()
+        public void TestSessionStorage()
         {
             var newSessionStorage = new InMemorySessionStorage();
             MicrosoftXboxBuilder? xboxBuilder = null;
@@ -68,11 +68,11 @@ namespace CmlLib.Core.Auth.Microsoft.Test
                 .Build();
 
             Assert.NotNull(xboxBuilder); // assert that inner code block of WithMicrosoftOAuth is executed
-            await AssertSessionSourceIsFromSessionStorage(xboxBuilder!, newSessionStorage);
+            AssertSessionSourceIsFromSessionStorage(xboxBuilder!, newSessionStorage);
         }
 
         [Test]
-        public async Task TestSessionStorageReverse()
+        public void TestSessionStorageReverse()
         {
             var newSessionStorage = new InMemorySessionStorage();
             MicrosoftXboxBuilder? xboxBuilder = null;
@@ -86,22 +86,22 @@ namespace CmlLib.Core.Auth.Microsoft.Test
                 .Build();
 
             Assert.NotNull(xboxBuilder); // assert that inner code block of WithMicrosoftOAuth is executed
-            await AssertSessionSourceIsFromSessionStorage(xboxBuilder!, newSessionStorage);
+            AssertSessionSourceIsFromSessionStorage(xboxBuilder!, newSessionStorage);
         }
 
-        private async Task AssertSessionSourceIsFromSessionStorage(
+        private void AssertSessionSourceIsFromSessionStorage(
             MicrosoftXboxBuilder builder, ISessionStorage newSessionStorage)
         {
-            await AssertAreEqualOAuthSessionSource(
+            AssertAreEqualOAuthSessionSource(
                 new MicrosoftOAuthSessionSource(newSessionStorage),
                 builder.MicrosoftOAuth.SessionSource);
-            await AssertAreEqualXboxSessionSource(
+            AssertAreEqualXboxSessionSource(
                 new XboxSessionSource(newSessionStorage),
                 builder.XboxAuth.SessionSource);
         }
 
         [Test]
-        public async Task TestSessionSource()
+        public void TestSessionSource()
         {
             var newSessionStorage = new InMemorySessionStorage();
             var newOAuthSessionSource = new InMemorySessionSource<MicrosoftOAuthResponse>();
@@ -120,16 +120,16 @@ namespace CmlLib.Core.Auth.Microsoft.Test
 
             Assert.NotNull(xboxBuilder);
             Assert.AreEqual(newSessionStorage, xboxBuilder!.SessionStorage);
-            await AssertAreEqualOAuthSessionSource(
+            AssertAreEqualOAuthSessionSource(
                 newOAuthSessionSource,
                 xboxBuilder.MicrosoftOAuth.SessionSource);
-            await AssertAreEqualXboxSessionSource(
+            AssertAreEqualXboxSessionSource(
                 newXboxSessionSource, 
                 xboxBuilder.XboxAuth.SessionSource);
         }
 
         [Test]
-        public async Task TestSessionSourceReverse()
+        public void TestSessionSourceReverse()
         {
             var newSessionStorage = new InMemorySessionStorage();
             var newOAuthSessionSource = new InMemorySessionSource<MicrosoftOAuthResponse>();
@@ -148,33 +148,33 @@ namespace CmlLib.Core.Auth.Microsoft.Test
 
             Assert.NotNull(xboxBuilder);
             Assert.AreEqual(newSessionStorage, xboxBuilder!.SessionStorage);
-            await AssertAreEqualOAuthSessionSource(
+            AssertAreEqualOAuthSessionSource(
                 newOAuthSessionSource,
                 xboxBuilder.MicrosoftOAuth.SessionSource);
-            await AssertAreEqualXboxSessionSource(
+            AssertAreEqualXboxSessionSource(
                 newXboxSessionSource, 
                 xboxBuilder.XboxAuth.SessionSource);
         }
 
-        private async Task AssertAreEqualOAuthSessionSource(ISessionSource<MicrosoftOAuthResponse>? expected, ISessionSource<MicrosoftOAuthResponse>? actual)
+        private void AssertAreEqualOAuthSessionSource(ISessionSource<MicrosoftOAuthResponse>? expected, ISessionSource<MicrosoftOAuthResponse>? actual)
         {
             var mock = new MicrosoftOAuthResponse();
-            await AssertAreEqualSessionSource(mock, expected, actual);
+            AssertAreEqualSessionSource(mock, expected, actual);
         }
 
-        private async Task AssertAreEqualXboxSessionSource(ISessionSource<XboxAuthTokens>? expected, ISessionSource<XboxAuthTokens>? actual)
+        private void AssertAreEqualXboxSessionSource(ISessionSource<XboxAuthTokens>? expected, ISessionSource<XboxAuthTokens>? actual)
         {
             var mock = new XboxAuthTokens();
-            await AssertAreEqualSessionSource(mock, expected, actual);
+            AssertAreEqualSessionSource(mock, expected, actual);
         }
 
-        private async Task AssertAreEqualSessionSource<T>(T mock, ISessionSource<T>? expected, ISessionSource<T>? actual) where T : class
+        private void AssertAreEqualSessionSource<T>(T mock, ISessionSource<T>? expected, ISessionSource<T>? actual) where T : class
         {
             Assert.NotNull(expected);
             Assert.NotNull(actual);
 
-            await expected!.SetAsync(mock);
-            var cached = await expected.GetAsync();
+            expected!.Set(mock);
+            var cached = expected.Get();
 
             Assert.AreEqual(mock, cached);
         }

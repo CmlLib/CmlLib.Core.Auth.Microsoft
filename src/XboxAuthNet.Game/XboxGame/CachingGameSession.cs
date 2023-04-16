@@ -15,7 +15,7 @@ namespace XboxAuthNet.Game.XboxGame
         public async Task<ISession> Authenticate(IXboxAuthStrategy strategy)
         {
             var result = await _inner.Authenticate(strategy);
-            await _sessionSource.SetAsync((T?)result);
+            _sessionSource.Set((T?)result);
             return result;
         }
     }

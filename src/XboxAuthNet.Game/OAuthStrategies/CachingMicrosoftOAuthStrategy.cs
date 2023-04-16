@@ -17,7 +17,7 @@ namespace XboxAuthNet.Game.OAuthStrategies
         public async Task<MicrosoftOAuthResponse> Authenticate()
         {
             var result = await _innerStrategy.Authenticate();
-            await _oauthTokenSource.SetAsync(result);
+            _oauthTokenSource.Set(result);
             return result;
         }
     }

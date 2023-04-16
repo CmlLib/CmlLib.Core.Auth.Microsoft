@@ -23,7 +23,7 @@ namespace XboxAuthNet.Game.Msal.OAuth
         public async Task<MicrosoftOAuthResponse> Authenticate()
         {
             var result = await _inner.Authenticate();
-            await _sessionSource.SetAsync(null);
+            _sessionSource.Set(null);
             return result;
         }
     }

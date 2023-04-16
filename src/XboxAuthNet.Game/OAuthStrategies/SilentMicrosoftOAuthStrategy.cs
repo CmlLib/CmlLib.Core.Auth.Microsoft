@@ -18,7 +18,7 @@ namespace XboxAuthNet.Game.OAuthStrategies
 
         public async Task<MicrosoftOAuthResponse> Authenticate()
         {
-            var token = await _oauthTokenSource.GetAsync();
+            var token = _oauthTokenSource.Get();
             if (string.IsNullOrEmpty(token?.RefreshToken))
                 throw new MicrosoftOAuthException("no refresh token", 0);
 

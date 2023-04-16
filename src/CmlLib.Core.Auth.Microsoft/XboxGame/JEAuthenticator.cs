@@ -23,7 +23,7 @@ namespace CmlLib.Core.Auth.Microsoft.XboxGame
 
         public async Task<ISession> Authenticate(IXboxAuthStrategy xboxAuthStrategy)
         {
-            var cachedSession = await _sessionSource.GetAsync();
+            var cachedSession = _sessionSource.Get();
             if (cachedSession == null)
                 cachedSession = new JESession();
             
