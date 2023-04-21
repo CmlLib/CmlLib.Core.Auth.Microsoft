@@ -26,7 +26,7 @@ namespace XboxAuthNet.Game.Test
         }
 
         [Test]
-        [Platform("Win")]
+        [Category("interactive")]
         public void TestInteractiveStrategy()
         {
             var builder = createBuilder();

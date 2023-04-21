@@ -119,7 +119,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
                 .Build();
 
             Assert.NotNull(xboxBuilder);
-            Assert.AreEqual(newSessionStorage, xboxBuilder!.SessionStorage);
+            Assert.That(xboxBuilder!.SessionStorage, Is.EqualTo(newSessionStorage));
             AssertAreEqualOAuthSessionSource(
                 newOAuthSessionSource,
                 xboxBuilder.MicrosoftOAuth.SessionSource);
@@ -147,7 +147,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
                 .Build();
 
             Assert.NotNull(xboxBuilder);
-            Assert.AreEqual(newSessionStorage, xboxBuilder!.SessionStorage);
+            Assert.That(xboxBuilder!.SessionStorage, Is.EqualTo(newSessionStorage));
             AssertAreEqualOAuthSessionSource(
                 newOAuthSessionSource,
                 xboxBuilder.MicrosoftOAuth.SessionSource);
@@ -176,7 +176,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
             expected!.Set(mock);
             var cached = expected.Get();
 
-            Assert.AreEqual(mock, cached);
+            Assert.That(cached, Is.EqualTo(mock));
         }
     }
 }

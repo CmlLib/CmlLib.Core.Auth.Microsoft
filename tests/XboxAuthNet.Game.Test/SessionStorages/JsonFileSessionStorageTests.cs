@@ -5,6 +5,7 @@ using System.Diagnostics;
 using NUnit;
 using NUnit.Framework;
 using XboxAuthNet.Game.SessionStorages;
+using System.Collections.Generic;
 
 namespace XboxAuthNet.Game.Test
 {
@@ -30,13 +31,6 @@ namespace XboxAuthNet.Game.Test
         }
 
         [Test]
-        public void TestEmpty()
-        {
-            var result = sessionStorage!.Get<string>("empty");
-            Assert.IsNull(result);
-        }
-
-        [Test]
         [TestCase(1)]
         [TestCase(int.MaxValue)]
         [TestCase(int.MinValue)]
@@ -53,8 +47,10 @@ namespace XboxAuthNet.Game.Test
         public void TestNonExistsKey()
         {
             Assert.NotNull(sessionStorage);
-            var returnValue = sessionStorage!.Get<object>("qwerqwerqwerqwer");
-            Assert.Null(returnValue);
+            Assert.Throws<KeyNotFoundException>(() =>
+            {
+                sessionStorage!.Get<object>("qwerqwerqwerqwer");
+            });
         }
 
         [Test]

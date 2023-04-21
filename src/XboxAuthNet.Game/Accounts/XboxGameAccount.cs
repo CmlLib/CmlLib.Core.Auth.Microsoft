@@ -21,7 +21,7 @@ public class XboxGameAccount
 
     private DateTime getLastAccess()
     {
-        var lastAccess = SessionStorage.Get<string>("lastAccess");
+        var lastAccess = SessionStorage.GetOrDefault<string>("lastAccess", DateTime.MinValue.ToString());
         if (DateTime.TryParse(lastAccess, out var parsedLastAccess))
             return parsedLastAccess;
         else

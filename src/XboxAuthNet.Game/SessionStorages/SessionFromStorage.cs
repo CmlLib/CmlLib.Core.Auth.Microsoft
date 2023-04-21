@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-
 namespace XboxAuthNet.Game.SessionStorages
 {
     public class SessionFromStorage<T> : ISessionSource<T>
@@ -11,12 +9,12 @@ namespace XboxAuthNet.Game.SessionStorages
             (_keyName, _sessionStorage) = (keyName, sessionStorage);
 
         public T? Get() =>
-            _sessionStorage.Get<T>(_keyName);
+            _sessionStorage.GetOrDefault<T?>(_keyName, default);
 
         public void Set(T? obj) =>
             _sessionStorage.Set(_keyName, obj);
 
         public void Clear() =>
-            Set(default(T?));
+            Set(default);
     }
 }

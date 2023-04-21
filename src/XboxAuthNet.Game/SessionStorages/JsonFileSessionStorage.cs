@@ -1,4 +1,8 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics.SymbolStore;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -9,8 +13,8 @@ namespace XboxAuthNet.Game.SessionStorages
         private readonly string _filePath;
         private readonly JsonSerializerOptions _jsonOptions;
 
-        private JsonObject? _object;
         private JsonSessionStorage? _innerStorage;
+        public IEnumerable<string> Keys => _innerStorage?.Keys ?? Enumerable.Empty<string>();
 
         public JsonFileSessionStorage(string filePath) : this(filePath, JsonSerializerOptions.Default) {}
 
@@ -25,10 +29,36 @@ namespace XboxAuthNet.Game.SessionStorages
             return getStorage().Get<T>(key);
         }
 
-        public void Set<T>(string key, T? obj)
+        public T? GetOrDefault<T>(string key, T? defaultValue)
+        {
+            if (TryGetValue<T>(key, out var value))
+                return value;
+            else
+                return defaultValue;
+        }
+
+        public bool TryGetValue<T>(string key, out T? value)
+            => getStorage().TryGetValue(key, out value);
+
+        public void Set<T>(string key, T obj)
         {
             getStorage().Set<T>(key, obj);
             saveStorage();
+        }
+
+        public bool ContainsKey<T>(string key)
+        {
+            return getStorage().ContainsKey<T>(key);
+        }
+
+        public bool ContainsKey(string key)
+        {
+            return getStorage().ContainsKey(key);
+        }
+
+        public bool Remove(string key)
+        {
+            return getStorage().Remove(key);
         }
 
         public void Clear()
@@ -46,7 +76,7 @@ namespace XboxAuthNet.Game.SessionStorages
 
         private void loadJson()
         {
-            _object = null;
+            JsonObject? jsonObject = null;
             _innerStorage = null;
 
             if (File.Exists(_filePath))
@@ -54,32 +84,30 @@ namespace XboxAuthNet.Game.SessionStorages
                 try
                 {
                     using var fs = File.OpenRead(_filePath);
-                    _object = JsonNode.Parse(fs) as JsonObject;
+                    jsonObject = JsonNode.Parse(fs) as JsonObject;
                 }
                 catch (JsonException) // reset storage if json file is corrupted
                 {
-                    _object = new JsonObject();
+                    jsonObject = new JsonObject();
                 }
             }
 
-            if (_object == null)
-                _object = new JsonObject();
+            if (jsonObject == null)
+                jsonObject = new JsonObject();
 
-            _innerStorage = new JsonSessionStorage(_object, _jsonOptions);
+            _innerStorage = new JsonSessionStorage(jsonObject, _jsonOptions);
         }
 
         private void saveStorage()
         {
-            if (_object == null)
-                return;
-
             var dirPath = Path.GetDirectoryName(_filePath);
             if (!string.IsNullOrEmpty(dirPath))
                 Directory.CreateDirectory(dirPath);
 
+            var json = getStorage().ToJsonObject();
             using var fs = File.Create(_filePath);
             using var jsonWriter = new Utf8JsonWriter(fs);
-            _object.WriteTo(jsonWriter, _jsonOptions);
+            json.WriteTo(jsonWriter, _jsonOptions);
         }
     }
 }

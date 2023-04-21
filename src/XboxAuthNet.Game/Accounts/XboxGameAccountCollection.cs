@@ -28,11 +28,6 @@ public class XboxGameAccountCollection<T> : ICollection<T>
             .OrderByDescending(account => account.LastAccess);
     }
 
-    public T GetAccount()
-    {
-        return GetAccounts().First();
-    }
-
     public T GetAccount(string identifier)
     {
         var account = getAccount(identifier);

@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Collections.Generic;
 using XboxAuthNet.Game.SessionStorages;
+using System.Linq;
 
 namespace XboxAuthNet.Game.Accounts;
 
@@ -19,7 +20,7 @@ public class XboxGameAccountManager<T> where T : XboxGameAccount
         JsonSerializerOptions? jsonOptions = default)
     {
         this._filePath = filePath;
-        this._converter = ;
+        this._converter = converter;
         this._jsonOptions = jsonOptions;
         Accounts = new();
     }
@@ -44,6 +45,8 @@ public class XboxGameAccountManager<T> where T : XboxGameAccount
 
     private JsonNode? readAsJson()
     {
+        if (!File.Exists(_filePath))
+            return null;
         using var fs = File.OpenRead(_filePath);
         return JsonNode.Parse(fs);
     }
@@ -65,6 +68,15 @@ public class XboxGameAccountManager<T> where T : XboxGameAccount
             if (!string.IsNullOrEmpty(account.Identifier))
                 yield return account;
         }
+    }
+
+    public T GetDefaultAccount()
+    {
+        var first = Accounts.FirstOrDefault();
+        if (first != null)
+            return first;
+        else
+            return NewAccount();
     }
 
     public T NewAccount()
@@ -99,7 +111,7 @@ public class XboxGameAccountManager<T> where T : XboxGameAccount
             if (jsonSessionStorage == null)
                 continue;
 
-            rootObject.Add(identifier, jsonSessionStorage.JsonObject);
+            rootObject.Add(identifier, jsonSessionStorage.ToJsonObject());
         }
         return rootObject;
     }
