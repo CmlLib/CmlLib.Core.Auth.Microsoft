@@ -1,5 +1,6 @@
 using System;
 using CmlLib.Core.Auth.Microsoft.JE;
+using XboxAuthNet.Game.Accounts;
 using XboxAuthNet.Game.Builders;
 using XboxAuthNet.Game.SignoutStrategy;
 using XboxAuthNet.OAuth;
@@ -20,6 +21,9 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
 
         public JESignoutBuilder AddMicrosoftOAuthSignout(Func<MicrosoftOAuthCodeFlowBuilder, MicrosoftOAuthCodeFlowBuilder> builderInvoker) =>
             this.AddMicrosoftOAuthSignout(JELoginHandler.DefaultMicrosoftOAuthClientInfo, builderInvoker);
+
+        public JESignoutBuilder WithAccountManager(XboxGameAccountManager<JEGameAccount> accountManager) =>
+            this.WithDefaultAccount(accountManager);
 
         public JESignoutBuilder AddGameSessionClearing()
         {

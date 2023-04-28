@@ -1,5 +1,6 @@
 using System;
 using XboxAuthNet.Game;
+using XboxAuthNet.Game.Accounts;
 using XboxAuthNet.Game.Builders;
 using XboxAuthNet.Game.XboxGame;
 
@@ -12,12 +13,13 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
             WithMicrosoftOAuth(builder => {}); // use default settings
         }
 
-        public JEInteractiveAuthenticationBuilder WithMicrosoftOAuth(Action<MicrosoftXboxBuilder> builderInvoker)
-            => this.WithInteractiveMicrosoftOAuth(JELoginHandler.DefaultMicrosoftOAuthClientInfo, builderInvoker);
+        public JEInteractiveAuthenticationBuilder WithMicrosoftOAuth(Action<MicrosoftXboxBuilder> builderInvoker) =>
+            this.WithInteractiveMicrosoftOAuth(JELoginHandler.DefaultMicrosoftOAuthClientInfo, builderInvoker);
 
-        protected override IXboxGameAuthenticator BuildAuthenticator()
-        {
-            return CreateDefaultGameAuthenticator();
-        }
+        public JEInteractiveAuthenticationBuilder WithAccountManager(XboxGameAccountManager<JEGameAccount> accountManager) =>
+            this.WithNewAccount(accountManager);
+
+        protected override IXboxGameAuthenticator BuildAuthenticator() =>
+            CreateDefaultGameAuthenticator();
     }
 }

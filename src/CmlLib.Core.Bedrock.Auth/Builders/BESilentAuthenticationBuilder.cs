@@ -15,12 +15,12 @@ namespace CmlLib.Core.Bedrock.Auth
             => this.WithSilentMicrosoftOAuth(BELoginHandler.DefaultMicrosoftOAuthClientInfo, builderInvoker);
 
         protected override IXboxGameAuthenticator BuildAuthenticator()
-            => (IXboxGameAuthenticator)new BEAuthenticator(HttpClient);
+            => new BEAuthenticator(HttpClient);
 
         public new async Task<BESession> ExecuteAsync()
         {
             var session = await ExecuteAsync();
-            return (BESession)session;
+            return session;
         }
     }
 }

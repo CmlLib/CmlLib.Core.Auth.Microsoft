@@ -6,6 +6,7 @@ using XboxAuthNet.Game;
 using XboxAuthNet.Game.Accounts;
 using XboxAuthNet.Game.Builders;
 using XboxAuthNet.Game.SessionStorages;
+using System.Linq;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
@@ -18,12 +19,19 @@ namespace CmlLib.Core.Auth.Microsoft
         };
 
         private readonly HttpClient _httpClient;
-        public ISessionStorage SessionStorage { get; set; }
+        private readonly XboxGameAccountManager<JEGameAccount> _accountManager;
 
         public JELoginHandler(
             HttpClient httpClient, 
-            ISessionStorage sessionStorage) =>
-            (_httpClient, SessionStorage) = (httpClient, sessionStorage);
+            XboxGameAccountManager<JEGameAccount> accountManager) =>
+            (_httpClient, _accountManager) = (httpClient, accountManager);
+
+        public XboxGameAccountCollection<JEGameAccount> GetAccounts()
+        {
+            if (!_accountManager.Accounts.Any())
+                _accountManager.Load();
+            return _accountManager.Accounts;
+        }
 
         public async Task<MSession> Authenticate()
         {
@@ -44,14 +52,14 @@ namespace CmlLib.Core.Auth.Microsoft
         {
             return new JEInteractiveAuthenticationBuilder()
                 .WithHttpClient(_httpClient)
-                .WithSessionStorage(SessionStorage);
+                .WithAccountManager(_accountManager);
         }
 
         public JESilentAuthenticationBuilder AuthenticateSilently()
         {
             return new JESilentAuthenticationBuilder()
                 .WithHttpClient(_httpClient)
-                .WithSessionStorage(SessionStorage);
+                .WithAccountManager(_accountManager);
         }
 
         public Task Signout()
@@ -64,7 +72,7 @@ namespace CmlLib.Core.Auth.Microsoft
         {
             return new JESignoutBuilder()
                 .WithHttpClient(_httpClient)
-                .WithSessionStorage(SessionStorage);
+                .WithJEAccountManager(_accountManager);
         }
     }
 }

@@ -3,6 +3,8 @@ using XboxAuthNet.Game.SignoutStrategy;
 using XboxAuthNet.Game.OAuthStrategies;
 using XboxAuthNet.OAuth;
 using XboxAuthNet.OAuth.Models;
+using XboxAuthNet.Game.Accounts;
+using System.Reflection.Emit;
 
 namespace XboxAuthNet.Game.Builders
 {
@@ -81,6 +83,26 @@ namespace XboxAuthNet.Game.Builders
             var codeFlow = builder.Build();
 
             return self.AddSignoutStrategy(new MicrosoftOAuthBrowserSignoutStrategy(codeFlow));
+        }
+
+        public static TBuilder WithDefaultAccount<TBuilder, TAccount>(
+            this XboxGameAuthenticationBuilder<TBuilder> self,
+            XboxGameAccountManager<TAccount> accountManager)
+            where TBuilder : XboxGameAuthenticationBuilder<TBuilder>
+            where TAccount : XboxGameAccount
+        {
+            var defaultAccount = accountManager.GetDefaultAccount();
+            return self.WithSessionStorage(defaultAccount.SessionStorage);
+        }
+
+        public static TBuilder WithNewAccount<TBuilder, TAccount>(
+            this XboxGameAuthenticationBuilder<TBuilder> self,
+            XboxGameAccountManager<TAccount> accountManager)
+            where TBuilder : XboxGameAuthenticationBuilder<TBuilder>
+            where TAccount : XboxGameAccount
+        {
+            var newAccount = accountManager.NewAccount();
+            return self.WithSessionStorage(newAccount.SessionStorage);
         }
     }
 }

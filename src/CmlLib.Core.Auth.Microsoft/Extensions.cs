@@ -1,5 +1,6 @@
 using System.IO;
 using XboxAuthNet.Game;
+using XboxAuthNet.Game.Accounts;
 using XboxAuthNet.Game.SessionStorages;
 
 namespace CmlLib.Core.Auth.Microsoft
@@ -10,8 +11,9 @@ namespace CmlLib.Core.Auth.Microsoft
 
         public static JELoginHandler ForJavaEdition(this LoginHandlerBuilder self)
         {
-            var sessionStorage = self.SessionStorage ?? new JsonFileSessionStorage(DefaultSessionStoragePath);
-            return new JELoginHandler(self.HttpClient, sessionStorage);
+            //var sessionStorage = self.SessionStorage ?? new JsonFileSessionStorage(DefaultSessionStoragePath);
+            var accountManager = new XboxGameAccountManager<JEGameAccount>("test.json", JEGameAccount.FromSessionStorage);
+            return new JELoginHandler(self.HttpClient, accountManager);
         }
     }
 }
