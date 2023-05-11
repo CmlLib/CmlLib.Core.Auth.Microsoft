@@ -22,7 +22,7 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
         public JESignoutBuilder AddMicrosoftOAuthSignout(Func<MicrosoftOAuthCodeFlowBuilder, MicrosoftOAuthCodeFlowBuilder> builderInvoker) =>
             this.AddMicrosoftOAuthSignout(JELoginHandler.DefaultMicrosoftOAuthClientInfo, builderInvoker);
 
-        public JESignoutBuilder WithAccountManager(XboxGameAccountManager<JEGameAccount> accountManager) =>
+        public JESignoutBuilder WithAccountManager(IXboxGameAccountManager accountManager) =>
             this.WithDefaultAccount(accountManager);
 
         public JESignoutBuilder AddGameSessionClearing()

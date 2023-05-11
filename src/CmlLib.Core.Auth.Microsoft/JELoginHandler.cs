@@ -5,12 +5,10 @@ using XboxAuthNet.XboxLive;
 using XboxAuthNet.Game;
 using XboxAuthNet.Game.Accounts;
 using XboxAuthNet.Game.Builders;
-using XboxAuthNet.Game.SessionStorages;
-using System.Linq;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
-    public class JELoginHandler
+    public class JELoginHandler : XboxGameLoginHandler
     {
         public static MicrosoftOAuthClientInfo DefaultMicrosoftOAuthClientInfo = new MicrosoftOAuthClientInfo
         {
@@ -18,19 +16,12 @@ namespace CmlLib.Core.Auth.Microsoft
             Scopes = XboxAuthConstants.XboxScope
         };
 
-        private readonly HttpClient _httpClient;
-        private readonly XboxGameAccountManager<JEGameAccount> _accountManager;
-
         public JELoginHandler(
             HttpClient httpClient, 
-            XboxGameAccountManager<JEGameAccount> accountManager) =>
-            (_httpClient, _accountManager) = (httpClient, accountManager);
-
-        public XboxGameAccountCollection<JEGameAccount> GetAccounts()
+            IXboxGameAccountManager accountManager) :
+            base(httpClient, accountManager)
         {
-            if (!_accountManager.Accounts.Any())
-                _accountManager.Load();
-            return _accountManager.Accounts;
+
         }
 
         public async Task<MSession> Authenticate()
@@ -51,15 +42,15 @@ namespace CmlLib.Core.Auth.Microsoft
         public JEInteractiveAuthenticationBuilder AuthenticateInteractively()
         {
             return new JEInteractiveAuthenticationBuilder()
-                .WithHttpClient(_httpClient)
-                .WithAccountManager(_accountManager);
+                .WithHttpClient(HttpClient)
+                .WithAccountManager(AccountManager);
         }
 
         public JESilentAuthenticationBuilder AuthenticateSilently()
         {
             return new JESilentAuthenticationBuilder()
-                .WithHttpClient(_httpClient)
-                .WithAccountManager(_accountManager);
+                .WithHttpClient(HttpClient)
+                .WithAccountManager(AccountManager);
         }
 
         public Task Signout()
@@ -71,8 +62,8 @@ namespace CmlLib.Core.Auth.Microsoft
         public JESignoutBuilder CreateSignout()
         {
             return new JESignoutBuilder()
-                .WithHttpClient(_httpClient)
-                .WithJEAccountManager(_accountManager);
+                .WithHttpClient(HttpClient)
+                .WithAccountManager(AccountManager);
         }
     }
 }

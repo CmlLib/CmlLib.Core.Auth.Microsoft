@@ -1,10 +1,16 @@
 using System;
 using XboxAuthNet.Game.SessionStorages;
+using XboxAuthNet.Game.XboxAuthStrategies;
 
 namespace XboxAuthNet.Game.Accounts;
 
-public class XboxGameAccount
+public class XboxGameAccount : IXboxGameAccount
 {
+    public static XboxGameAccount FromSessionStorage(ISessionStorage sessionStorage)
+    {
+        return new XboxGameAccount(sessionStorage);
+    }
+
     public XboxGameAccount(ISessionStorage sessionStorage)
     {
         this.SessionStorage = sessionStorage;
@@ -16,7 +22,10 @@ public class XboxGameAccount
 
     protected virtual string? GetIdentifier()
     {
-        return SessionStorage.GetHashCode().ToString();
+        var xboxSessionSource = new XboxSessionSource(SessionStorage);
+        var xboxSession = xboxSessionSource.Get();
+        var uhs = xboxSession?.XstsToken?.UserHash;
+        return uhs;
     }
 
     private DateTime getLastAccess()

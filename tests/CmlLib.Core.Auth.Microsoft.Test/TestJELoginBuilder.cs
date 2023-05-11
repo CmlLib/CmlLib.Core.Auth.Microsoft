@@ -18,10 +18,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
         [SetUp]
         public void Setup()
         {
-            var sessionStorage = new InMemorySessionStorage();
-            loginHandler = LoginHandlerBuilder.Create()
-                .WithSessionStorage(sessionStorage)
-                .ForJavaEdition();
+            loginHandler = JELoginHandlerBuilder.BuildDefault();
         }
 
         [Test]

@@ -8,7 +8,7 @@ using System.Reflection.Emit;
 
 namespace XboxAuthNet.Game.Builders
 {
-    public static class Extensions
+    public static class BuilderExtensions
     {
         public static T WithInteractiveMicrosoftOAuth<T>(
             this XboxGameAuthenticationBuilder<T> self,
@@ -83,26 +83,6 @@ namespace XboxAuthNet.Game.Builders
             var codeFlow = builder.Build();
 
             return self.AddSignoutStrategy(new MicrosoftOAuthBrowserSignoutStrategy(codeFlow));
-        }
-
-        public static TBuilder WithDefaultAccount<TBuilder, TAccount>(
-            this XboxGameAuthenticationBuilder<TBuilder> self,
-            XboxGameAccountManager<TAccount> accountManager)
-            where TBuilder : XboxGameAuthenticationBuilder<TBuilder>
-            where TAccount : XboxGameAccount
-        {
-            var defaultAccount = accountManager.GetDefaultAccount();
-            return self.WithSessionStorage(defaultAccount.SessionStorage);
-        }
-
-        public static TBuilder WithNewAccount<TBuilder, TAccount>(
-            this XboxGameAuthenticationBuilder<TBuilder> self,
-            XboxGameAccountManager<TAccount> accountManager)
-            where TBuilder : XboxGameAuthenticationBuilder<TBuilder>
-            where TAccount : XboxGameAccount
-        {
-            var newAccount = accountManager.NewAccount();
-            return self.WithSessionStorage(newAccount.SessionStorage);
         }
     }
 }

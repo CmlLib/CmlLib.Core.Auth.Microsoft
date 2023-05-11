@@ -16,8 +16,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
 
         public async Task<MSession> Silently()
         {
-            var loginHandler = LoginHandlerBuilder.Create()
-                .ForJavaEdition();
+            var loginHandler = JELoginHandlerBuilder.BuildDefault();
 
             var session = await loginHandler.AuthenticateSilently()
                 .WithMsalOAuth(builder => builder
@@ -28,8 +27,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
 
         public async Task<MSession> Interactively()
         {
-            var loginHandler = LoginHandlerBuilder.Create()
-                .ForJavaEdition();
+            var loginHandler = JELoginHandlerBuilder.BuildDefault();
 
             var session = await loginHandler.AuthenticateInteractively()
                 .WithMsalOAuth(builder => builder
@@ -40,8 +38,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
 
         public async Task<MSession> DeviceCode()
         {
-            var loginHandler = LoginHandlerBuilder.Create()
-                .ForJavaEdition();
+            var loginHandler = JELoginHandlerBuilder.BuildDefault();
 
             var session = await loginHandler.AuthenticateInteractively()
                 .WithMsalOAuth(builder => builder

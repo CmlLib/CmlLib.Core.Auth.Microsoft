@@ -16,7 +16,7 @@ namespace CmlLib.Core.Auth.Microsoft.Builders
         public JESilentAuthenticationBuilder WithMicrosoftOAuth(Action<MicrosoftXboxBuilder> builderInvoker) =>
             this.WithSilentMicrosoftOAuth(JELoginHandler.DefaultMicrosoftOAuthClientInfo, builderInvoker);
 
-        public JESilentAuthenticationBuilder WithAccountManager(XboxGameAccountManager<JEGameAccount> accountManager) =>
+        public JESilentAuthenticationBuilder WithAccountManager(IXboxGameAccountManager accountManager) =>
             this.WithDefaultAccount(accountManager);
 
         protected override IXboxGameAuthenticator BuildAuthenticator()

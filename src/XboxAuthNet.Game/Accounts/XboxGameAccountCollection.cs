@@ -6,15 +6,14 @@ using XboxAuthNet.Game.SessionStorages;
 
 namespace XboxAuthNet.Game.Accounts;
 
-public class XboxGameAccountCollection<T> : ICollection<T> 
-    where T : XboxGameAccount
+public class XboxGameAccountCollection : ICollection<IXboxGameAccount> 
 {
-    private readonly List<T> _accounts = new();
+    private readonly List<IXboxGameAccount> _accounts = new();
 
     public int Count => _accounts.Count;
     public bool IsReadOnly => false;
 
-    public IEnumerable<T> GetAccounts()
+    public IEnumerable<IXboxGameAccount> GetAccounts()
     {
         // 1) Ignore accounts which has empty Identifier
         // 2) Remove duplicated accounts which has same Identifier
@@ -24,11 +23,11 @@ public class XboxGameAccountCollection<T> : ICollection<T>
         return _accounts
             .Where(account => !string.IsNullOrEmpty(account.Identifier))
             .GroupBy(account => account.Identifier)
-            .Select(group => group.OrderByDescending(account => account.LastAccess).First())
-            .OrderByDescending(account => account.LastAccess);
+            .Select(group => group.OrderByDescending(_ => _).First())
+            .OrderByDescending(_ => _);
     }
 
-    public T GetAccount(string identifier)
+    public IXboxGameAccount GetAccount(string identifier)
     {
         var account = getAccount(identifier);
         if (account == null)
@@ -36,26 +35,26 @@ public class XboxGameAccountCollection<T> : ICollection<T>
         return account;
     }
 
-    public bool TryGetAccount(string identifier, out XboxGameAccount account)
+    public bool TryGetAccount(string identifier, out IXboxGameAccount account)
     {
         account = getAccount(identifier)!;
         return account != null;
     }
 
-    private T? getAccount(string identifier)
+    private IXboxGameAccount? getAccount(string identifier)
     {
         return _accounts
             .Where(account => account.Identifier == identifier)
-            .OrderByDescending(account => account.LastAccess)
+            .OrderByDescending(_ => _)
             .FirstOrDefault();
     }
 
-    public void Add(T account)
+    public void Add(IXboxGameAccount account)
     {
         _accounts.Add(account);
     }
 
-    public bool Remove(T account)
+    public bool Remove(IXboxGameAccount account)
     {
         return _accounts.Remove(account);
     }
@@ -75,12 +74,12 @@ public class XboxGameAccountCollection<T> : ICollection<T>
         _accounts.Clear();
     }
 
-    public bool Contains(T toFind)
+    public bool Contains(IXboxGameAccount toFind)
     {
         return _accounts.Exists(account => account.Equals(toFind));
     }
 
-    public void CopyTo(T[] array, int startIndex)
+    public void CopyTo(IXboxGameAccount[] array, int startIndex)
     {
         if (array == null)
             throw new ArgumentNullException(nameof(array));
@@ -99,7 +98,7 @@ public class XboxGameAccountCollection<T> : ICollection<T>
         return GetAccounts().Select(account => account.SessionStorage);
     }
 
-    public IEnumerator<T> GetEnumerator()
+    public IEnumerator<IXboxGameAccount> GetEnumerator()
     {
         return GetAccounts().GetEnumerator();
     }

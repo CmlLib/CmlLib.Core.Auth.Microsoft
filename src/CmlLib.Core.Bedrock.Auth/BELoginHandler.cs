@@ -1,25 +1,25 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using XboxAuthNet.Game;
+using XboxAuthNet.Game.Accounts;
 using XboxAuthNet.Game.Builders;
-using XboxAuthNet.Game.SessionStorages;
 
 namespace CmlLib.Core.Bedrock.Auth
 {
-    public class BELoginHandler
+    public class BELoginHandler : XboxGameLoginHandler
     {
         public static MicrosoftOAuthClientInfo DefaultMicrosoftOAuthClientInfo = new MicrosoftOAuthClientInfo
         {
             
         };
 
-        private readonly HttpClient _httpClient;
-        public ISessionStorage SessionStorage { get; set; }
-
         public BELoginHandler(
             HttpClient httpClient, 
-            ISessionStorage sessionStorage) =>
-        (_httpClient, SessionStorage) = (httpClient, sessionStorage);
+            IXboxGameAccountManager accountManager) : 
+            base(httpClient, accountManager)
+        {
+
+        }
 
         public async Task<BESession> Authenticate()
         {
@@ -40,15 +40,15 @@ namespace CmlLib.Core.Bedrock.Auth
         public BEInteractiveAuthenticationBuilder AuthenticateInteractively()
         {
             return new BEInteractiveAuthenticationBuilder()
-                .WithHttpClient(_httpClient)
-                .WithSessionStorage(SessionStorage);
+                .WithHttpClient(HttpClient)
+                .WithAccountManager(AccountManager);
         }
 
         public BESilentAuthenticationBuilder AuthenticateSilently()
         {
             return new BESilentAuthenticationBuilder()
-                .WithHttpClient(_httpClient)
-                .WithSessionStorage(SessionStorage);
+                .WithHttpClient(HttpClient)
+                .WithAccountManager(AccountManager);
         }
     }
 }

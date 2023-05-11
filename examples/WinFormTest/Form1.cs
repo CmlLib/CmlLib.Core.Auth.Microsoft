@@ -21,7 +21,7 @@ namespace WinFormTest
 
         public Form1()
         {
-            _loginHandler = LoginHandlerBuilder.Create().ForJavaEdition();
+            _loginHandler = JELoginHandlerBuilder.BuildDefault();
             InitializeComponent();
         }
 

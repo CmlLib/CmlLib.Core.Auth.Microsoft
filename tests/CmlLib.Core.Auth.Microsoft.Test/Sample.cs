@@ -9,18 +9,14 @@ namespace CmlLib.Core.Auth.Microsoft.Test
     {
         public static async Task<MSession> Simplest()
         {
-            var loginHandler = LoginHandlerBuilder.Create()
-                .ForJavaEdition();
-
+            var loginHandler = JELoginHandlerBuilder.BuildDefault();
             var session = await loginHandler.Authenticate();
             return session;
         }
 
         public static async Task<MSession> Interactively()
         {
-            var loginHandler = LoginHandlerBuilder.Create()
-                .ForJavaEdition();
-
+            var loginHandler = JELoginHandlerBuilder.BuildDefault();
             var session = await loginHandler.AuthenticateInteractively()
                 .ExecuteForLauncherAsync();
 
@@ -29,9 +25,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
 
         public static async Task<MSession> Silently()
         {
-            var loginHandler = LoginHandlerBuilder.Create()
-                .ForJavaEdition();
-            
+            var loginHandler = JELoginHandlerBuilder.BuildDefault();
             var session = await loginHandler.AuthenticateSilently()
                 .ExecuteForLauncherAsync();
 
@@ -40,8 +34,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
 
         public static async Task<MSession> InteractivelyWithOptionsNew()
         {
-            var loginHandler = LoginHandlerBuilder.Create()
-                .ForJavaEdition();
+            var loginHandler = JELoginHandlerBuilder.BuildDefault();
 
             var sessionStorage = new InMemorySessionStorage();
 
@@ -60,17 +53,13 @@ namespace CmlLib.Core.Auth.Microsoft.Test
 
         public static async Task Signout()
         {
-            var loginHandler = LoginHandlerBuilder.Create()
-                .ForJavaEdition();
-
+            var loginHandler = JELoginHandlerBuilder.BuildDefault();
             await loginHandler.Signout();
         }
 
         public static async Task Signout2()
         {
-            var loginHandler = LoginHandlerBuilder.Create()
-                .ForJavaEdition();
-
+            var loginHandler = JELoginHandlerBuilder.BuildDefault();
             var sessionStorage = new InMemorySessionStorage();
 
             await loginHandler.CreateSignout()

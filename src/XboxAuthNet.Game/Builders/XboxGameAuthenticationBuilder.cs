@@ -8,7 +8,8 @@ using XboxAuthNet.Game.Executors;
 
 namespace XboxAuthNet.Game.Builders
 {
-    public abstract class XboxGameAuthenticationBuilder<T>
+    public abstract class XboxGameAuthenticationBuilder<T> : 
+        IBuilderWithSessionStorage<T>
         where T : XboxGameAuthenticationBuilder<T>
     {
         protected Func<T, IXboxAuthStrategy>? XboxAuthStrategyFactory;

@@ -8,7 +8,9 @@ using XboxAuthNet.Game.XboxAuthStrategies;
 
 namespace XboxAuthNet.Game.Builders
 {
-    public class XboxGameSignoutBuilder<T> where T : XboxGameSignoutBuilder<T>
+    public class XboxGameSignoutBuilder<T> :
+        IBuilderWithSessionStorage<T>
+        where T : XboxGameSignoutBuilder<T>
     {
         private List<ISignoutStrategy> _strategies = new List<ISignoutStrategy>();
 

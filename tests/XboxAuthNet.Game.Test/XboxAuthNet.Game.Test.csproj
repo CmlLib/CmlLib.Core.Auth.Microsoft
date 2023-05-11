@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TestSdk>true</TestSdk>
 
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
   </PropertyGroup>

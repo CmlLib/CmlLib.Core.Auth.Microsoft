@@ -23,7 +23,7 @@ namespace WinFormTest
 
         private void initializeLoginHandler()
         {
-            loginHandler = LoginHandlerBuilder.Create().ForJavaEdition();
+            loginHandler = JELoginHandlerBuilder.BuildDefault();
         }
 
         private void listAccounts()
@@ -36,7 +36,8 @@ namespace WinFormTest
             {
                 if (string.IsNullOrEmpty(account.Identifier))
                     continue;
-                lbAccounts.Items.Add(new JEGameAccountProperties(account));
+                if (account is JEGameAccount jeAccount)
+                    lbAccounts.Items.Add(new JEGameAccountProperties(jeAccount));
             }
         }
 
@@ -112,9 +113,11 @@ namespace WinFormTest
 
         private async void btnAddAccount_Click(object sender, EventArgs e)
         {
+            if (loginHandler == null)
+                throw new InvalidOperationException("initialize loginHandler first");
+
             var result = await loginHandler.AuthenticateInteractively()
                 .ExecuteAsync();
-            loginHandler.Save();
             MessageBox.Show(result.Profile?.Username);
             listAccounts();
         }

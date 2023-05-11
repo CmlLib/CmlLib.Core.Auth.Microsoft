@@ -8,15 +8,15 @@ using System.Linq;
 
 namespace XboxAuthNet.Game.Accounts;
 
-public class XboxGameAccountManager<T> where T : XboxGameAccount
+public class JsonXboxGameAccountManager : IXboxGameAccountManager
 {
     private readonly string _filePath;
-    private Func<ISessionStorage, T> _converter;
+    private Func<ISessionStorage, IXboxGameAccount> _converter;
     private readonly JsonSerializerOptions? _jsonOptions;
 
-    public XboxGameAccountManager(
+    public JsonXboxGameAccountManager(
         string filePath,
-        Func<ISessionStorage, T> converter,
+        Func<ISessionStorage, IXboxGameAccount> converter,
         JsonSerializerOptions? jsonOptions = default)
     {
         this._filePath = filePath;
@@ -25,7 +25,7 @@ public class XboxGameAccountManager<T> where T : XboxGameAccount
         Accounts = new();
     }
 
-    public XboxGameAccountCollection<T> Accounts { get; private set; }
+    public XboxGameAccountCollection Accounts { get; private set; }
 
     public void Load()
     {
@@ -51,7 +51,7 @@ public class XboxGameAccountManager<T> where T : XboxGameAccount
         return JsonNode.Parse(fs);
     }
 
-    private IEnumerable<T> parseAccounts(JsonNode? node)
+    private IEnumerable<IXboxGameAccount> parseAccounts(JsonNode? node)
     {
         var rootObject = node as JsonObject;
         if (rootObject == null)
@@ -70,7 +70,7 @@ public class XboxGameAccountManager<T> where T : XboxGameAccount
         }
     }
 
-    public T GetDefaultAccount()
+    public IXboxGameAccount GetDefaultAccount()
     {
         var first = Accounts.FirstOrDefault();
         if (first != null)
@@ -79,7 +79,7 @@ public class XboxGameAccountManager<T> where T : XboxGameAccount
             return NewAccount();
     }
 
-    public T NewAccount()
+    public IXboxGameAccount NewAccount()
     {
         var sessionStorage = JsonSessionStorage.CreateEmpty(_jsonOptions);
         var account = convertSessionStorageToAccount(sessionStorage);
@@ -116,7 +116,7 @@ public class XboxGameAccountManager<T> where T : XboxGameAccount
         return rootObject;
     }
 
-    private T convertSessionStorageToAccount(ISessionStorage sessionStorage)
+    private IXboxGameAccount convertSessionStorageToAccount(ISessionStorage sessionStorage)
     {
         return _converter.Invoke(sessionStorage);
     }
