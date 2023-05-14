@@ -37,6 +37,15 @@ public class XboxGameAccount : IXboxGameAccount
             return DateTime.MinValue;
     }
 
+    public int CompareTo(object obj)
+    {
+        var account = obj as XboxGameAccount;
+        if (account == null)
+            return 1;
+        
+        return this.LastAccess.CompareTo(account.LastAccess);
+    }
+
     public override bool Equals(object obj)
     {
         if (obj is XboxGameAccount account)

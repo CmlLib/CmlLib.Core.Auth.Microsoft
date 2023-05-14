@@ -6,7 +6,7 @@ namespace CmlLib.Core.Auth.Microsoft
 {
     public class JEGameAccount : XboxGameAccount
     {
-        public static JEGameAccount FromSessionStorage(ISessionStorage sessionStorage)
+        public new static JEGameAccount FromSessionStorage(ISessionStorage sessionStorage)
         {
             return new JEGameAccount(sessionStorage);
         }

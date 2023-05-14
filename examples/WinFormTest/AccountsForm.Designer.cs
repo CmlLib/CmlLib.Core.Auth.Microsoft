@@ -127,7 +127,6 @@
             cbLoginMode.Name = "cbLoginMode";
             cbLoginMode.Size = new Size(184, 23);
             cbLoginMode.TabIndex = 16;
-            cbLoginMode.SelectedIndexChanged += cbLoginMode_SelectedIndexChanged;
             // 
             // label10
             // 
@@ -232,7 +231,6 @@
             cbXboxLoginMode.Name = "cbXboxLoginMode";
             cbXboxLoginMode.Size = new Size(184, 23);
             cbXboxLoginMode.TabIndex = 7;
-            cbXboxLoginMode.SelectedIndexChanged += cbXboxLoginMode_SelectedIndexChanged;
             // 
             // label5
             // 

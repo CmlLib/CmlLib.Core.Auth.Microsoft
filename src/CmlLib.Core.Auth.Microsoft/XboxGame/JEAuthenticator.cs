@@ -8,7 +8,7 @@ using XboxAuthNet.Game.XboxGame;
 
 namespace CmlLib.Core.Auth.Microsoft.XboxGame
 {
-    public class JEAuthenticator : IXboxGameAuthenticator
+    public class JEAuthenticator : IXboxGameAuthenticator<JESession>
     {
         private readonly JEAuthenticationApi _api;
         private readonly ISessionSource<JESession> _sessionSource;
@@ -21,7 +21,7 @@ namespace CmlLib.Core.Auth.Microsoft.XboxGame
             this._sessionSource = sessionSource;
         }
 
-        public async Task<ISession> Authenticate(IXboxAuthStrategy xboxAuthStrategy)
+        public async Task<JESession> Authenticate(IXboxAuthStrategy xboxAuthStrategy)
         {
             var cachedSession = _sessionSource.Get();
             if (cachedSession == null)

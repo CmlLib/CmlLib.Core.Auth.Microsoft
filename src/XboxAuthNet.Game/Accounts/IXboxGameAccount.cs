@@ -1,8 +1,9 @@
+using System;
 using XboxAuthNet.Game.SessionStorages;
 
-namespace XboxAuthNet.Game;
+namespace XboxAuthNet.Game.Accounts;
 
-public interface IXboxGameAccount
+public interface IXboxGameAccount : IComparable
 {
     string? Identifier { get; }
     ISessionStorage SessionStorage { get; }

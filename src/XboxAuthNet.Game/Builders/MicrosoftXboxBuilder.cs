@@ -18,7 +18,7 @@ namespace XboxAuthNet.Game.Builders
         }
 
         public MicrosoftXboxBuilder WithXboxGameAuthenticationBuilder<T>(XboxGameAuthenticationBuilder<T> builder)
-            where T : XboxGameAuthenticationBuilder<T>
+            where T : ISession
         {
             if (builder.HttpClient != null)
                 WithHttpClient(builder.HttpClient);

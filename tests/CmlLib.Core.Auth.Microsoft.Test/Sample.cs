@@ -38,9 +38,11 @@ namespace CmlLib.Core.Auth.Microsoft.Test
 
             var sessionStorage = new InMemorySessionStorage();
 
-            var session = await loginHandler.AuthenticateSilently()
+            var session = await loginHandler.AuthenticateInteractively()
                 .WithSessionStorage(sessionStorage)
-                .WithCaching(true)
+                .WithJEAuthenticator(builder => builder
+                    .WithCaching(true)
+                    .WithSilentAuthenticator())
                 .WithMicrosoftOAuth(builder => builder
                     .MicrosoftOAuth.WithCaching(true)
                     .MicrosoftOAuth.UseInteractiveStrategy()

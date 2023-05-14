@@ -29,7 +29,6 @@ namespace CmlLib.Core.Auth.Microsoft.Test
 
             Assert.NotNull(builder.HttpClient, "Default HttpClient should be not null");
             Assert.NotNull(builder.SessionStorage, "Default SessionStorage should be not null");
-            Assert.IsTrue(builder.UseCaching);
         }
 
         [Test]
@@ -37,7 +36,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
         {
             MicrosoftXboxBuilder? xboxBuilder = null;
             loginHandler.AuthenticateSilently()
-                .WithMicrosoftOAuth(innerBuilder => 
+                .WithSilentMicrosoftOAuth(innerBuilder => 
                 {
                     xboxBuilder = innerBuilder;
                 })
@@ -58,7 +57,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
 
             loginHandler.AuthenticateSilently()
                 .WithSessionStorage(newSessionStorage)
-                .WithMicrosoftOAuth(builder => 
+                .WithSilentMicrosoftOAuth(builder => 
                 {
                     xboxBuilder = builder;
                 })
@@ -75,7 +74,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
             MicrosoftXboxBuilder? xboxBuilder = null;
 
             loginHandler.AuthenticateSilently()
-                .WithMicrosoftOAuth(builder => 
+                .WithSilentMicrosoftOAuth(builder => 
                 {
                     xboxBuilder = builder;
                 })
@@ -107,7 +106,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
 
             loginHandler.AuthenticateSilently()
                 .WithSessionStorage(newSessionStorage)
-                .WithMicrosoftOAuth(builder => 
+                .WithSilentMicrosoftOAuth(builder => 
                 {
                     xboxBuilder = builder;
                     builder.MicrosoftOAuth.WithSessionSource(newOAuthSessionSource);
@@ -134,7 +133,7 @@ namespace CmlLib.Core.Auth.Microsoft.Test
             MicrosoftXboxBuilder? xboxBuilder = null;
 
             loginHandler.AuthenticateSilently()
-                .WithMicrosoftOAuth(builder => 
+                .WithSilentMicrosoftOAuth(builder => 
                 {
                     xboxBuilder = builder;
                     builder.MicrosoftOAuth.WithSessionSource(newOAuthSessionSource);

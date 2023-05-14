@@ -28,4 +28,9 @@ public class InMemoryXboxGameAccountManager : IXboxGameAccountManager
         var account = _converter.Invoke(sessionStorage);
         return account;
     }
+
+    public void SaveAccounts()
+    {
+        // Accounts are already saved in memory!
+    }
 }

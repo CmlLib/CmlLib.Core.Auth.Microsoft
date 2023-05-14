@@ -5,10 +5,10 @@ namespace XboxAuthNet.Game.Msal
 {
     public static class Extensions
     {
-        public static T WithMsalOAuth<T>(
+        public static XboxGameAuthenticationBuilder<T> WithMsalOAuth<T>(
             this XboxGameAuthenticationBuilder<T> self,
             Action<MsalXboxBuilder> builderInvoker)
-            where T : XboxGameAuthenticationBuilder<T>
+            where T : ISession
         {
             return self.WithXboxAuth(self => 
             {

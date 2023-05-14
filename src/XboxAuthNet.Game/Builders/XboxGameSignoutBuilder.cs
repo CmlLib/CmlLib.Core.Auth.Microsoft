@@ -2,14 +2,14 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using XboxAuthNet.Game.Accounts;
 using XboxAuthNet.Game.SessionStorages;
 using XboxAuthNet.Game.SignoutStrategy;
 using XboxAuthNet.Game.XboxAuthStrategies;
 
 namespace XboxAuthNet.Game.Builders
 {
-    public class XboxGameSignoutBuilder<T> :
-        IBuilderWithSessionStorage<T>
+    public class XboxGameSignoutBuilder<T>
         where T : XboxGameSignoutBuilder<T>
     {
         private List<ISignoutStrategy> _strategies = new List<ISignoutStrategy>();
@@ -31,6 +31,19 @@ namespace XboxAuthNet.Game.Builders
         public T WithHttpClient(HttpClient httpClient)
         {
             HttpClient = httpClient;
+            return getThis();
+        }
+
+        public T WithAccount(IXboxGameAccount account)
+        {
+            WithSessionStorage(account.SessionStorage);
+            return getThis();
+        }
+
+        public T AddSavingAccountManager(IXboxGameAccountManager accountManager)
+        {
+            AddSignoutStrategy(
+                new SavingAccountManagerStrategy(accountManager));
             return getThis();
         }
 

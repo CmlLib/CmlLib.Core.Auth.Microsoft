@@ -37,18 +37,20 @@ namespace CmlLib.Core.Bedrock.Auth
             return session;
         }
 
-        public BEInteractiveAuthenticationBuilder AuthenticateInteractively()
+        public XboxGameAuthenticationBuilder<BESession> AuthenticateInteractively()
         {
-            return new BEInteractiveAuthenticationBuilder()
+            return new XboxGameAuthenticationBuilder<BESession>()
+                .WithInteractiveMicrosoftOAuth()
                 .WithHttpClient(HttpClient)
-                .WithAccountManager(AccountManager);
+                .WithNewAccount(AccountManager);
         }
 
-        public BESilentAuthenticationBuilder AuthenticateSilently()
+        public XboxGameAuthenticationBuilder<BESession> AuthenticateSilently()
         {
-            return new BESilentAuthenticationBuilder()
+            return new XboxGameAuthenticationBuilder<BESession>()
+                .WithSilentMicrosoftOAuth()
                 .WithHttpClient(HttpClient)
-                .WithAccountManager(AccountManager);
+                .WithDefaultAccount(AccountManager);
         }
     }
 }

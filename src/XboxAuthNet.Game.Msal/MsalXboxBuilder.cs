@@ -32,7 +32,7 @@ namespace XboxAuthNet.Game.Msal
         }
 
         public MsalXboxBuilder WithXboxGameAuthenticationBuilder<T>(XboxGameAuthenticationBuilder<T> builder)
-            where T : XboxGameAuthenticationBuilder<T>
+            where T : ISession
         {
             if (builder.SessionStorage != null)
                 WithSessionStorage(builder.SessionStorage);

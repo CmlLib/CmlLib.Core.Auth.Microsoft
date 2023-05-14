@@ -26,6 +26,7 @@ namespace CmlLib.Core.Auth.Microsoft
 
         public async Task<MSession> Authenticate()
         {
+            
             JESession session;
             try
             {
@@ -39,18 +40,22 @@ namespace CmlLib.Core.Auth.Microsoft
             return session.ToLauncherSession();
         }
 
-        public JEInteractiveAuthenticationBuilder AuthenticateInteractively()
+        public XboxGameAuthenticationBuilder<JESession> AuthenticateInteractively()
         {
-            return new JEInteractiveAuthenticationBuilder()
-                .WithHttpClient(HttpClient)
-                .WithAccountManager(AccountManager);
+            return new XboxGameAuthenticationBuilder<JESession>()
+                .WithJEAuthenticator(_ => {})
+                .WithInteractiveMicrosoftOAuth()
+                .WithNewAccount(AccountManager)
+                .WithHttpClient(HttpClient);
         }
 
-        public JESilentAuthenticationBuilder AuthenticateSilently()
+        public XboxGameAuthenticationBuilder<JESession> AuthenticateSilently()
         {
-            return new JESilentAuthenticationBuilder()
-                .WithHttpClient(HttpClient)
-                .WithAccountManager(AccountManager);
+            return new XboxGameAuthenticationBuilder<JESession>()
+                .WithJEAuthenticator(builder => builder.WithSilentAuthenticator())
+                .WithSilentMicrosoftOAuth()
+                .WithDefaultAccount(AccountManager)
+                .WithHttpClient(HttpClient);
         }
 
         public Task Signout()
@@ -63,7 +68,8 @@ namespace CmlLib.Core.Auth.Microsoft
         {
             return new JESignoutBuilder()
                 .WithHttpClient(HttpClient)
-                .WithAccountManager(AccountManager);
+                .WithAccount(AccountManager.GetDefaultAccount())
+                .AddSavingAccountManager(AccountManager);
         }
     }
 }

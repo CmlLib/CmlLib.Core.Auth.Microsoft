@@ -5,14 +5,17 @@ using XboxAuthNet.Game.XboxAuthStrategies;
 using XboxAuthNet.Game.SessionStorages;
 using XboxAuthNet.Game.XboxGame;
 using XboxAuthNet.Game.Executors;
+using XboxAuthNet.Game.Accounts;
 
 namespace XboxAuthNet.Game.Builders
 {
-    public abstract class XboxGameAuthenticationBuilder<T> : 
-        IBuilderWithSessionStorage<T>
-        where T : XboxGameAuthenticationBuilder<T>
+    public class XboxGameAuthenticationBuilder<T>
+        where T : ISession
     {
-        protected Func<T, IXboxAuthStrategy>? XboxAuthStrategyFactory;
+        protected Func<XboxGameAuthenticationBuilder<T>, IXboxAuthStrategy>? XboxAuthStrategyFactory;
+        protected Func<XboxGameAuthenticationBuilder<T>, IXboxGameAuthenticator<T>>? GameAuthenticatorFactory;
+
+        public IXboxGameAccountManager? AccountManager { get; set; }
 
         private ISessionStorage? _sessionStorage;
         public ISessionStorage SessionStorage
@@ -28,52 +31,82 @@ namespace XboxAuthNet.Game.Builders
             set => _httpClient = value;
         }
 
-        public T WithXboxAuth(IXboxAuthStrategy xboxAuthStrategy)
+        public XboxGameAuthenticationBuilder<T> WithXboxAuth(IXboxAuthStrategy xboxAuthStrategy)
         {
             this.XboxAuthStrategyFactory = (_ => xboxAuthStrategy);
-            return GetThis();
+            return this;
         }
 
-        public T WithXboxAuth(Func<T, IXboxAuthStrategy> factory)
+        public XboxGameAuthenticationBuilder<T> WithXboxAuth(Func<XboxGameAuthenticationBuilder<T>, IXboxAuthStrategy> factory)
         {
            this.XboxAuthStrategyFactory = factory;
-           return GetThis();
+           return this;
         }
 
-        public T WithSessionStorage(ISessionStorage sessionStorage)
+        public XboxGameAuthenticationBuilder<T> WithGameAuthenticator(IXboxGameAuthenticator<T> authenticator)
+        {
+            this.GameAuthenticatorFactory = (_ => authenticator);
+            return this;
+        }
+
+        public XboxGameAuthenticationBuilder<T> WithGameAuthenticator(Func<XboxGameAuthenticationBuilder<T>, IXboxGameAuthenticator<T>> factory)
+        {
+            this.GameAuthenticatorFactory = factory;
+            return this;
+        }
+
+        public XboxGameAuthenticationBuilder<T> WithAccount(IXboxGameAccount account)
+        {
+            WithSessionStorage(account.SessionStorage);
+            return this;
+        }
+
+        public XboxGameAuthenticationBuilder<T> WithNewAccount(IXboxGameAccountManager accountManager)
+        {
+            this.AccountManager = accountManager;
+            WithAccount(accountManager.NewAccount());
+            return this;
+        }
+
+        public XboxGameAuthenticationBuilder<T> WithDefaultAccount(IXboxGameAccountManager accountManager)
+        {
+            this.AccountManager = accountManager;
+            WithAccount(accountManager.GetDefaultAccount());
+            return this;
+        }
+
+        public XboxGameAuthenticationBuilder<T> WithSessionStorage(ISessionStorage sessionStorage)
         {
             this.SessionStorage = sessionStorage;
-            return GetThis();
+            return this;
         }
 
-        public T WithHttpClient(HttpClient httpClient)
+        public XboxGameAuthenticationBuilder<T> WithHttpClient(HttpClient httpClient)
         {
             this.HttpClient = httpClient;
-            return GetThis();
+            return this;
         }
 
-        protected virtual T GetThis()
-        {
-            return (T)this;
-        }
-
-        protected abstract IXboxGameAuthenticator BuildAuthenticator();
-
-        public virtual IAuthenticationExecutor Build()
+        public virtual IAuthenticationExecutor<T> Build()
         {
             // XboxAuthStrategy
             if (XboxAuthStrategyFactory == null)
                 throw new InvalidOperationException("Set XboxAuthStrategy first");
-            var xboxAuthStrategy = XboxAuthStrategyFactory.Invoke((T)this);
+            var xboxAuthStrategy = XboxAuthStrategyFactory.Invoke(this);
 
             // XboxGameAuthenticator
-            var authenticator = BuildAuthenticator();
+            if (GameAuthenticatorFactory == null)
+                throw new InvalidOperationException("Set GameAuthenticator first");
+            var gameAuthenticator = GameAuthenticatorFactory.Invoke(this);
 
             // Execute
-            return new XboxGameAuthenticationExecutor(xboxAuthStrategy, authenticator);
+            return new XboxGameAuthenticationExecutor<T>(
+                xboxAuthStrategy, 
+                gameAuthenticator, 
+                AccountManager);
         }
 
-        public Task<ISession> ExecuteAsync()
+        public Task<T> ExecuteAsync()
         {
             var executor = Build();
             return executor.ExecuteAsync();

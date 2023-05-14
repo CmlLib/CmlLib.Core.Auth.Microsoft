@@ -2,8 +2,8 @@ using System.Threading.Tasks;
 
 namespace XboxAuthNet.Game.Executors
 {
-    public interface IAuthenticationExecutor
+    public interface IAuthenticationExecutor<T> where T : ISession
     {
-        Task<ISession> ExecuteAsync();
+        Task<T> ExecuteAsync();
     }
 }

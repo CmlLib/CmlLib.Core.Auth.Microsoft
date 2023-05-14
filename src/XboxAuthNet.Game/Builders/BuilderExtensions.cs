@@ -3,18 +3,22 @@ using XboxAuthNet.Game.SignoutStrategy;
 using XboxAuthNet.Game.OAuthStrategies;
 using XboxAuthNet.OAuth;
 using XboxAuthNet.OAuth.Models;
-using XboxAuthNet.Game.Accounts;
-using System.Reflection.Emit;
 
 namespace XboxAuthNet.Game.Builders
 {
     public static class BuilderExtensions
     {
-        public static T WithInteractiveMicrosoftOAuth<T>(
+        public static XboxGameAuthenticationBuilder<T> WithInteractiveMicrosoftOAuth<T>(
+            this XboxGameAuthenticationBuilder<T> self,
+            MicrosoftOAuthClientInfo clientInfo)
+            where T : ISession =>
+            self.WithInteractiveMicrosoftOAuth(clientInfo, _ => {});
+
+        public static XboxGameAuthenticationBuilder<T> WithInteractiveMicrosoftOAuth<T>(
             this XboxGameAuthenticationBuilder<T> self,
             MicrosoftOAuthClientInfo clientInfo,
             Action<MicrosoftXboxBuilder> builderInvoker)
-            where T : XboxGameAuthenticationBuilder<T>
+            where T : ISession
         {
             return self.WithMicrosoftOAuth<T>(clientInfo, builder => 
             {
@@ -24,11 +28,17 @@ namespace XboxAuthNet.Game.Builders
             });
         }
 
-        public static T WithSilentMicrosoftOAuth<T>(
+        public static XboxGameAuthenticationBuilder<T> WithSilentMicrosoftOAuth<T>(
+            this XboxGameAuthenticationBuilder<T> self,
+            MicrosoftOAuthClientInfo clientInfo)
+            where T : ISession =>
+            self.WithSilentMicrosoftOAuth(clientInfo, _ => {});
+
+        public static XboxGameAuthenticationBuilder<T> WithSilentMicrosoftOAuth<T>(
             this XboxGameAuthenticationBuilder<T> self,
             MicrosoftOAuthClientInfo clientInfo,
             Action<MicrosoftXboxBuilder> builderInvoker)
-            where T : XboxGameAuthenticationBuilder<T>
+            where T : ISession
         {
             return self.WithMicrosoftOAuth<T>(clientInfo, builder => 
             {
@@ -38,11 +48,11 @@ namespace XboxAuthNet.Game.Builders
             });
         }
 
-        public static T WithMicrosoftOAuth<T>(
+        public static XboxGameAuthenticationBuilder<T> WithMicrosoftOAuth<T>(
             this XboxGameAuthenticationBuilder<T> self,
             MicrosoftOAuthClientInfo clientInfo,
             Action<MicrosoftXboxBuilder> builderInvoker)
-            where T : XboxGameAuthenticationBuilder<T>
+            where T : ISession
         {
             return self.WithXboxAuth(self => 
             {   
