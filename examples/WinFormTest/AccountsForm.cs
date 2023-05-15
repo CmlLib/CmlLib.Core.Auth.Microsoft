@@ -1,5 +1,6 @@
 ﻿using CmlLib.Core.Auth.Microsoft;
-using CmlLib.Core.Auth.Microsoft.XboxGame;
+using CmlLib.Core.Auth.Microsoft.Sessions;
+using CmlLib.Core.Auth.Microsoft.GameAuthenticators;
 using XboxAuthNet.XboxLive;
 using XboxAuthNet.OAuth.Models;
 using XboxAuthNet.Game.Builders;

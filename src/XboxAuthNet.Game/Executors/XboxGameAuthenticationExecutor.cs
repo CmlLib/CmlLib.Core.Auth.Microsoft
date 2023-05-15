@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using XboxAuthNet.Game.XboxAuthStrategies;
-using XboxAuthNet.Game.XboxGame;
+using XboxAuthNet.Game.GameAuthenticators;
 using XboxAuthNet.Game.Accounts;
 
 namespace XboxAuthNet.Game.Executors

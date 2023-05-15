@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using XboxAuthNet.Game.XboxAuthStrategies;
 using XboxAuthNet.Game.SessionStorages;
-using XboxAuthNet.Game.XboxGame;
+using XboxAuthNet.Game.GameAuthenticators;
 using XboxAuthNet.Game.Executors;
 using XboxAuthNet.Game.Accounts;
 

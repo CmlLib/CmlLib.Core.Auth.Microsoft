@@ -1,8 +1,7 @@
-using CmlLib.Core.Auth.Microsoft.JE;
 using XboxAuthNet.Game.Accounts;
 using XboxAuthNet.Game.SessionStorages;
 
-namespace CmlLib.Core.Auth.Microsoft
+namespace CmlLib.Core.Auth.Microsoft.Sessions
 {
     public class JEGameAccount : XboxGameAccount
     {
@@ -19,7 +18,6 @@ namespace CmlLib.Core.Auth.Microsoft
         }
 
         public JESession? Session => _jeSessionSource.Get();
-        public JEProfile? Profile => Session?.Profile;
 
         protected override string? GetIdentifier() => 
             Session?.Profile?.UUID;

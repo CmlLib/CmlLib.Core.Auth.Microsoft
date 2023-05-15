@@ -1,4 +1,4 @@
-﻿using CmlLib.Core.Auth.Microsoft;
+﻿using CmlLib.Core.Auth.Microsoft.Sessions;
 using System.ComponentModel;
 
 namespace WinFormTest
@@ -18,13 +18,13 @@ namespace WinFormTest
         public DateTime? LastAccess => account.LastAccess;
 
         [Category("Profile")]
-        public string? Username => account.Profile?.Username;
+        public string? Username => account.Session?.Profile?.Username;
         [Category("Profile")]
-        public string? UUID => account.Profile?.UUID;
+        public string? UUID => account.Session?.Profile?.UUID;
         [Category("Profile")]
-        public object? Skins => account.Profile?.Skins;
+        public object? Skins => account.Session?.Profile?.Skins;
         [Category("Profile")]
-        public object? Capes => account.Profile?.Capes;
+        public object? Capes => account.Session?.Profile?.Capes;
 
         [Category("Token")]
         public string? TokenUsername => account.Session?.Token?.Username;

@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 using XboxAuthNet.Game.Jwt;
 using XboxAuthNet.Game;
 
-namespace CmlLib.Core.Auth.Microsoft
+namespace CmlLib.Core.Auth.Microsoft.Sessions
 {
     public class JEAuthenticationToken : ISession
     {

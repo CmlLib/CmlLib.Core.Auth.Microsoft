@@ -1,10 +1,10 @@
 using System.Net.Http;
 using System.Threading.Tasks;
-using CmlLib.Core.Auth.Microsoft.Builders;
 using XboxAuthNet.XboxLive;
 using XboxAuthNet.Game;
 using XboxAuthNet.Game.Accounts;
 using XboxAuthNet.Game.Builders;
+using CmlLib.Core.Auth.Microsoft.Sessions;
 
 namespace CmlLib.Core.Auth.Microsoft
 {

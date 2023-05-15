@@ -1,7 +1,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using XboxAuthNet.Game;
-using XboxAuthNet.Game.XboxGame;
+using XboxAuthNet.Game.GameAuthenticators;
 using XboxAuthNet.Game.XboxAuthStrategies;
 
 namespace CmlLib.Core.Bedrock.Auth

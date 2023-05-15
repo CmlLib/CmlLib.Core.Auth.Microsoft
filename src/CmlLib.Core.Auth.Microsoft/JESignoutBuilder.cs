@@ -1,11 +1,10 @@
 using System;
-using CmlLib.Core.Auth.Microsoft.JE;
-using XboxAuthNet.Game.Accounts;
+using XboxAuthNet.OAuth;
 using XboxAuthNet.Game.Builders;
 using XboxAuthNet.Game.SignoutStrategy;
-using XboxAuthNet.OAuth;
+using CmlLib.Core.Auth.Microsoft.Sessions;
 
-namespace CmlLib.Core.Auth.Microsoft.Builders
+namespace CmlLib.Core.Auth.Microsoft
 {
     public class JESignoutBuilder : XboxGameSignoutBuilder<JESignoutBuilder>
     {
