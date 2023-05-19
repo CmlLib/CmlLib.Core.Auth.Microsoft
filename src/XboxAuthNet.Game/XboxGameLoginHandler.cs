@@ -6,7 +6,7 @@ namespace XboxAuthNet.Game;
 public class XboxGameLoginHandler
 {
     protected readonly HttpClient HttpClient;
-    protected readonly IXboxGameAccountManager AccountManager;
+    public IXboxGameAccountManager AccountManager { get; }
 
     public XboxGameLoginHandler(
         HttpClient httpClient,

@@ -55,6 +55,12 @@ namespace XboxAuthNet.Game.Builders
             return this;
         }
 
+        public XboxGameAuthenticationBuilder<T> WithAccountManager(IXboxGameAccountManager accountManager)
+        {
+            this.AccountManager = accountManager;
+            return this;
+        }
+
         public XboxGameAuthenticationBuilder<T> WithAccount(IXboxGameAccount account)
         {
             WithSessionStorage(account.SessionStorage);
