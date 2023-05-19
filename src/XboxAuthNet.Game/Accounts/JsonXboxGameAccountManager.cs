@@ -87,6 +87,12 @@ public class JsonXboxGameAccountManager : IXboxGameAccountManager
         return account;
     }
 
+    public void ClearAccounts()
+    {
+        Accounts.Clear();
+        SaveAccounts();
+    }
+
     public void SaveAccounts()
     {
         var json = serializeToJson();

@@ -29,6 +29,11 @@ public class InMemoryXboxGameAccountManager : IXboxGameAccountManager
         return account;
     }
 
+    public void ClearAccounts()
+    {
+        Accounts.Clear();
+    }
+
     public void SaveAccounts()
     {
         // Accounts are already saved in memory!
