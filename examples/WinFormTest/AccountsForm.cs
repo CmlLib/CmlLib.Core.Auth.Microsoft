@@ -61,6 +61,7 @@ namespace WinFormTest
                 throw new InvalidOperationException("loginHandler was not initialized");
 
             var accounts = loginHandler.GetAccounts();
+            lbAccounts.Items.Clear();
             foreach (var account in accounts)
             {
                 if (string.IsNullOrEmpty(account.Identifier))
@@ -242,6 +243,8 @@ namespace WinFormTest
         private void setXboxAuth<T>(XboxAuthStrategyBuilder<T> builder)
         {
             var strategy = cbXboxLoginMode.Text;
+            builder.WithDeviceType(txtDeviceType.Text);
+            builder.WithDeviceVersion(txtDeviceVersion.Text);
             if (strategy == "Basic")
             {
                 builder.UseBasicStrategy();

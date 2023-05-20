@@ -5,6 +5,8 @@ namespace XboxAuthNet.Game;
 
 public class XboxGameLoginHandler
 {
+    private bool _accountLoaded;
+
     protected readonly HttpClient HttpClient;
     protected readonly IXboxGameAccountManager AccountManager;
 
@@ -15,6 +17,11 @@ public class XboxGameLoginHandler
 
     public XboxGameAccountCollection GetAccounts()
     {
+        if (!_accountLoaded)
+        {
+            AccountManager.LoadAccounts();
+            _accountLoaded = true;
+        }
         return AccountManager.Accounts;
     }
 }

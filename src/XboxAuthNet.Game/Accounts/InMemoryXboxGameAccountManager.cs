@@ -29,8 +29,13 @@ public class InMemoryXboxGameAccountManager : IXboxGameAccountManager
         return account;
     }
 
+    public void LoadAccounts()
+    {
+        // Accounts are already in memory
+    }
+    
     public void SaveAccounts()
     {
-        // Accounts are already saved in memory!
+        // Accounts are already saved in memory
     }
 }
