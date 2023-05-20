@@ -1,6 +1,6 @@
 using XboxAuthNet.Game.SessionStorages;
 
-namespace CmlLib.Core.Auth.Microsoft.JE
+namespace CmlLib.Core.Auth.Microsoft.Sessions
 {
     public class JESessionSource : SessionFromStorage<JESession>
     {

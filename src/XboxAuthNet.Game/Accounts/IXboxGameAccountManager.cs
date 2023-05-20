@@ -7,5 +7,6 @@ public interface IXboxGameAccountManager
     IXboxGameAccount GetDefaultAccount();
     IXboxGameAccount NewAccount();
     void LoadAccounts();
+    void ClearAccounts();
     void SaveAccounts();
 }

@@ -1,12 +1,11 @@
-using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using XboxAuthNet.Game;
 using XboxAuthNet.Game.SessionStorages;
 using XboxAuthNet.Game.XboxAuthStrategies;
-using XboxAuthNet.Game.XboxGame;
+using XboxAuthNet.Game.GameAuthenticators;
+using CmlLib.Core.Auth.Microsoft.Sessions;
 
-namespace CmlLib.Core.Auth.Microsoft.XboxGame
+namespace CmlLib.Core.Auth.Microsoft.GameAuthenticators
 {
     public class JEAuthenticator : IXboxGameAuthenticator<JESession>
     {

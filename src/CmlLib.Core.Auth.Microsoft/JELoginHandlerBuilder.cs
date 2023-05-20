@@ -2,6 +2,7 @@
 using System.Net.Http;
 using XboxAuthNet.Game;
 using XboxAuthNet.Game.Accounts;
+using CmlLib.Core.Auth.Microsoft.Sessions;
 
 namespace CmlLib.Core.Auth.Microsoft
 {

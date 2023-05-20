@@ -1,8 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using CmlLib.Core.Auth.Microsoft.Builders;
 using XboxAuthNet.Game.Builders;
-using XboxAuthNet.Game.Executors;
+using CmlLib.Core.Auth.Microsoft.Sessions;
 
 namespace CmlLib.Core.Auth.Microsoft;
 

@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using XboxAuthNet.Game.SessionStorages;
 using XboxAuthNet.Game.XboxAuthStrategies;
 
-namespace XboxAuthNet.Game.XboxGame
+namespace XboxAuthNet.Game.GameAuthenticators
 {
     public class CachingGameSession<T> : IXboxGameAuthenticator<T>
         where T : ISession

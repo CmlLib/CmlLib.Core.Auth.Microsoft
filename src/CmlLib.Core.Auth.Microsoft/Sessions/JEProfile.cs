@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace CmlLib.Core.Auth.Microsoft
+namespace CmlLib.Core.Auth.Microsoft.Sessions
 {
     public class JEProfile
     {

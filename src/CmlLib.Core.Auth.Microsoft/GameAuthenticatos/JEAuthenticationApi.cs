@@ -1,11 +1,12 @@
 using System;
 using System.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Net.Http;
 using System.Threading.Tasks;
+using CmlLib.Core.Auth.Microsoft.Sessions;
 
-namespace CmlLib.Core.Auth.Microsoft.XboxGame
+namespace CmlLib.Core.Auth.Microsoft.GameAuthenticators
 {
     public class JEAuthenticationApi
     {

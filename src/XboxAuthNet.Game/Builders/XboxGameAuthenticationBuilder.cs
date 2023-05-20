@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using XboxAuthNet.Game.XboxAuthStrategies;
 using XboxAuthNet.Game.SessionStorages;
-using XboxAuthNet.Game.XboxGame;
+using XboxAuthNet.Game.GameAuthenticators;
 using XboxAuthNet.Game.Executors;
 using XboxAuthNet.Game.Accounts;
 
@@ -52,6 +52,12 @@ namespace XboxAuthNet.Game.Builders
         public XboxGameAuthenticationBuilder<T> WithGameAuthenticator(Func<XboxGameAuthenticationBuilder<T>, IXboxGameAuthenticator<T>> factory)
         {
             this.GameAuthenticatorFactory = factory;
+            return this;
+        }
+
+        public XboxGameAuthenticationBuilder<T> WithAccountManager(IXboxGameAccountManager accountManager)
+        {
+            this.AccountManager = accountManager;
             return this;
         }
 

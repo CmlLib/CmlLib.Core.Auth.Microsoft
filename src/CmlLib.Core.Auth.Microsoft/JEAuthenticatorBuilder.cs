@@ -2,11 +2,11 @@ using System;
 using System.Net.Http;
 using XboxAuthNet.Game;
 using XboxAuthNet.Game.SessionStorages;
-using XboxAuthNet.Game.XboxGame;
-using CmlLib.Core.Auth.Microsoft.JE;
-using CmlLib.Core.Auth.Microsoft.XboxGame;
+using XboxAuthNet.Game.GameAuthenticators;
+using CmlLib.Core.Auth.Microsoft.Sessions;
+using CmlLib.Core.Auth.Microsoft.GameAuthenticators;
 
-namespace CmlLib.Core.Auth.Microsoft.Builders;
+namespace CmlLib.Core.Auth.Microsoft;
 
 public class JEAuthenticatorBuilder
 {

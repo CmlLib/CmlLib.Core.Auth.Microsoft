@@ -1,7 +1,7 @@
 using System;
 using System.Text.Json;
 
-namespace CmlLib.Core.Auth.Microsoft.XboxGame
+namespace CmlLib.Core.Auth.Microsoft
 {
     public class MinecraftAuthException : Exception
     {
