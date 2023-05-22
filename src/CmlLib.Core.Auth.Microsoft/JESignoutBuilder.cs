@@ -8,13 +8,14 @@ namespace CmlLib.Core.Auth.Microsoft
 {
     public class JESignoutBuilder : XboxGameSignoutBuilder<JESignoutBuilder>
     {
-        public JESignoutBuilder()
+        public JESignoutBuilder AddJESignout()
         {
-            this.AddMicrosoftOAuthSessionClearing();
-            this.AddXboxSessionClearing();
-            this.AddGameSessionClearing();
+            AddGameSessionClearing();
+            AddXboxSessionClearing();
+            AddMicrosoftOAuthSignout();
+            return this;
         }
-
+        
         public JESignoutBuilder AddMicrosoftOAuthSignout() =>
             this.AddMicrosoftOAuthSignout(JELoginHandler.DefaultMicrosoftOAuthClientInfo);
 

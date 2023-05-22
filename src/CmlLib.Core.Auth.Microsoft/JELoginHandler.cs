@@ -86,6 +86,7 @@ namespace CmlLib.Core.Auth.Microsoft
             return new JESignoutBuilder()
                 .WithHttpClient(HttpClient)
                 .WithAccount(account)
+                .AddJESignout()
                 .AddSavingAccountManager(AccountManager);
         }
     }
