@@ -6,6 +6,7 @@ public interface IXboxGameAccountManager
     XboxGameAccountCollection Accounts { get; }
     IXboxGameAccount GetDefaultAccount();
     IXboxGameAccount NewAccount();
+    void LoadAccounts();
     void ClearAccounts();
     void SaveAccounts();
 }

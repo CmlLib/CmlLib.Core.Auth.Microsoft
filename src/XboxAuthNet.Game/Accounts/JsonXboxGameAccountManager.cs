@@ -27,7 +27,7 @@ public class JsonXboxGameAccountManager : IXboxGameAccountManager
 
     public XboxGameAccountCollection Accounts { get; private set; }
 
-    public void Load()
+    public void LoadAccounts()
     {
         var node = readAsJson();
         loadFromJson(node);
