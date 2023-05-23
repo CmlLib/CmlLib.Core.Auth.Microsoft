@@ -1,0 +1,89 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{5B2AB7AF-B26F-4B5B-9323-0961A0295651}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XboxAuthNet.Game", "src\XboxAuthNet.Game\XboxAuthNet.Game.csproj", "{3BE7B615-C461-4856-BB76-5D697D085091}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XboxAuthNet.Game.Msal", "src\XboxAuthNet.Game.Msal\XboxAuthNet.Game.Msal.csproj", "{7F7A0C33-CB5A-4174-8B0A-F429C95C6920}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CmlLib.Core.Auth.Microsoft", "src\CmlLib.Core.Auth.Microsoft\CmlLib.Core.Auth.Microsoft.csproj", "{19D78E1A-09D7-45D6-B160-3177183288EB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CmlLib.Core.Bedrock.Auth", "src\CmlLib.Core.Bedrock.Auth\CmlLib.Core.Bedrock.Auth.csproj", "{C1243FBD-2418-4D18-AECC-FBAF4276609C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{88C2E145-1488-409C-88A4-3ADD7C45563D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CmlLib.Core.Auth.Microsoft.Test", "tests\CmlLib.Core.Auth.Microsoft.Test\CmlLib.Core.Auth.Microsoft.Test.csproj", "{AF2D58B0-EF5A-4742-8D4B-451771C34116}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CmlLib.Core.Bedrock.Auth.Test", "tests\CmlLib.Core.Bedrock.Auth.Test\CmlLib.Core.Bedrock.Auth.Test.csproj", "{A3914AFD-9922-45A9-83EB-C2A43D14C876}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XboxAuthNet.Game.Test", "tests\XboxAuthNet.Game.Test\XboxAuthNet.Game.Test.csproj", "{F1437601-5192-4212-B921-0DDBBD8C5B87}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{FC0D3241-6BBC-48DC-BBFE-5834BC26DFA0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinFormTest", "examples\WinFormTest\WinFormTest.csproj", "{45014B23-99CA-4A60-AFE4-C4D37E70911D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "benchmarks", "benchmarks", "{81C1B932-6FBC-4647-B33E-8C99568E42B4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XboxAuthNet.Game.Benchmarks", "benchmarks\XboxAuthNet.Game.Benchmarks\XboxAuthNet.Game.Benchmarks.csproj", "{CF046B29-DC9C-4B9E-83A9-4FB166416A26}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3BE7B615-C461-4856-BB76-5D697D085091}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BE7B615-C461-4856-BB76-5D697D085091}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BE7B615-C461-4856-BB76-5D697D085091}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BE7B615-C461-4856-BB76-5D697D085091}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F7A0C33-CB5A-4174-8B0A-F429C95C6920}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F7A0C33-CB5A-4174-8B0A-F429C95C6920}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F7A0C33-CB5A-4174-8B0A-F429C95C6920}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F7A0C33-CB5A-4174-8B0A-F429C95C6920}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19D78E1A-09D7-45D6-B160-3177183288EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19D78E1A-09D7-45D6-B160-3177183288EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19D78E1A-09D7-45D6-B160-3177183288EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19D78E1A-09D7-45D6-B160-3177183288EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1243FBD-2418-4D18-AECC-FBAF4276609C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1243FBD-2418-4D18-AECC-FBAF4276609C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1243FBD-2418-4D18-AECC-FBAF4276609C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1243FBD-2418-4D18-AECC-FBAF4276609C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF2D58B0-EF5A-4742-8D4B-451771C34116}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF2D58B0-EF5A-4742-8D4B-451771C34116}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF2D58B0-EF5A-4742-8D4B-451771C34116}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF2D58B0-EF5A-4742-8D4B-451771C34116}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3914AFD-9922-45A9-83EB-C2A43D14C876}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3914AFD-9922-45A9-83EB-C2A43D14C876}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3914AFD-9922-45A9-83EB-C2A43D14C876}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3914AFD-9922-45A9-83EB-C2A43D14C876}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1437601-5192-4212-B921-0DDBBD8C5B87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1437601-5192-4212-B921-0DDBBD8C5B87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1437601-5192-4212-B921-0DDBBD8C5B87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1437601-5192-4212-B921-0DDBBD8C5B87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45014B23-99CA-4A60-AFE4-C4D37E70911D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45014B23-99CA-4A60-AFE4-C4D37E70911D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45014B23-99CA-4A60-AFE4-C4D37E70911D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45014B23-99CA-4A60-AFE4-C4D37E70911D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF046B29-DC9C-4B9E-83A9-4FB166416A26}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{CF046B29-DC9C-4B9E-83A9-4FB166416A26}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{CF046B29-DC9C-4B9E-83A9-4FB166416A26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF046B29-DC9C-4B9E-83A9-4FB166416A26}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3BE7B615-C461-4856-BB76-5D697D085091} = {5B2AB7AF-B26F-4B5B-9323-0961A0295651}
+		{7F7A0C33-CB5A-4174-8B0A-F429C95C6920} = {5B2AB7AF-B26F-4B5B-9323-0961A0295651}
+		{19D78E1A-09D7-45D6-B160-3177183288EB} = {5B2AB7AF-B26F-4B5B-9323-0961A0295651}
+		{C1243FBD-2418-4D18-AECC-FBAF4276609C} = {5B2AB7AF-B26F-4B5B-9323-0961A0295651}
+		{AF2D58B0-EF5A-4742-8D4B-451771C34116} = {88C2E145-1488-409C-88A4-3ADD7C45563D}
+		{A3914AFD-9922-45A9-83EB-C2A43D14C876} = {88C2E145-1488-409C-88A4-3ADD7C45563D}
+		{F1437601-5192-4212-B921-0DDBBD8C5B87} = {88C2E145-1488-409C-88A4-3ADD7C45563D}
+		{45014B23-99CA-4A60-AFE4-C4D37E70911D} = {FC0D3241-6BBC-48DC-BBFE-5834BC26DFA0}
+		{CF046B29-DC9C-4B9E-83A9-4FB166416A26} = {81C1B932-6FBC-4647-B33E-8C99568E42B4}
+	EndGlobalSection
+EndGlobal

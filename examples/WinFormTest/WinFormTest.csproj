@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>true</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/CmlLib.Core.Auth.Microsoft/CmlLib.Core.Auth.Microsoft.csproj" />
+    <ProjectReference Include="../../src/XboxAuthNet.Game.Msal/XboxAuthNet.Game.Msal.csproj" />
+  </ItemGroup>
+
+</Project>

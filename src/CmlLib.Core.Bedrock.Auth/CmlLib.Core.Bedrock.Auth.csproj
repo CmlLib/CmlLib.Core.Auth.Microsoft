@@ -2,13 +2,13 @@
 
   <PropertyGroup>
       <OutputType>Library</OutputType>
-      <TargetFramework>netstandard2.0</TargetFramework>
+      <TargetFramework>netstandard2.1</TargetFramework>
       <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
       <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-      <LangVersion>8.0</LangVersion>
+      <LangVersion>latest</LangVersion>
       <Nullable>enable</Nullable>
-      <Version>0.0.1-dev</Version>
-      <Copyright>Copyright (c) 2022 AlphaBs</Copyright>
+      <Version>0.0.2</Version>
+      <Copyright>Copyright (c) 2023 AlphaBs</Copyright>
       <PackageLicenseExpression>MIT</PackageLicenseExpression>
       <PackageProjectUrl>https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft</PackageProjectUrl>
       <RepositoryUrl>https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft</RepositoryUrl>
@@ -20,7 +20,7 @@
   </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\CmlLib.Core.Auth.Microsoft\CmlLib.Core.Auth.Microsoft.csproj" />
+        <ProjectReference Include="..\XboxAuthNet.Game\XboxAuthNet.Game.csproj" />
     </ItemGroup>
     <ItemGroup>
         <None Include="../../icon.png" Pack="true" Visible="false" PackagePath="" />
