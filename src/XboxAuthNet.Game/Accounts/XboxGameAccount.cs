@@ -1,6 +1,5 @@
-using System;
 using XboxAuthNet.Game.SessionStorages;
-using XboxAuthNet.Game.XboxAuthStrategies;
+using XboxAuthNet.Game.XboxAuth;
 
 namespace XboxAuthNet.Game.Accounts;
 
@@ -18,26 +17,16 @@ public class XboxGameAccount : IXboxGameAccount
 
     public string? Identifier => GetIdentifier();
     public ISessionStorage SessionStorage { get; }
-    public DateTime LastAccess => getLastAccess();
+    public DateTime LastAccess => LastAccessSource.Default.Get(SessionStorage);
 
     protected virtual string? GetIdentifier()
     {
-        var xboxSessionSource = new XboxSessionSource(SessionStorage);
-        var xboxSession = xboxSessionSource.Get();
+        var xboxSession = XboxSessionSource.Default.Get(SessionStorage);
         var uhs = xboxSession?.XstsToken?.UserHash;
         return uhs;
     }
 
-    private DateTime getLastAccess()
-    {
-        var lastAccess = SessionStorage.GetOrDefault<string>("lastAccess", DateTime.MinValue.ToString());
-        if (DateTime.TryParse(lastAccess, out var parsedLastAccess))
-            return parsedLastAccess;
-        else
-            return DateTime.MinValue;
-    }
-
-    public int CompareTo(object obj)
+    public int CompareTo(object? obj)
     {
         var account = obj as XboxGameAccount;
         if (account == null)
@@ -46,7 +35,7 @@ public class XboxGameAccount : IXboxGameAccount
         return this.LastAccess.CompareTo(account.LastAccess);
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj is XboxGameAccount account)
         {

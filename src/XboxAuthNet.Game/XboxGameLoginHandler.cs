@@ -1,4 +1,3 @@
-using System.Net.Http;
 using XboxAuthNet.Game.Accounts;
 
 namespace XboxAuthNet.Game;

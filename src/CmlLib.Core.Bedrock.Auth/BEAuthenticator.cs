@@ -1,36 +1,99 @@
-using System.Net.Http;
-using System.Threading.Tasks;
-using XboxAuthNet.Game;
-using XboxAuthNet.Game.GameAuthenticators;
-using XboxAuthNet.Game.XboxAuthStrategies;
+// reference
+// https://github.com/PrismarineJS/prismarine-auth/blob/master/src/TokenManagers/MinecraftBedrockTokenManager.js
 
-namespace CmlLib.Core.Bedrock.Auth
+using System.Text;
+using System.Text.Json;
+using XboxAuthNet.Game.Authenticators;
+using XboxAuthNet.Game.SessionStorages;
+using XboxAuthNet.Game.XboxAuth;
+using CmlLib.Core.Bedrock.Auth.Sessions;
+
+namespace CmlLib.Core.Bedrock.Auth;
+
+public class BEAuthenticator : SessionAuthenticator<BESession>
 {
-    public class BEAuthenticator : IXboxGameAuthenticator<BESession>
+    public static readonly string RelyingParty = "https://multiplayer.minecraft.net/";
+    private readonly ISessionSource<XboxAuthTokens> _xboxSessionSource;
+
+    public BEAuthenticator(
+        ISessionSource<XboxAuthTokens> xboxSessionSource,
+        ISessionSource<BESession> sessionSource)
+        : base(sessionSource) =>
+        _xboxSessionSource = xboxSessionSource;
+
+    protected override async ValueTask<BESession?> Authenticate()
     {
-        private readonly BEAuthenticationApi _api;
+        var xboxTokens = _xboxSessionSource.Get(Context.SessionStorage);
+        var uhs = xboxTokens?.XstsToken?.UserHash;
+        var xsts = xboxTokens?.XstsToken?.Token;
 
-        public BEAuthenticator(HttpClient httpClient)
+        if (string.IsNullOrEmpty(uhs) ||
+            string.IsNullOrEmpty(xsts))
         {
-            _api = new BEAuthenticationApi(httpClient);
+            throw new BEAuthException("Cannot auth with null UserHash and null Token");
         }
 
-        public async Task<BESession> Authenticate(IXboxAuthStrategy xboxAuthStrategy)
+        var tokens = await loginWithXbox(uhs, xsts);
+        return new BESession()
         {
-            var xboxTokens = await xboxAuthStrategy.Authenticate(BEAuthenticationApi.RelyingParty);
+            Tokens = tokens
+        };
+    }
 
-            if (string.IsNullOrEmpty(xboxTokens?.XstsToken?.UserHash) ||
-                string.IsNullOrEmpty(xboxTokens?.XstsToken?.Token))
+    public async Task<BEToken[]> loginWithXbox(string uhs, string xsts)
+    {
+        var req = JsonSerializer.Serialize(new
+        {
+            identityPublicKey = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEQUeCLz6XuGSZaLldVOoYSZhdT3F371zgus9VMJ5eQoTr1dPjNdN1MtYNOtN1KiWFwxWjqsxNQ4wVkFjCIufCsEYEJgje7Jh9xx37STA0Lq3W3njn8nbJuDUM866vDJAG"
+        });
+
+        var msg = new HttpRequestMessage
+        {
+            RequestUri = new Uri("https://multiplayer.minecraft.net/authentication"),
+            Content = new StringContent(req, Encoding.UTF8, "application/json"),
+            Method = HttpMethod.Post
+        };
+
+        msg.Headers.Add("User-Agent", "MCPC/UWP");
+        msg.Headers.Add("Authorization", $"XBL3.0 x={uhs};{xsts}");
+
+        var res = await Context.HttpClient.SendAsync(msg);
+        var resStr = await res.Content.ReadAsStringAsync();
+
+        try
+        {
+            res.EnsureSuccessStatusCode();
+
+            using var doc = JsonDocument.Parse(resStr);
+            var chains = doc.RootElement.GetProperty("chain").EnumerateArray();
+
+            var result = chains
+                .Select(chain => new BEToken(chain.GetString()!))
+                .Where(chain => chain != null)
+                .ToArray();
+
+            return result!;
+        }
+        catch (Exception ex)
+        {
+            throw createException(ex, resStr, res);
+        }
+    }
+
+    private Exception createException(Exception ex, string resBody, HttpResponseMessage res)
+    {
+        if (ex is JsonException || ex is HttpRequestException)
+        {
+            try
             {
-                throw new MinecraftAuthException("Cannot auth with null UserHash and null Token");
+                return BEAuthException.FromResponseBody(resBody, (int)res.StatusCode);
             }
-
-            var beToken = await _api.LoginWithXbox(xboxTokens.XstsToken.UserHash, xboxTokens.XstsToken.Token);
-            var beSession = new BESession
+            catch (FormatException)
             {
-                Tokens = beToken
-            };
-            return beSession;
+                return new BEAuthException($"{(int)res.StatusCode}: {res.ReasonPhrase}\n{resBody}");
+            }
         }
+        else
+            return ex;
     }
 }

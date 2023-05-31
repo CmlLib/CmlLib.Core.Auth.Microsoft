@@ -1,27 +1,40 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <LangVersion>10.0</LangVersion>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
 
-  <PropertyGroup>
-      <OutputType>Library</OutputType>
-      <TargetFramework>netstandard2.1</TargetFramework>
-      <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-      <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-      <LangVersion>latest</LangVersion>
-      <Nullable>enable</Nullable>
-      <Version>0.0.2</Version>
-      <Copyright>Copyright (c) 2023 AlphaBs</Copyright>
-      <PackageLicenseExpression>MIT</PackageLicenseExpression>
-      <PackageProjectUrl>https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft</PackageProjectUrl>
-      <RepositoryUrl>https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft</RepositoryUrl>
-      <Authors>ksi123456ab</Authors>
-      <PackageTags>CmlLib Minecraft Login Auth Authentication Microsoft Xbox Live XboxLive</PackageTags>
-      <PackageIcon>icon.png</PackageIcon>
-      <RepositoryType>git</RepositoryType>
-      <PackageId>CmlLib.Core.Bedrock.Auth</PackageId>
-  </PropertyGroup>
+    <PropertyGroup>
+        <Version>0.0.2</Version>
+        <Copyright>Copyright (c) 2023 AlphaBs</Copyright>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft</RepositoryUrl>
+        <Authors>ksi123456ab</Authors>
+        <PackageTags>CmlLib Minecraft Login Auth Authentication Microsoft Xbox Live XboxLive</PackageTags>
+        <PackageIcon>icon.png</PackageIcon>
+        <RepositoryType>git</RepositoryType>
+        <PackageId>CmlLib.Core.Bedrock.Auth</PackageId>
+    </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\XboxAuthNet.Game\XboxAuthNet.Game.csproj" />
     </ItemGroup>
+
+    <!-- private assets -->
+    <ItemGroup>
+        <!--<PackageReference Include="ConfigureAwait.Fody" Version="3.3.1" PrivateAssets="All" />-->
+        <PackageReference Include="TunnelVisionLabs.ReferenceAssemblyAnnotator"
+            Version="1.0.0-alpha.160" PrivateAssets="all" />
+        <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[5.0.0]" />
+    </ItemGroup>
+
+    <!-- others-->
     <ItemGroup>
         <None Include="../../icon.png" Pack="true" Visible="false" PackagePath="" />
     </ItemGroup>

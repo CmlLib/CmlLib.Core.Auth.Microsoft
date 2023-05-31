@@ -1,28 +1,33 @@
 using XboxAuthNet.Game.Accounts;
 using XboxAuthNet.Game.SessionStorages;
 
-namespace CmlLib.Core.Auth.Microsoft.Sessions
+namespace CmlLib.Core.Auth.Microsoft.Sessions;
+
+public class JEGameAccount : XboxGameAccount
 {
-    public class JEGameAccount : XboxGameAccount
+    public new static JEGameAccount FromSessionStorage(ISessionStorage sessionStorage)
     {
-        public new static JEGameAccount FromSessionStorage(ISessionStorage sessionStorage)
+        return new JEGameAccount(sessionStorage);
+    }
+
+    public JEGameAccount(ISessionStorage sessionStorage) : base(sessionStorage)
+    {
+
+    }
+
+    public JEProfile? Profile => JEProfileSource.Default.Get(SessionStorage);
+    public JEToken? Token => JETokenSource.Default.Get(SessionStorage);
+
+    protected override string? GetIdentifier() => Profile?.UUID;
+
+    public MSession ToLauncherSession()
+    {
+        return new MSession
         {
-            return new JEGameAccount(sessionStorage);
-        }
-
-        private readonly JESessionSource _jeSessionSource;
-
-        public JEGameAccount(ISessionStorage sessionStorage) : base(sessionStorage)
-        {
-            _jeSessionSource = new JESessionSource(sessionStorage);
-        }
-
-        public JESession? Session => _jeSessionSource.Get();
-
-        protected override string? GetIdentifier() => 
-            Session?.Profile?.UUID;
-
-        public MSession? ToLauncherSession() =>
-            Session?.ToLauncherSession();
+            Username = Profile?.Username,
+            UUID = Profile?.UUID,
+            AccessToken = Token?.AccessToken,
+            UserType = "msa"
+        };
     }
 }

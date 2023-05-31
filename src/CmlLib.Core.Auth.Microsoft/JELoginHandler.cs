@@ -1,20 +1,24 @@
-using System.Net.Http;
-using System.Threading.Tasks;
 using XboxAuthNet.XboxLive;
 using XboxAuthNet.Game;
 using XboxAuthNet.Game.Accounts;
-using XboxAuthNet.Game.Builders;
+using XboxAuthNet.Game.Authenticators;
+using XboxAuthNet.Game.SessionStorages;
+using XboxAuthNet.Game.OAuth;
+using XboxAuthNet.Game.XboxAuth;
 using CmlLib.Core.Auth.Microsoft.Sessions;
+using CmlLib.Core.Auth.Microsoft.Authenticators;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
     public class JELoginHandler : XboxGameLoginHandler
     {
-        public static MicrosoftOAuthClientInfo DefaultMicrosoftOAuthClientInfo = new MicrosoftOAuthClientInfo
+        public readonly static MicrosoftOAuthClientInfo DefaultMicrosoftOAuthClientInfo = new()
         {
             ClientId = XboxGameTitles.MinecraftJava,
             Scopes = XboxAuthConstants.XboxScope
         };
+
+        public readonly static string RelyingParty = "rp://api.minecraftservices.com/";
 
         public JELoginHandler(
             HttpClient httpClient, 
@@ -24,70 +28,85 @@ namespace CmlLib.Core.Auth.Microsoft
 
         }
 
-        public Task<MSession> Authenticate()
+        public Task<MSession> Authenticate(CancellationToken cancellationToken = default)
         {
             var account = AccountManager.GetDefaultAccount();
             return Authenticate(account);
         }
 
-        public async Task<MSession> Authenticate(IXboxGameAccount account)
+        public async Task<MSession> Authenticate(
+            IXboxGameAccount account,
+            CancellationToken cancellationToken = default)
         {
-            JESession session;
+            JEGameAccount result;
             try
             {
-                session = await AuthenticateSilently()
-                    .WithAccount(account)
-                    .ExecuteAsync();
+                result = await AuthenticateSilently(account, cancellationToken);
             }
-            catch (SessionExpiredException)
+            catch
             {
-                session = await AuthenticateInteractively()
-                    .WithAccount(account)
-                    .ExecuteAsync();
+                result = await AuthenticateInteractively(account, cancellationToken);
             }
-
-            return session.ToLauncherSession();
+            return result.ToLauncherSession();
         }
 
-        public XboxGameAuthenticationBuilder<JESession> AuthenticateInteractively()
+        public async Task<JEGameAccount> AuthenticateInteractively(
+            IXboxGameAccount account,
+            CancellationToken cancellationToken = default)
         {
-            return new XboxGameAuthenticationBuilder<JESession>()
-                .WithJEAuthenticator(_ => {})
-                .WithInteractiveMicrosoftOAuth()
-                .WithAccountManager(AccountManager)
-                .WithNewAccount(AccountManager)
-                .WithHttpClient(HttpClient);
+            var authenticator = CreateAuthenticator(account, cancellationToken);
+            authenticator.AddForceMicrosoftOAuthForJE(oauth => oauth.Interactive());
+            authenticator.AddForceXboxAuth(xbox => xbox.Basic());
+            authenticator.AddForceJEAuthenticator();
+            
+            var session = await authenticator.ExecuteAsync();
+            return JEGameAccount.FromSessionStorage(session);
         }
 
-        public XboxGameAuthenticationBuilder<JESession> AuthenticateSilently()
+        public async Task<JEGameAccount> AuthenticateSilently(
+            IXboxGameAccount account,
+            CancellationToken cancellationToken = default)
         {
-            return new XboxGameAuthenticationBuilder<JESession>()
-                .WithJEAuthenticator(builder => builder.WithSilentAuthenticator())
-                .WithSilentMicrosoftOAuth()
-                .WithAccountManager(AccountManager)
-                .WithDefaultAccount(AccountManager)
-                .WithHttpClient(HttpClient);
+            var authenticator = CreateAuthenticator(account, cancellationToken);
+            authenticator.AddMicrosoftOAuthForJE(oauth => oauth.Silent());
+            authenticator.AddXboxAuthForJE(xbox => xbox.Basic());
+            authenticator.AddJEAuthenticator();
+
+            var session = await authenticator.ExecuteAsync();
+            return JEGameAccount.FromSessionStorage(session);
+        }
+        
+        public async Task Signout(
+            IXboxGameAccount account, 
+            CancellationToken cancellationToken = default)
+        {
+            var authenticator = CreateAuthenticator(account, cancellationToken);
+            authenticator.AddMicrosoftOAuthSignout(DefaultMicrosoftOAuthClientInfo);
+            authenticator.AddSessionCleaner(XboxSessionSource.Default);
+            authenticator.AddSessionCleaner(JETokenSource.Default);
+            authenticator.AddSessionCleaner(JEProfileSource.Default);
+            await authenticator.ExecuteAsync();
         }
 
-        public Task Signout() =>
-            CreateSignout().ExecuteAsync();
-
-        public Task Signout(IXboxGameAccount account) =>
-            CreateSignout(account).ExecuteAsync();
-
-        public JESignoutBuilder CreateSignout()
+        public CompositeAuthenticator CreateAuthenticator(
+            IXboxGameAccount account,
+            CancellationToken cancellationToken)
         {
-            var account = AccountManager.GetDefaultAccount();
-            return CreateSignout(account);
+            var authenticator = new CompositeAuthenticator();
+            authenticator.Context = createContext(account, cancellationToken);
+            authenticator.AddPostAuthenticator(LastAccessLogger.Default);
+            authenticator.AddPostAuthenticator(new AccountSaver(AccountManager));
+            return authenticator;
         }
 
-        public JESignoutBuilder CreateSignout(IXboxGameAccount account)
+        private AuthenticateContext createContext(
+            IXboxGameAccount account, 
+            CancellationToken cancellationToken)
         {
-            return new JESignoutBuilder()
-                .WithHttpClient(HttpClient)
-                .WithAccount(account)
-                .AddJESignout()
-                .AddSavingAccountManager(AccountManager);
+            return new AuthenticateContext(
+                account.SessionStorage, 
+                HttpClient, 
+                cancellationToken);
         }
     }
 }

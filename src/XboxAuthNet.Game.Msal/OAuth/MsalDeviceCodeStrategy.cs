@@ -1,31 +1,28 @@
-﻿using Microsoft.Identity.Client;
-using System;
-using System.Threading.Tasks;
-using XboxAuthNet.Game.OAuthStrategies;
+﻿using XboxAuthNet.Game.SessionStorages;
+using Microsoft.Identity.Client;
 using XboxAuthNet.OAuth.Models;
 
-namespace XboxAuthNet.Game.Msal.OAuth
+namespace XboxAuthNet.Game.Msal.OAuth;
+
+public class MsalDeviceCodeOAuth : MsalOAuth
 {
-    public class MsalDeviceCodeStrategy : IMicrosoftOAuthStrategy
+    private readonly Func<DeviceCodeResult, Task> _deviceCodeResultCallback;
+
+    public MsalDeviceCodeOAuth(
+        IPublicClientApplication app,
+        string[] scopes,
+        ISessionSource<MicrosoftOAuthResponse> sessionSource,
+        Func<DeviceCodeResult, Task> deviceCodeResultCallback)
+        : base(app, scopes, sessionSource)
     {
-        private readonly IPublicClientApplication _app;
-        private readonly Func<DeviceCodeResult, Task> _deviceCodeResultCallback;
-        public string[] Scopes { get; set; } = MsalClientHelper.XboxScopes;
+        this._deviceCodeResultCallback = deviceCodeResultCallback;
+    }
 
-        public MsalDeviceCodeStrategy(
-            IPublicClientApplication app,
-            Func<DeviceCodeResult, Task> deviceCodeResultCallback)
-        {
-            this._app = app;
-            this._deviceCodeResultCallback = deviceCodeResultCallback;
-        }
-
-        public async Task<MicrosoftOAuthResponse> Authenticate()
-        {
-            var result = await _app.AcquireTokenWithDeviceCode(Scopes, _deviceCodeResultCallback)
-                .ExecuteAsync();
-
-            return MsalClientHelper.ToMicrosoftOAuthResponse(result);
-        }
+    protected override async ValueTask<AuthenticationResult> AuthenticateWithMsal(
+        IPublicClientApplication app, string[] scopes)
+    {
+        var result = await app.AcquireTokenWithDeviceCode(scopes, _deviceCodeResultCallback)
+            .ExecuteAsync(Context.CancellationToken);
+        return result;
     }
 }

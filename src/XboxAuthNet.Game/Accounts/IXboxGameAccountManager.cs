@@ -1,4 +1,3 @@
-
 namespace XboxAuthNet.Game.Accounts;
 
 public interface IXboxGameAccountManager

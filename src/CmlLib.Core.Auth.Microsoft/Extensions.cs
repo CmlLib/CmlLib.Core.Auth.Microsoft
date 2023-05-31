@@ -1,52 +1,53 @@
-using System;
-using System.Threading.Tasks;
-using XboxAuthNet.Game.Builders;
-using CmlLib.Core.Auth.Microsoft.Sessions;
+using XboxAuthNet.Game;
+using XboxAuthNet.Game.OAuth;
+using XboxAuthNet.Game.XboxAuth;
+using XboxAuthNet.Game.Authenticators;
+using CmlLib.Core.Auth.Microsoft.Authenticators;
 
 namespace CmlLib.Core.Auth.Microsoft;
 
 public static class Extensions
 {
-    public static XboxGameAuthenticationBuilder<JESession> WithInteractiveMicrosoftOAuth(
-        this XboxGameAuthenticationBuilder<JESession> self) =>
-        self.WithInteractiveMicrosoftOAuth(JELoginHandler.DefaultMicrosoftOAuthClientInfo);
+    public static void AddMicrosoftOAuthForJE(
+        this ICompositeAuthenticator self,
+        Func<MicrosoftOAuthBuilder, IAuthenticator> builderInvoker) =>
+        self.AddMicrosoftOAuth(JELoginHandler.DefaultMicrosoftOAuthClientInfo, builderInvoker);
 
-    public static XboxGameAuthenticationBuilder<JESession> WithInteractiveMicrosoftOAuth(
-        this XboxGameAuthenticationBuilder<JESession> self,
-        Action<MicrosoftXboxBuilder> builderInvoker) =>
-        self.WithInteractiveMicrosoftOAuth(JELoginHandler.DefaultMicrosoftOAuthClientInfo, builderInvoker);
+    public static void AddForceMicrosoftOAuthForJE(
+        this ICompositeAuthenticator self,
+        Func<MicrosoftOAuthBuilder, IAuthenticator> builderInvoker) =>
+        self.AddForceMicrosoftOAuth(JELoginHandler.DefaultMicrosoftOAuthClientInfo, builderInvoker);
 
-    public static XboxGameAuthenticationBuilder<JESession> WithSilentMicrosoftOAuth(
-        this XboxGameAuthenticationBuilder<JESession> self) =>
-        self.WithSilentMicrosoftOAuth(JELoginHandler.DefaultMicrosoftOAuthClientInfo);
-
-    public static XboxGameAuthenticationBuilder<JESession> WithSilentMicrosoftOAuth(
-        this XboxGameAuthenticationBuilder<JESession> self,
-        Action<MicrosoftXboxBuilder> builderInvoker) =>
-        self.WithSilentMicrosoftOAuth(JELoginHandler.DefaultMicrosoftOAuthClientInfo, builderInvoker);
-
-    public static XboxGameAuthenticationBuilder<JESession> WithMicrosoftOAuth(
-        this XboxGameAuthenticationBuilder<JESession> self,
-        Action<MicrosoftXboxBuilder> builderInvoker) =>
-        self.WithMicrosoftOAuth(JELoginHandler.DefaultMicrosoftOAuthClientInfo, builderInvoker);
-
-    public static XboxGameAuthenticationBuilder<JESession> WithJEAuthenticator(
-        this XboxGameAuthenticationBuilder<JESession> self,
-        Action<JEAuthenticatorBuilder> builderInvoker)
-    {
-        return self.WithGameAuthenticator(self => 
+    public static void AddXboxAuthForJE(
+        this ICompositeAuthenticator self,
+        Func<XboxAuthBuilder, IAuthenticator> builderInvoker) =>
+        self.AddXboxAuth(builder => 
         {
-            var builder = new JEAuthenticatorBuilder();
-            builder.WithHttpClient(self.HttpClient);
-            builder.WithSessionStorage(self.SessionStorage);
-            builderInvoker.Invoke(builder);
-            return builder.Build();
+            builder.WithRelyingParty(JELoginHandler.RelyingParty);
+            return builderInvoker(builder);
         });
+
+    public static void AddJEAuthenticator(this ICompositeAuthenticator self) =>
+        self.AddJEAuthenticator(builder => builder.Build());
+
+    public static void AddJEAuthenticator(
+        this ICompositeAuthenticator self,
+        Func<JEAuthenticatorBuilder, IAuthenticator> builderInvoker)
+    {
+        var builder = new JEAuthenticatorBuilder();
+        var authenticator = builderInvoker.Invoke(builder);
+        self.AddAuthenticator(builder.TokenValidator(), builder.Build());
     }
 
-    public static async Task<MSession> ExecuteForLauncherAsync(this XboxGameAuthenticationBuilder<JESession> self)
+    public static void AddForceJEAuthenticator(this ICompositeAuthenticator self) =>
+        self.AddForceJEAuthenticator(builder => builder.Build());
+
+    public static void AddForceJEAuthenticator(
+        this ICompositeAuthenticator self,
+        Func<JEAuthenticatorBuilder, IAuthenticator> builderInvoker)
     {
-        var session = await self.ExecuteAsync();
-        return session.ToLauncherSession();
+        var builder = new JEAuthenticatorBuilder();
+        var authenticator = builderInvoker.Invoke(builder);
+        self.AddAuthenticator(StaticValidator.Invalid, authenticator);
     }
 }

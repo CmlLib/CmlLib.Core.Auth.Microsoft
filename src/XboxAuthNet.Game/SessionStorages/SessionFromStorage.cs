@@ -1,20 +1,18 @@
-namespace XboxAuthNet.Game.SessionStorages
+namespace XboxAuthNet.Game.SessionStorages;
+
+public class SessionFromStorage<T> : ISessionSource<T>
 {
-    public class SessionFromStorage<T> : ISessionSource<T>
-    {
-        private readonly string _keyName;
-        private readonly ISessionStorage _sessionStorage;
+    private readonly string _keyName;
 
-        public SessionFromStorage(string keyName, ISessionStorage sessionStorage) =>
-            (_keyName, _sessionStorage) = (keyName, sessionStorage);
+    public SessionFromStorage(string keyName) =>
+        _keyName = keyName;
 
-        public T? Get() =>
-            _sessionStorage.GetOrDefault<T?>(_keyName, default);
+    public T? Get(ISessionStorage sessionStorage) =>
+        sessionStorage.GetOrDefault<T?>(_keyName, default);
 
-        public void Set(T? obj) =>
-            _sessionStorage.Set(_keyName, obj);
+    public void Set(ISessionStorage sessionStorage, T? obj) =>
+        sessionStorage.Set(_keyName, obj);
 
-        public void Clear() =>
-            Set(default);
-    }
+    public void Clear(ISessionStorage sessionStorage) =>
+        Set(sessionStorage, default);
 }

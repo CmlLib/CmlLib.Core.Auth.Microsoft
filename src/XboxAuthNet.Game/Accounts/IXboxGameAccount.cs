@@ -1,4 +1,3 @@
-using System;
 using XboxAuthNet.Game.SessionStorages;
 
 namespace XboxAuthNet.Game.Accounts;

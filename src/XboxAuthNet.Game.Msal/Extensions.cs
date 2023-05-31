@@ -1,23 +1,17 @@
-using System;
-using XboxAuthNet.Game.Builders;
+using XboxAuthNet.Game.Authenticators;
+using Microsoft.Identity.Client;
 
-namespace XboxAuthNet.Game.Msal
+namespace XboxAuthNet.Game.Msal;
+
+public static class Extensions
 {
-    public static class Extensions
+    public static void AddMsalOAuth(
+        this ICompositeAuthenticator self,
+        IPublicClientApplication app,
+        Func<MsalOAuthBuilder, IAuthenticator> builderInvoker)
     {
-        public static XboxGameAuthenticationBuilder<T> WithMsalOAuth<T>(
-            this XboxGameAuthenticationBuilder<T> self,
-            Action<MsalXboxBuilder> builderInvoker)
-            where T : ISession
-        {
-            return self.WithXboxAuth(self => 
-            {
-                var builder = new MsalXboxBuilder();
-                builder.WithXboxGameAuthenticationBuilder(self);
-                builder.XboxAuth.UseBasicStrategy();
-                builderInvoker.Invoke(builder);
-                return builder.Build();
-            });
-        }
+        var builder = new MsalOAuthBuilder(app);
+        var authenticator = builderInvoker.Invoke(builder);
+        self.AddAuthenticatorWithoutValidator(authenticator);
     }
 }

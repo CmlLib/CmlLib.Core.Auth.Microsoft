@@ -1,11 +1,7 @@
-﻿using System;
-using System.Net.Http;
+﻿namespace XboxAuthNet.Game;
 
-namespace XboxAuthNet.Game
+public static class HttpHelper
 {
-    public class HttpHelper
-    {
-        public static Lazy<HttpClient> DefaultHttpClient
-            = new Lazy<HttpClient>(() => new HttpClient());
-    }
+    public static Lazy<HttpClient> DefaultHttpClient
+        = new Lazy<HttpClient>(() => new HttpClient());
 }

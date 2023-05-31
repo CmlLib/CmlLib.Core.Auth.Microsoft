@@ -1,40 +1,46 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-	  <OutputType>Library</OutputType>
-      <TargetFramework>netstandard2.1</TargetFramework>
-	  <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-	  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-	  <LangVersion>9.0</LangVersion>
-	  <Nullable>enable</Nullable>
-	  <Description>XboxAuthNet.Game extension for MSAL.NET</Description>
-	  <Copyright>Copyright (c) 2023 AlphaBs</Copyright>
-	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
-	  <PackageProjectUrl>https://github.com/AlphaBs/XboxAuthNet</PackageProjectUrl>
-	  <RepositoryUrl>https://github.com/AlphaBs/XboxAuthNet</RepositoryUrl>
-	  <Authors>ksi123456ab</Authors>
-	  <PackageTags></PackageTags>
-	  <Version>0.0.1</Version>
-	  <PackageIcon>icon.png</PackageIcon>
-	  <RepositoryType>git</RepositoryType>
-	  <PackageId>XboxAuthNet.Game.Msal</PackageId>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<LangVersion>10.0</LangVersion>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
 
+	<PropertyGroup>
+		<Description>XboxAuthNet.Game extension for MSAL.NET</Description>
+		<Copyright>Copyright (c) 2023 AlphaBs</Copyright>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/AlphaBs/XboxAuthNet</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/AlphaBs/XboxAuthNet</RepositoryUrl>
+		<Authors>ksi123456ab</Authors>
+		<PackageTags></PackageTags>
+		<Version>0.0.1</Version>
+		<PackageIcon>icon.png</PackageIcon>
+		<RepositoryType>git</RepositoryType>
+		<PackageId>XboxAuthNet.Game.Msal</PackageId>
+	</PropertyGroup>
+
+	<!-- package refernces-->
+	<ItemGroup>
+		<ProjectReference Include="..\XboxAuthNet.Game\XboxAuthNet.Game.csproj" />
+		<PackageReference Include="Microsoft.Identity.Client" Version="4.52.0" />
+		<PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="2.28.0" />
+	</ItemGroup>
+	
+	<!-- private assets-->
+	<ItemGroup>
+		<!--<PackageReference Include="ConfigureAwait.Fody" Version="3.3.1" PrivateAssets="All" />-->
+		<PackageReference Include="TunnelVisionLabs.ReferenceAssemblyAnnotator"
+			Version="1.0.0-alpha.160" PrivateAssets="all" />
+		<PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[5.0.0]" />
+	</ItemGroup>
+
+	<!-- others-->
 	<ItemGroup>
 		<None Include="../../icon.png" Pack="true" Visible="false" PackagePath="" />
 	</ItemGroup>
-	
-	<ItemGroup>
-		<!--<PackageReference Include="ConfigureAwait.Fody" Version="3.3.1" PrivateAssets="All"/>-->
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\XboxAuthNet.Game\XboxAuthNet.Game.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <PackageReference Include="Microsoft.Identity.Client" Version="4.52.0" />
-	  <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="2.28.0" />
-	</ItemGroup>
-	
 </Project>
