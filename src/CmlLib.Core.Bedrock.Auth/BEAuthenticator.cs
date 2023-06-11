@@ -21,9 +21,9 @@ public class BEAuthenticator : SessionAuthenticator<BESession>
         : base(sessionSource) =>
         _xboxSessionSource = xboxSessionSource;
 
-    protected override async ValueTask<BESession?> Authenticate()
+    protected override async ValueTask<BESession?> Authenticate(AuthenticateContext context)
     {
-        var xboxTokens = _xboxSessionSource.Get(Context.SessionStorage);
+        var xboxTokens = _xboxSessionSource.Get(context.SessionStorage);
         var uhs = xboxTokens?.XstsToken?.UserHash;
         var xsts = xboxTokens?.XstsToken?.Token;
 
@@ -33,14 +33,14 @@ public class BEAuthenticator : SessionAuthenticator<BESession>
             throw new BEAuthException("Cannot auth with null UserHash and null Token");
         }
 
-        var tokens = await loginWithXbox(uhs, xsts);
+        var tokens = await loginWithXbox(uhs, xsts, context.HttpClient);
         return new BESession()
         {
             Tokens = tokens
         };
     }
 
-    public async Task<BEToken[]> loginWithXbox(string uhs, string xsts)
+    public async Task<BEToken[]> loginWithXbox(string uhs, string xsts, HttpClient httpClient)
     {
         var req = JsonSerializer.Serialize(new
         {
@@ -57,7 +57,7 @@ public class BEAuthenticator : SessionAuthenticator<BESession>
         msg.Headers.Add("User-Agent", "MCPC/UWP");
         msg.Headers.Add("Authorization", $"XBL3.0 x={uhs};{xsts}");
 
-        var res = await Context.HttpClient.SendAsync(msg);
+        var res = await httpClient.SendAsync(msg);
         var resStr = await res.Content.ReadAsStringAsync();
 
         try

@@ -1,19 +1,7 @@
 ﻿using CmlLib.Core.Auth.Microsoft;
-using CmlLib.Core.Auth.Microsoft.GameAuthenticators;
-using CmlLib.Core.Auth.Microsoft.Sessions;
 using Microsoft.Identity.Client;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+using XboxAuthNet.Game.Authenticators;
 using XboxAuthNet.Game.Accounts;
-using XboxAuthNet.Game.Builders;
-using XboxAuthNet.Game.Msal;
 using XboxAuthNet.OAuth.Models;
 using XboxAuthNet.XboxLive;
 
@@ -42,12 +30,12 @@ namespace WinFormTest
             cbOAuthLoginMode.SelectedIndex = 0;
             txtScope.Text = XboxAuthConstants.XboxScope;
             cbXboxLoginMode.SelectedIndex = 0;
-            txtXboxRelyingParty.Text = JEAuthenticationApi.RelyingParty;
+            txtXboxRelyingParty.Text = JELoginHandler.RelyingParty;
         }
 
         private void listAccounts()
         {
-            var accounts = loginHandler.GetAccounts();
+            var accounts = loginHandler.AccountManager.GetAccounts();
             cbAccounts.Items.Clear();
             foreach (var account in accounts)
             {
@@ -102,7 +90,7 @@ namespace WinFormTest
                 if (selectedAccountIdentifier == null || selectedAccountIdentifier == "<New Account>")
                     account = loginHandler.AccountManager.NewAccount();
                 else
-                    account = loginHandler.GetAccounts().GetAccount(selectedAccountIdentifier);
+                    account = loginHandler.AccountManager.GetAccounts().GetAccount(selectedAccountIdentifier);
 
                 await authenticate(cbLoginMode.Text, account);
                 this.Close();
@@ -118,7 +106,7 @@ namespace WinFormTest
 
         private async Task authenticate(string loginMode, IXboxGameAccount account)
         {
-            XboxGameAuthenticationBuilder<JESession> builder;
+            CompositeAuthenticator builder;
 
             var defaultOAuth = cbOAuthLoginMode.SelectedIndex == 0;
             
@@ -139,15 +127,13 @@ namespace WinFormTest
             {
                 if (defaultOAuth)
                     cbOAuthLoginMode.SelectedItem = "SilentMicrosoftOAuth";
-                builder = loginHandler.AuthenticateSilently()
-                    .WithAccount(account);
+                builder = loginHandler.AuthenticateSilently(account);
             }
             else if (loginMode == "InteractiveJEAuthentication")
             {
                 if (defaultOAuth)
                     cbOAuthLoginMode.SelectedItem = "InteractiveMicrosoftOAuth";
-                builder = loginHandler.AuthenticateInteractively()
-                    .WithAccount(account);
+                builder = loginHandler.AuthenticateInteractively(account);
             }
             else
             {

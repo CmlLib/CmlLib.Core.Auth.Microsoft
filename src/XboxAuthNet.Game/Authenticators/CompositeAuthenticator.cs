@@ -16,33 +16,20 @@ public class CompositeAuthenticator : CompositeAuthenticatorBase
 
     public override async ValueTask ExecuteAsync(AuthenticateContext context)
     {
-        var startFrom = await validate(context);
-        await auth(Authenticators, context, startFrom);
-        await auth(PostAuthenticators, context, 0);
+        await auth(Authenticators.Count() - 1, context); // starts from last one
+        await ExecutePostAuthenticators(context);
     }
 
-    private async ValueTask<int> validate(AuthenticateContext context)
+    private async ValueTask auth(int index, AuthenticateContext context)
     {
-        int startFrom = 0;
-        foreach (var validator in Validators.AsEnumerable().Reverse())
-        {
-            var result = await validator.Validate(context);
-            if (result)
-                return startFrom;
-            else
-                startFrom++;
-        }
-        return startFrom;
-    }
+        if (index < 0)
+            return;
 
-    private async ValueTask auth(
-        IEnumerable<IAuthenticator> authenticators, 
-        AuthenticateContext context, 
-        int startFrom)
-    {
-        foreach (var authenticator in authenticators.Skip(startFrom))
+        var valid = await Validators.ElementAt(index).Validate(context);
+        if (!valid)
         {
-            await authenticator.ExecuteAsync(context);
+            await auth(index - 1, context);
+            await Authenticators.ElementAt(index).ExecuteAsync(context);
         }
     }
 }

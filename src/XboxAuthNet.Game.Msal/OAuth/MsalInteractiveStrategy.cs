@@ -1,3 +1,4 @@
+using XboxAuthNet.Game.Authenticators;
 using XboxAuthNet.Game.SessionStorages;
 using Microsoft.Identity.Client;
 using XboxAuthNet.OAuth.Models;
@@ -19,12 +20,12 @@ public class MsalInteractiveOAuth : MsalOAuth
     }
 
     protected override async ValueTask<AuthenticationResult> AuthenticateWithMsal(
-        IPublicClientApplication app, string[] scopes)
+        AuthenticateContext context, IPublicClientApplication app, string[] scopes)
     {
         var builder = app.AcquireTokenInteractive(scopes);
         if (!UseDefaultWebViewOption)
             builder.WithUseEmbeddedWebView(UseEmbeddedWebView);
-        var result = await builder.ExecuteAsync(Context.CancellationToken);
+        var result = await builder.ExecuteAsync(context.CancellationToken);
         return result;
     }
 }

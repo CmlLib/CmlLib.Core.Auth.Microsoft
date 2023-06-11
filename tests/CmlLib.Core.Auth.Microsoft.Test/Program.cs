@@ -1,6 +1,3 @@
-using System;
-using System.Threading.Tasks;
-
 #if !TEST_SDK
 
 namespace CmlLib.Core.Auth.Microsoft.Test

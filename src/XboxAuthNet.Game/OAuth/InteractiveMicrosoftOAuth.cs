@@ -19,12 +19,12 @@ public class InteractiveMicrosoftOAuth : SessionAuthenticator<MicrosoftOAuthResp
          : base(sessionSource) =>
         (_clientInfo, _codeFlowBuilder, _parameters) = (clientInfo, codeFlowBuilder, parameters);
 
-    protected override async ValueTask<MicrosoftOAuthResponse?> Authenticate()
+    protected override async ValueTask<MicrosoftOAuthResponse?> Authenticate(AuthenticateContext context)
     {
-        var apiClient = _clientInfo.CreateApiClientForOAuthCode(Context.HttpClient);
+        var apiClient = _clientInfo.CreateApiClientForOAuthCode(context.HttpClient);
         var builder = new MicrosoftOAuthCodeFlowBuilder(apiClient);
         _codeFlowBuilder.Invoke(builder);
         var oauthHandler = builder.Build();
-        return await oauthHandler.Authenticate(_parameters, Context.CancellationToken);
+        return await oauthHandler.Authenticate(_parameters, context.CancellationToken);
     }
 }

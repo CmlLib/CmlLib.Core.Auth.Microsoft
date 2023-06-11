@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/CmlLib.Core.Auth.Microsoft.Test/bin/Debug/net7.0/CmlLib.Core.Auth.Microsoft.Test.dll",
+            "program": "${workspaceFolder}/tests/XboxAuthNet.Game.Test/bin/Debug/net6.0/XboxAuthNet.Game.Test.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/CmlLib.Core.Auth.Microsoft.Test",
+            "cwd": "${workspaceFolder}/tests/XboxAuthNet.Game.Test",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "stopAtEntry": false

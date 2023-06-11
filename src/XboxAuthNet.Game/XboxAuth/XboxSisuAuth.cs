@@ -19,11 +19,11 @@ public class XboxSisuAuth : SessionAuthenticator<XboxAuthTokens>
         : base(sessionSource) =>
         (_clientId, _tokenPrefix, _relyingParty) = (clientId, tokenPrefix, relyingParty);
 
-    protected override async ValueTask<XboxAuthTokens?> Authenticate()
+    protected override async ValueTask<XboxAuthTokens?> Authenticate(AuthenticateContext context)
     {
         var xboxTokens = GetSessionFromStorage() ?? new XboxAuthTokens();
 
-        var xboxAuthClient = new XboxAuthClient(Context.HttpClient);
+        var xboxAuthClient = new XboxAuthClient(context.HttpClient);
         var sisuResponse = await xboxAuthClient.SisuAuth(new XboxSisuAuthRequest
         {
             AccessToken = xboxTokens.UserToken?.Token,

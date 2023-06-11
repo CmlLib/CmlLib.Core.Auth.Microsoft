@@ -29,4 +29,12 @@ public abstract class CompositeAuthenticatorBase : ICompositeAuthenticator
     }
 
     public abstract ValueTask ExecuteAsync(AuthenticateContext context);
+
+    protected async ValueTask ExecutePostAuthenticators(AuthenticateContext context)
+    {
+        foreach (var authenticator in PostAuthenticators)
+        {
+            await authenticator.ExecuteAsync(context);
+        }
+    }
 }

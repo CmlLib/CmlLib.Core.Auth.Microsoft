@@ -4,14 +4,11 @@ public class FallbackAuthenticator : CompositeAuthenticatorBase
 {
     public override async ValueTask ExecuteAsync(AuthenticateContext context)
     {
-        await auth(context);
-        foreach (var authenticator in PostAuthenticators)
-        {
-            await authenticator.ExecuteAsync(context);
-        }
+        await tryAuth(context);
+        await ExecutePostAuthenticators(context);
     }
 
-    private async ValueTask auth(AuthenticateContext context)
+    private async ValueTask tryAuth(AuthenticateContext context)
     {
         var exceptions = new List<Exception>();
         var count = Authenticators.Count();
@@ -19,9 +16,7 @@ public class FallbackAuthenticator : CompositeAuthenticatorBase
         for (int i = 0; i < count; i++)
         {
             var authenticator = Authenticators.ElementAt(i);
-            var validator = Validators.ElementAtOrDefault(i);
-            if (validator == default)
-                validator = StaticValidator.Invalid;
+            var validator = Validators.ElementAt(i);
 
             var valid = await validator.Validate(context);
             if (valid)
@@ -35,9 +30,12 @@ public class FallbackAuthenticator : CompositeAuthenticatorBase
             catch (Exception ex)
             {
                 exceptions.Add(ex);
+
+                if (i == count - 1) // failed at last authenticator
+                {
+                    throw new AggregateException(exceptions);
+                }
             }
         }
-
-        throw new AggregateException(exceptions);
     }
 }

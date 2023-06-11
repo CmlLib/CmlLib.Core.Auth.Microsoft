@@ -3,8 +3,8 @@ using XboxAuthNet.Game;
 using XboxAuthNet.Game.SessionStorages;
 using XboxAuthNet.OAuth.Models;
 
-namespace CmlLib.Core.Auth.Microsoft.Test
-{
+namespace CmlLib.Core.Auth.Microsoft.Test;
+
     public class Sample
     {
         public static async Task<MSession> Simplest()
@@ -17,40 +17,33 @@ namespace CmlLib.Core.Auth.Microsoft.Test
         public static async Task<MSession> Interactively()
         {
             var loginHandler = JELoginHandlerBuilder.BuildDefault();
-            var session = await loginHandler.AuthenticateInteractively()
-                .ExecuteForLauncherAsync();
-
-            return session;
+            return await loginHandler.AuthenticateInteractively();
         }
 
         public static async Task<MSession> Silently()
         {
             var loginHandler = JELoginHandlerBuilder.BuildDefault();
-            var session = await loginHandler.AuthenticateSilently()
-                .ExecuteForLauncherAsync();
-
-            return session;
+            return await loginHandler.AuthenticateSilently();
         }
 
-        public static async Task<MSession> InteractivelyWithOptionsNew()
+        public static async Task<MSession> InteractivelyWithOptions()
         {
             var loginHandler = JELoginHandlerBuilder.BuildDefault();
+            var authenticator = loginHandler.CreateAuthenticatorWithNewAccount();
+            authenticator.AddMicrosoftOAuthForJE(oauth => oauth.Interactive());
+            authenticator.AddXboxAuthForJE(xbox => xbox.Basic());
+            authenticator.AddJEAuthenticator();
+            return await authenticator.ExecuteForLauncherAsync();
+        }
 
-            var sessionStorage = new InMemorySessionStorage();
-
-            var session = await loginHandler.AuthenticateInteractively()
-                .WithSessionStorage(sessionStorage)
-                .WithJEAuthenticator(builder => builder
-                    .WithCaching(true)
-                    .WithSilentAuthenticator())
-                .WithMicrosoftOAuth(builder => builder
-                    .MicrosoftOAuth.WithCaching(true)
-                    .MicrosoftOAuth.UseInteractiveStrategy()
-                    .XboxAuth.WithCaching(true)
-                    .XboxAuth.UseBasicStrategy())
-                .ExecuteForLauncherAsync();
-            
-            return session;
+        public static async Task<MSession> SilentlyWithOptions()
+        {
+            var loginHandler = JELoginHandlerBuilder.BuildDefault();
+            var authenticator = loginHandler.CreateAuthenticatorWithDefaultAccount();
+            authenticator.AddForceMicrosoftOAuthForJE(oauth => oauth.Silent());
+            authenticator.AddForceXboxAuth(xbox => xbox.Basic());
+            authenticator.AddJEAuthenticator();
+            return await authenticator.ExecuteForLauncherAsync();
         }
 
         public static async Task Signout()
@@ -58,16 +51,4 @@ namespace CmlLib.Core.Auth.Microsoft.Test
             var loginHandler = JELoginHandlerBuilder.BuildDefault();
             await loginHandler.Signout();
         }
-
-        public static async Task Signout2()
-        {
-            var loginHandler = JELoginHandlerBuilder.BuildDefault();
-            var sessionStorage = new InMemorySessionStorage();
-
-            await loginHandler.CreateSignout()
-                .WithSessionStorage(sessionStorage)
-                .AddMicrosoftOAuthSignout()
-                .ExecuteAsync();
-        }
     }
-}

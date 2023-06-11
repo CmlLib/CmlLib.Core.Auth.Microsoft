@@ -17,12 +17,12 @@ public abstract class MsalOAuth : SessionAuthenticator<MicrosoftOAuthResponse>
         : base(sessionSource) =>
         (_msal, _scopes) = (app, scopes);
 
-    protected override async ValueTask<MicrosoftOAuthResponse?> Authenticate()
+    protected override async ValueTask<MicrosoftOAuthResponse?> Authenticate(AuthenticateContext context)
     {
-        var result = await AuthenticateWithMsal(_msal, _scopes);
+        var result = await AuthenticateWithMsal(context, _msal, _scopes);
         return MsalClientHelper.ToMicrosoftOAuthResponse(result);
     }
 
     protected abstract ValueTask<AuthenticationResult> AuthenticateWithMsal(
-        IPublicClientApplication app, string[] scopes);
+        AuthenticateContext context, IPublicClientApplication app, string[] scopes);
 }

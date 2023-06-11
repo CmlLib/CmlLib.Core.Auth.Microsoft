@@ -15,10 +15,10 @@ public class XboxXstsTokenAuth : SessionAuthenticator<XboxAuthTokens>
         : base(sessionSource) =>
         _relyingParty = relyingParty;
 
-    protected override async ValueTask<XboxAuthTokens?> Authenticate()
+    protected override async ValueTask<XboxAuthTokens?> Authenticate(AuthenticateContext context)
     {
         var xboxTokens = GetSessionFromStorage() ?? new XboxAuthTokens();
-        var xboxAuthClient = new XboxAuthClient(Context.HttpClient);
+        var xboxAuthClient = new XboxAuthClient(context.HttpClient);
 
         var xsts = await xboxAuthClient.RequestXsts(new XboxXstsRequest
         {

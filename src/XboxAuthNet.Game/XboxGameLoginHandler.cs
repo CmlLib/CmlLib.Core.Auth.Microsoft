@@ -1,11 +1,10 @@
 using XboxAuthNet.Game.Accounts;
+using XboxAuthNet.Game.Authenticators;
 
 namespace XboxAuthNet.Game;
 
 public class XboxGameLoginHandler
 {
-    private bool _accountLoaded;
-
     protected readonly HttpClient HttpClient;
     public IXboxGameAccountManager AccountManager { get; }
 
@@ -14,13 +13,32 @@ public class XboxGameLoginHandler
         IXboxGameAccountManager accountManager) =>
         (HttpClient, AccountManager) = (httpClient, accountManager);
 
-    public XboxGameAccountCollection GetAccounts()
+    public CompositeAuthenticator CreateAuthenticator(
+        IXboxGameAccount account,
+        CancellationToken cancellationToken)
     {
-        if (!_accountLoaded)
-        {
-            AccountManager.LoadAccounts();
-            _accountLoaded = true;
-        }
-        return AccountManager.Accounts;
+        var authenticator = new CompositeAuthenticator();
+        authenticator.Context = createContext(account, cancellationToken);
+        authenticator.AddPostAuthenticator(LastAccessLogger.Default);
+        authenticator.AddPostAuthenticator(new AccountSaver(AccountManager));
+        return authenticator;
     }
+
+    private AuthenticateContext createContext(
+        IXboxGameAccount account,
+        CancellationToken cancellationToken)
+    {
+        return new AuthenticateContext(
+            account.SessionStorage,
+            HttpClient,
+            cancellationToken);
+    }
+
+    public CompositeAuthenticator CreateAuthenticatorWithDefaultAccount(
+        CancellationToken cancellationToken = default) =>
+        CreateAuthenticator(AccountManager.GetDefaultAccount(), cancellationToken);
+
+    public CompositeAuthenticator CreateAuthenticatorWithNewAccount(
+        CancellationToken cancellationToken = default) =>
+        CreateAuthenticator(AccountManager.NewAccount(), cancellationToken);
 }

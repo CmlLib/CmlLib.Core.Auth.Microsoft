@@ -17,12 +17,12 @@ public class XboxGameAccount : IXboxGameAccount
 
     public string? Identifier => GetIdentifier();
     public ISessionStorage SessionStorage { get; }
+    public XboxAuthTokens? XboxTokens => XboxSessionSource.Default.Get(SessionStorage);
     public DateTime LastAccess => LastAccessSource.Default.Get(SessionStorage);
 
     protected virtual string? GetIdentifier()
     {
-        var xboxSession = XboxSessionSource.Default.Get(SessionStorage);
-        var uhs = xboxSession?.XstsToken?.UserHash;
+        var uhs = XboxTokens?.XstsToken?.UserHash;
         return uhs;
     }
 

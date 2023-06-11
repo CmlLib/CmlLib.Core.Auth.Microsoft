@@ -2,6 +2,7 @@ using XboxAuthNet.Game;
 using XboxAuthNet.Game.OAuth;
 using XboxAuthNet.Game.XboxAuth;
 using XboxAuthNet.Game.Authenticators;
+using CmlLib.Core.Auth.Microsoft.Sessions;
 using CmlLib.Core.Auth.Microsoft.Authenticators;
 
 namespace CmlLib.Core.Auth.Microsoft;
@@ -49,5 +50,12 @@ public static class Extensions
         var builder = new JEAuthenticatorBuilder();
         var authenticator = builderInvoker.Invoke(builder);
         self.AddAuthenticator(StaticValidator.Invalid, authenticator);
+    }
+
+    public static async Task<MSession> ExecuteForLauncherAsync(this CompositeAuthenticator self)
+    {
+        var session = await self.ExecuteAsync();
+        var account = JEGameAccount.FromSessionStorage(session);
+        return account.ToLauncherSession();
     }
 }

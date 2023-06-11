@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Net.Http;
-using XboxAuthNet.Game;
+﻿using XboxAuthNet.Game;
 using XboxAuthNet.Game.Accounts;
 using CmlLib.Core.Auth.Microsoft.Sessions;
 

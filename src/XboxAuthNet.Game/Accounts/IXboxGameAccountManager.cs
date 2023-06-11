@@ -2,10 +2,9 @@ namespace XboxAuthNet.Game.Accounts;
 
 public interface IXboxGameAccountManager
 {
-    XboxGameAccountCollection Accounts { get; }
+    XboxGameAccountCollection GetAccounts();
     IXboxGameAccount GetDefaultAccount();
     IXboxGameAccount NewAccount();
-    void LoadAccounts();
     void ClearAccounts();
     void SaveAccounts();
 }

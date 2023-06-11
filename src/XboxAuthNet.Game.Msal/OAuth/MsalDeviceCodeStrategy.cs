@@ -1,4 +1,5 @@
-﻿using XboxAuthNet.Game.SessionStorages;
+﻿using XboxAuthNet.Game.Authenticators;
+using XboxAuthNet.Game.SessionStorages;
 using Microsoft.Identity.Client;
 using XboxAuthNet.OAuth.Models;
 
@@ -19,10 +20,10 @@ public class MsalDeviceCodeOAuth : MsalOAuth
     }
 
     protected override async ValueTask<AuthenticationResult> AuthenticateWithMsal(
-        IPublicClientApplication app, string[] scopes)
+        AuthenticateContext context, IPublicClientApplication app, string[] scopes)
     {
         var result = await app.AcquireTokenWithDeviceCode(scopes, _deviceCodeResultCallback)
-            .ExecuteAsync(Context.CancellationToken);
+            .ExecuteAsync(context.CancellationToken);
         return result;
     }
 }

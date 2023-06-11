@@ -5,26 +5,28 @@ namespace XboxAuthNet.Game.Authenticators;
 public abstract class SessionAuthenticator<T> : IAuthenticator
 {
     public ISessionSource<T> SessionSource { get; private set; }
-    public AuthenticateContext Context { get; private set; }
+    private AuthenticateContext? _context;
 
     public SessionAuthenticator(ISessionSource<T> sessionSource)
     {
         SessionSource = sessionSource;
-        Context = null!;
-        SessionSource = null!;
     }
-
+    
     public async ValueTask ExecuteAsync(AuthenticateContext context)
     {
-        Context = context;
-        var result = await Authenticate();
+        context.CancellationToken.ThrowIfCancellationRequested();
+        
+        _context = context;
+        var result = await Authenticate(context);
         SessionSource.Set(context.SessionStorage, result);
     }
 
-    protected abstract ValueTask<T?> Authenticate();
+    protected abstract ValueTask<T?> Authenticate(AuthenticateContext context);
 
     protected T? GetSessionFromStorage()
     {
-        return SessionSource.Get(Context.SessionStorage);
+        if (_context == null)
+            throw new InvalidOperationException("Call ExecuteAsync() first");
+        return SessionSource.Get(_context.SessionStorage);
     }
 }

@@ -23,7 +23,7 @@ public class MicrosoftOAuthBuilder
         new MicrosoftOAuthValidator(SessionSource);
 
     public IAuthenticator Silent() =>
-        new SilentMicrosoftOAuthStrategy(_clientInfo, SessionSource);
+        new SilentMicrosoftOAuth(_clientInfo, SessionSource);
 
     public IAuthenticator Interactive() =>
         Interactive(builder => {}, new MicrosoftOAuthParameters());

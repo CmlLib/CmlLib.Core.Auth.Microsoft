@@ -15,9 +15,6 @@ public class AuthenticatorCollection : CompositeAuthenticatorBase
                 await Authenticators.ElementAt(i).ExecuteAsync(context);
         }
 
-        foreach (var post in PostAuthenticators)
-        {
-            await post.ExecuteAsync(context);
-        }
+        await ExecutePostAuthenticators(context);
     }
 }

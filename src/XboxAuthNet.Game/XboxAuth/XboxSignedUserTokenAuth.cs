@@ -15,16 +15,16 @@ public class XboxSignedUserTokenAuth : SessionAuthenticator<XboxAuthTokens>
         : base(sessionSource) => 
         _oAuthSessionSource = oauthSessionSource;
 
-    protected override async ValueTask<XboxAuthTokens?> Authenticate()
+    protected override async ValueTask<XboxAuthTokens?> Authenticate(AuthenticateContext context)
     {
         var oAuthAccessToken = _oAuthSessionSource
-            .Get(Context.SessionStorage)?
+            .Get(context.SessionStorage)?
             .AccessToken;
 
         if (string.IsNullOrEmpty(oAuthAccessToken))
             throw new XboxAuthException("OAuth access token was empty", 0);
 
-        var xboxAuthClient = new XboxAuthClient(Context.HttpClient);
+        var xboxAuthClient = new XboxAuthClient(context.HttpClient);
         var userToken = await xboxAuthClient.RequestSignedUserToken(oAuthAccessToken);
 
         var xboxTokens = GetSessionFromStorage() ?? new XboxAuthTokens();

@@ -5,23 +5,7 @@
 
 #if !TEST_SDK
 
-using System;
-using System.Threading.Tasks;
-
-namespace XboxAuthNet.Game.Test
-{
-    public class Program
-    {
-        public static async Task Main(string[] args)
-        {
-            var t1 = new TestJsonFileSessionStorage();
-            t1.Setup();
-            await t1.TestWithNewInstance();
-
-            //This line sure that Program.cs is not compiled if TEST_SDK is enabled. 
-            //Just remove this if you need to compile Program.cs and debug some unit test methods.
-        }
-    }
-}
+var test = new XboxAuthNet.Game.Test.Authenticators.StaticSessionAuthenticatorTest();
+await test.Test();
 
 #endif

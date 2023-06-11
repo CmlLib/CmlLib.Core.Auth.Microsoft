@@ -10,7 +10,7 @@ public class SessionCleaner<T> : SessionAuthenticator<T>
 
     }
 
-    protected override ValueTask<T?> Authenticate()
+    protected override ValueTask<T?> Authenticate(AuthenticateContext context)
     {
         return default;
     }

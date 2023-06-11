@@ -1,4 +1,5 @@
-﻿using XboxAuthNet.Game.SessionStorages;
+﻿using XboxAuthNet.Game.Authenticators;
+using XboxAuthNet.Game.SessionStorages;
 using Microsoft.Identity.Client;
 using XboxAuthNet.OAuth.Models;
 
@@ -17,7 +18,7 @@ public class MsalSilentOAuth : MsalOAuth
         LoginHint = loginHint;
 
     protected override async ValueTask<AuthenticationResult> AuthenticateWithMsal(
-        IPublicClientApplication app, string[] scopes)
+        AuthenticateContext context, IPublicClientApplication app, string[] scopes)
     {
         if (string.IsNullOrEmpty(LoginHint))
         {

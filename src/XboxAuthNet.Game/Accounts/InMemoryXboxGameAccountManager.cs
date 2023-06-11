@@ -14,6 +14,8 @@ public class InMemoryXboxGameAccountManager : IXboxGameAccountManager
 
     public XboxGameAccountCollection Accounts { get; private set; }
 
+    public XboxGameAccountCollection GetAccounts() => Accounts;
+
     public IXboxGameAccount GetDefaultAccount()
     {
         var account = Accounts.FirstOrDefault();

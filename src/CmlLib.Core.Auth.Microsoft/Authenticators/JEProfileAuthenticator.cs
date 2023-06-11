@@ -15,13 +15,13 @@ public class JEProfileAuthenticator : SessionAuthenticator<JEProfile>
         : base(sessionSource) =>
         _jeSessionSource = jeSessionSource;
 
-    protected override async ValueTask<JEProfile?> Authenticate()
+    protected override async ValueTask<JEProfile?> Authenticate(AuthenticateContext context)
     {
-        var token = _jeSessionSource.Get(Context.SessionStorage);
+        var token = _jeSessionSource.Get(context.SessionStorage);
         if (string.IsNullOrEmpty(token?.AccessToken))
             throw new JEAuthException("Null access token");
 
-        var profile = await requestProfile(token.AccessToken);
+        var profile = await requestProfile(token.AccessToken, context.HttpClient);
 
         if (string.IsNullOrEmpty(profile.UUID))
             throw new JEAuthException("No uuid");
@@ -31,7 +31,7 @@ public class JEProfileAuthenticator : SessionAuthenticator<JEProfile>
         return profile;
     }
 
-    private async ValueTask<JEProfile> requestProfile(string token)
+    private async ValueTask<JEProfile> requestProfile(string token, HttpClient httpClient)
     {
         var req = new HttpRequestMessage
         {
@@ -40,7 +40,7 @@ public class JEProfileAuthenticator : SessionAuthenticator<JEProfile>
         };
         req.Headers.Add("Authorization", "Bearer " + token);
 
-        var res = await Context.HttpClient.SendAsync(req);
+        var res = await httpClient.SendAsync(req);
         var resBody = await res.Content.ReadAsStringAsync();
 
         try

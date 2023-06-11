@@ -18,26 +18,26 @@ namespace WinFormTest
         public DateTime? LastAccess => account.LastAccess;
 
         [Category("Profile")]
-        public string? Username => account.Session?.Profile?.Username;
+        public string? Username => account.Profile?.Username;
         [Category("Profile")]
-        public string? UUID => account.Session?.Profile?.UUID;
+        public string? UUID => account.Profile?.UUID;
         [Category("Profile")]
-        public object? Skins => account.Session?.Profile?.Skins;
+        public object? Skins => account.Profile?.Skins;
         [Category("Profile")]
-        public object? Capes => account.Session?.Profile?.Capes;
+        public object? Capes => account.Profile?.Capes;
 
         [Category("Token")]
-        public string? TokenUsername => account.Session?.Token?.Username;
+        public string? TokenUsername => account.Token?.Username;
         [Category("Token")]
-        public string? AccessToken => account.Session?.Token?.AccessToken;
+        public string? AccessToken => account.Token?.AccessToken;
         [Category("Token")]
-        public string? TokenType => account.Session?.Token?.TokenType;
+        public string? TokenType => account.Token?.TokenType;
         [Category("Token")]
-        public int? ExpiresIn => account.Session?.Token?.ExpiresIn;
+        public int? ExpiresIn => account.Token?.ExpiresIn;
         [Category("Token")]
-        public DateTime? ExpiresOn => account.Session?.Token?.ExpiresOn;
+        public DateTime? ExpiresOn => account.Token?.ExpiresOn;
         [Category("Token")]
-        public string[]? Roles => account.Session?.Token?.Roles;
+        public string[]? Roles => account.Token?.Roles;
 
         public override string ToString() => Identifier ?? string.Empty;
     }

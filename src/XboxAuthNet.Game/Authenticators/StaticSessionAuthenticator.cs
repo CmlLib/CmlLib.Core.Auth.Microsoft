@@ -12,7 +12,7 @@ public class StaticSessionAuthenticator<T> : SessionAuthenticator<T>
         : base(sessionSource) =>
         _session = session;
 
-    protected override ValueTask<T?> Authenticate()
+    protected override ValueTask<T?> Authenticate(AuthenticateContext context)
     {
         return new ValueTask<T?>(_session);
     }

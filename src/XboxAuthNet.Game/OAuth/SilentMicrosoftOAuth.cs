@@ -4,25 +4,25 @@ using XboxAuthNet.OAuth.Models;
 
 namespace XboxAuthNet.Game.OAuth;
 
-public class SilentMicrosoftOAuthStrategy : SessionAuthenticator<MicrosoftOAuthResponse>
+public class SilentMicrosoftOAuth : SessionAuthenticator<MicrosoftOAuthResponse>
 {
     private readonly MicrosoftOAuthClientInfo _clientInfo;
 
-    public SilentMicrosoftOAuthStrategy(
+    public SilentMicrosoftOAuth(
         MicrosoftOAuthClientInfo clientInfo,
         ISessionSource<MicrosoftOAuthResponse> sessionSource)
         : base(sessionSource) =>
         _clientInfo = clientInfo;
 
-    protected override async ValueTask<MicrosoftOAuthResponse?> Authenticate()
+    protected override async ValueTask<MicrosoftOAuthResponse?> Authenticate(AuthenticateContext context)
     {
         var session = GetSessionFromStorage();
         if (string.IsNullOrEmpty(session?.RefreshToken))
             throw new MicrosoftOAuthException("no refresh token", 0);
 
-        var apiClient = _clientInfo.CreateApiClientForOAuthCode(Context.HttpClient);
+        var apiClient = _clientInfo.CreateApiClientForOAuthCode(context.HttpClient);
         return await apiClient.RefreshToken(
             session.RefreshToken, 
-            Context.CancellationToken);
+            context.CancellationToken);
     }
 }

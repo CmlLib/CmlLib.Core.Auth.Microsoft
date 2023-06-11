@@ -9,6 +9,8 @@ public class JsonXboxGameAccountManager : IXboxGameAccountManager
     private readonly string _filePath;
     private Func<ISessionStorage, IXboxGameAccount> _converter;
     private readonly JsonSerializerOptions? _jsonOptions;
+    private XboxGameAccountCollection _accounts = new();
+    private bool isLoaded = false;
 
     public JsonXboxGameAccountManager(
         string filePath,
@@ -18,24 +20,26 @@ public class JsonXboxGameAccountManager : IXboxGameAccountManager
         this._filePath = filePath;
         this._converter = converter;
         this._jsonOptions = jsonOptions;
-        Accounts = new();
     }
 
-    public XboxGameAccountCollection Accounts { get; private set; }
-
-    public void LoadAccounts()
+    public XboxGameAccountCollection GetAccounts()
     {
-        var node = readAsJson();
-        loadFromJson(node);
+        if (!isLoaded)
+        {
+            var node = readAsJson();
+            loadFromJson(node);
+            isLoaded = true;
+        }
+        return _accounts;
     }
 
     private void loadFromJson(JsonNode? node)
     {
-        Accounts.Clear();
+        _accounts.Clear();
         var accounts = parseAccounts(node);
         foreach (var account in accounts)
         {
-            Accounts.Add(account);
+            _accounts.Add(account);
         }
     }
 
@@ -68,7 +72,7 @@ public class JsonXboxGameAccountManager : IXboxGameAccountManager
 
     public IXboxGameAccount GetDefaultAccount()
     {
-        var first = Accounts.FirstOrDefault();
+        var first = _accounts.FirstOrDefault();
         if (first != null)
             return first;
         else
@@ -79,13 +83,13 @@ public class JsonXboxGameAccountManager : IXboxGameAccountManager
     {
         var sessionStorage = JsonSessionStorage.CreateEmpty(_jsonOptions);
         var account = convertSessionStorageToAccount(sessionStorage);
-        Accounts.Add(account);
+        _accounts.Add(account);
         return account;
     }
 
     public void ClearAccounts()
     {
-        Accounts.Clear();
+        _accounts.Clear();
         SaveAccounts();
     }
 
@@ -103,7 +107,7 @@ public class JsonXboxGameAccountManager : IXboxGameAccountManager
     private JsonNode serializeToJson()
     {
         var rootObject = new JsonObject();
-        foreach (var account in Accounts)
+        foreach (var account in _accounts)
         {
             var identifier = account.Identifier;
             if (string.IsNullOrEmpty(identifier))

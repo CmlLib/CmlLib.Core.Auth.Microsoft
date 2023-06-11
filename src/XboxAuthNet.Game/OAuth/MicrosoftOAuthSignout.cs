@@ -22,14 +22,14 @@ public class MicrosoftOAuthSignout : SessionAuthenticator<MicrosoftOAuthResponse
         this.sessionSource = sessionSource;
     }
 
-    protected override async ValueTask<MicrosoftOAuthResponse?> Authenticate()
+    protected override async ValueTask<MicrosoftOAuthResponse?> Authenticate(AuthenticateContext context)
     {
-        var apiClient = clientInfo.CreateApiClientForOAuthCode(Context.HttpClient);
+        var apiClient = clientInfo.CreateApiClientForOAuthCode(context.HttpClient);
         var builder = new MicrosoftOAuthCodeFlowBuilder(apiClient);
         builderInvoker.Invoke(builder);
         var codeFlow = builder.Build();   
 
-        await codeFlow.Signout(Context.CancellationToken);
+        await codeFlow.Signout(context.CancellationToken);
         return null;
     }
 }
