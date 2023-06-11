@@ -19,7 +19,7 @@ namespace WinFormTest
 
         private void listAccounts()
         {
-            var accounts = JELoginWrapper.Instance.LoginHandler.GetAccounts();
+            var accounts = JELoginWrapper.Instance.LoginHandler.AccountManager.GetAccounts();
             lbAccounts.Items.Clear();
             foreach (var account in accounts)
             {
@@ -42,14 +42,15 @@ namespace WinFormTest
             try
             {
                 var loginHandler = JELoginWrapper.Instance.LoginHandler;
-                var session = await loginHandler.AuthenticateInteractively()
-                    .WithInteractiveMicrosoftOAuth(builder => builder
-                        .MicrosoftOAuth.UseInteractiveStrategy(new MicrosoftOAuthParameters
-                        {
-                            Prompt = MicrosoftOAuthPromptModes.SelectAccount
-                        })
-                        .XboxAuth.UseBasicStrategy())
-                    .ExecuteForLauncherAsync();
+                //var session = await loginHandler.AuthenticateInteractively();
+                var authenticator = loginHandler.CreateAuthenticatorWithNewAccount();
+                authenticator.AddForceMicrosoftOAuthForJE(oauth => oauth.Interactive(new MicrosoftOAuthParameters
+                {
+                    Prompt = MicrosoftOAuthPromptModes.SelectAccount
+                }));
+                authenticator.AddXboxAuthForJE(xbox => xbox.Basic());
+                authenticator.AddForceJEAuthenticator();
+                var session = await authenticator.ExecuteForLauncherAsync();
                 successLogin(session);
             }
             catch (Exception ex)
@@ -74,7 +75,7 @@ namespace WinFormTest
             try
             {
                 var loginHandler = JELoginWrapper.Instance.LoginHandler;
-                var selectedAccount = loginHandler.GetAccounts().GetAccount(selectedAccountIdentifier);
+                var selectedAccount = loginHandler.AccountManager.GetAccounts().GetAccount(selectedAccountIdentifier);
                 var session = await loginHandler.Authenticate(selectedAccount);
                 successLogin(session);
             }
@@ -96,7 +97,7 @@ namespace WinFormTest
             }
 
             var loginHandler = JELoginWrapper.Instance.LoginHandler;
-            var selectedAccount = loginHandler.GetAccounts().GetAccount(selectedAccountIdentifier);
+            var selectedAccount = loginHandler.AccountManager.GetAccounts().GetAccount(selectedAccountIdentifier);
             await loginHandler.Signout(selectedAccount);
 
             listAccounts();

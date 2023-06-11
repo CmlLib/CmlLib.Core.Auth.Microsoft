@@ -29,7 +29,7 @@ public class JELoginHandler : XboxGameLoginHandler
     public Task<MSession> Authenticate(CancellationToken cancellationToken = default)
     {
         var account = AccountManager.GetDefaultAccount();
-        return Authenticate(account);
+        return Authenticate(account, cancellationToken);
     }
 
     public async Task<MSession> Authenticate(

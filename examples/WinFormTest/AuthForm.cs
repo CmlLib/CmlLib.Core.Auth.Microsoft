@@ -2,8 +2,11 @@
 using Microsoft.Identity.Client;
 using XboxAuthNet.Game.Authenticators;
 using XboxAuthNet.Game.Accounts;
+using XboxAuthNet.Game.Msal;
 using XboxAuthNet.OAuth.Models;
 using XboxAuthNet.XboxLive;
+using XboxAuthNet.Game.OAuth;
+using CmlLib.Core.Auth.Microsoft.Authenticators;
 
 namespace WinFormTest
 {
@@ -25,7 +28,7 @@ namespace WinFormTest
 
         private void selectDefaultLoginSettings()
         {
-            cbLoginMode.SelectedIndex = 0;
+            cbLoginPreset.SelectedIndex = 0;
             cbDevicePreset.SelectedIndex = 0;
             cbOAuthLoginMode.SelectedIndex = 0;
             txtScope.Text = XboxAuthConstants.XboxScope;
@@ -43,6 +46,24 @@ namespace WinFormTest
             }
             cbAccounts.Items.Add("<New Account>");
             cbAccounts.SelectedItem = "<New Account>";
+        }
+
+        private void cbLoginPreset_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cbLoginPreset.SelectedIndex == 0) // interactive
+            {
+                cbOAuthValidation.Checked = false;
+                cbJEValidatation.Checked = false;
+                cbAccounts.SelectedItem = "<New Account>";
+                cbOAuthLoginMode.SelectedItem = "InteractiveMicrosoftOAuth";
+            }
+            else if (cbLoginPreset.SelectedIndex == 1) // silent
+            {
+                cbOAuthValidation.Checked = true;
+                cbJEValidatation.Checked = true;
+                cbAccounts.SelectedItem = JELoginWrapper.Instance.LoginHandler.AccountManager.GetDefaultAccount().Identifier;
+                cbOAuthLoginMode.SelectedItem = "SilentMicrosoftOAuth";
+            }
         }
 
         private void cbDevicePreset_SelectedIndexChanged(object sender, EventArgs e)
@@ -92,7 +113,7 @@ namespace WinFormTest
                 else
                     account = loginHandler.AccountManager.GetAccounts().GetAccount(selectedAccountIdentifier);
 
-                await authenticate(cbLoginMode.Text, account);
+                await authenticate(account, default);
                 this.Close();
             }
             catch (Exception ex)
@@ -104,137 +125,133 @@ namespace WinFormTest
             this.Enabled = true;
         }
 
-        private async Task authenticate(string loginMode, IXboxGameAccount account)
+        private async Task authenticate(IXboxGameAccount account, CancellationToken cancellationToken)
         {
-            CompositeAuthenticator builder;
+            var authenticator = JELoginWrapper.Instance.LoginHandler.CreateAuthenticator(account, cancellationToken);
+            addOAuth(authenticator);
+            addXboxAuth(authenticator);
+            addJEAuth(authenticator);
+            var result = await authenticator.ExecuteForLauncherAsync();
+            MessageBox.Show(result.Username);
+        }
 
-            var defaultOAuth = cbOAuthLoginMode.SelectedIndex == 0;
-            
-            if (loginMode == "JEAuthentication")
+        private async void addOAuth(CompositeAuthenticator authenticator)
+        {
+            var mode = cbOAuthLoginMode.Text;
+            if (mode.Contains("OAuth"))
             {
-                try
+                addMicrosoftOAuth(authenticator, mode);
+            }
+            else if (mode.Contains("Msal"))
+            {
+                await addMsalOAuth(authenticator, mode);
+            }
+        }
+
+        private async Task addMsalOAuth(CompositeAuthenticator authenticator, string mode)
+        {
+            msalApp = await JELoginWrapper.Instance.GetMsalAppAsync(txtClientId.Text);
+            authenticator.AddMsalOAuth(msalApp, msal =>
+            {
+                if (mode == "InteractiveMsalOAuth")
                 {
-                    await authenticate("SilentJEAuthentication", account);
+                    return msal.Interactive();
                 }
-                catch (Exception)
+                else if (mode == "SilentMsalOAuth")
                 {
-                    await authenticate("InteractiveJEAuthentication", account);
+                    return msal.Silent();
                 }
+                else if (mode == "DeviceCodeOAuth")
+                {
+                    return msal.DeviceCode(deviceCode =>
+                    {
+                        var deviceCodeForm = new DeviceCodeForm();
+                        deviceCodeForm.SetDeviceCodeResult(deviceCode);
+                        deviceCodeForm.ShowDialog();
+                        return Task.CompletedTask;
+                    });
+                }
+                else
+                {
+                    throw new InvalidOperationException("Can't recognize OAuth option: " + mode);
+                }
+            });
+        }
 
-                return;
-            }
-            else if (loginMode == "SilentJEAuthentication")
+        private void addMicrosoftOAuth(CompositeAuthenticator authenticator, string mode)
+        {
+            var oauthClient = JELoginWrapper.Instance.GetOAuthClientInfo(txtClientId.Text);
+            var oauthSelector = (MicrosoftOAuthBuilder oauth) =>
             {
-                if (defaultOAuth)
-                    cbOAuthLoginMode.SelectedItem = "SilentMicrosoftOAuth";
-                builder = loginHandler.AuthenticateSilently(account);
-            }
-            else if (loginMode == "InteractiveJEAuthentication")
+                if (mode == "InteractiveMicrosoftOAuth")
+                {
+                    return oauth.Interactive(new MicrosoftOAuthParameters
+                    {
+                        Prompt = MicrosoftOAuthPromptModes.SelectAccount
+                    });
+                }
+                else if (mode == "SilentMicrosoftOAuth")
+                {
+                    return oauth.Silent();
+                }
+                else
+                {
+                    throw new InvalidOperationException("Can't recognize OAuth option: " + mode);
+                }
+            };
+            if (cbOAuthValidation.Checked)
             {
-                if (defaultOAuth)
-                    cbOAuthLoginMode.SelectedItem = "InteractiveMicrosoftOAuth";
-                builder = loginHandler.AuthenticateInteractively(account);
+                authenticator.AddMicrosoftOAuthForJE(oauthSelector);
             }
             else
             {
-                throw new InvalidOperationException("unknown loginMode");
-            }
-
-            await setAuthStrategies(builder);
-            if (defaultOAuth)
-                cbOAuthLoginMode.SelectedIndex = 0;
-            
-            var result = await builder.ExecuteAsync();
-            MessageBox.Show(result.Profile?.Username);
-        }
-
-        private async Task setAuthStrategies(XboxGameAuthenticationBuilder<JESession> builder)
-        {
-            var strategy = cbOAuthLoginMode.Text;
-            if (strategy.Contains("OAuth"))
-            {
-                var oauthClient = JELoginWrapper.Instance.GetOAuthClientInfo(txtClientId.Text);
-                builder.WithMicrosoftOAuth(oauthClient, builder =>
-                {
-                    setMicrosoftOAuth(builder.MicrosoftOAuth, strategy);
-                    setXboxAuth(builder.XboxAuth);
-                });
-            }
-            else if (cbOAuthLoginMode.Text.Contains("Msal"))
-            {
-                msalApp = await JELoginWrapper.Instance.GetMsalAppAsync(txtClientId.Text);
-                builder.WithMsalOAuth(builder =>
-                {
-                    setMsalOAuth(builder.MsalOAuth, strategy);
-                    setXboxAuth(builder.XboxAuth);
-                });
+                authenticator.AddForceMicrosoftOAuthForJE(oauthSelector);
             }
         }
 
-        private void setMicrosoftOAuth<T>(MicrosoftOAuthStrategyBuilder<T> builder, string strategy)
+        private void addXboxAuth(CompositeAuthenticator authenticator)
         {
-            if (strategy == "InteractiveMicrosoftOAuth")
+            var mode = cbXboxLoginMode.Text;
+            var clientId = txtClientId.Text;
+            authenticator.AddXboxAuthForJE(xbox =>
             {
-                builder.UseInteractiveStrategy(new MicrosoftOAuthParameters
+                xbox.WithDeviceType(txtDeviceType.Text);
+                xbox.WithDeviceVersion(txtDeviceVersion.Text);
+                if (mode == "Basic")
                 {
-                    Prompt = MicrosoftOAuthPromptModes.SelectAccount
-                });
-            }
-            else if (strategy == "SilentMicrosoftOAuth")
+                    return xbox.Basic();
+                }
+                else if (mode == "Full")
+                {
+                    return xbox.Full();
+                }
+                else if (mode == "Sisu")
+                {
+                    return xbox.Sisu(clientId);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Can't recognize XboxAuth option: " + mode);
+                }
+            });
+        }
+
+        private void addJEAuth(CompositeAuthenticator authenticator)
+        {
+            var jeBuilder = (JEAuthenticatorBuilder builder) =>
             {
-                builder.UseSilentStrategy();
+                if (cbJEGameOwnershipChecker.Checked)
+                    builder.WithGameOwnershipChecker();
+                return builder.Build();
+            };
+
+            if (cbJEValidatation.Checked)
+            {
+                authenticator.AddJEAuthenticator(jeBuilder);
             }
             else
             {
-                throw new InvalidOperationException("Can't recognize OAuth option: " + strategy);
-            }
-        }
-
-        private void setMsalOAuth<T>(MsalOAuthStrategyBuilder<T> builder, string strategy)
-        {
-            if (msalApp == null)
-                throw new InvalidOperationException("initialize msalApp first");
-            
-            if (strategy == "InteractiveMsalOAuth")
-            {
-                builder.UseInteractiveStrategy(msalApp);
-            }
-            else if (strategy == "SilentMsalOAuth")
-            {
-                builder.UseSilentStrategy(msalApp);
-            }
-            else if (strategy == "DeviceCodeOAuth")
-            {
-                builder.UseDeviceCodeStrategy(msalApp, deviceCode =>
-                {
-                    var deviceCodeForm = new DeviceCodeForm();
-                    deviceCodeForm.SetDeviceCodeResult(deviceCode);
-                    deviceCodeForm.ShowDialog();
-                    return Task.CompletedTask;
-                });
-            }
-            else
-            {
-                throw new InvalidOperationException("Can't recognize OAuth option: " + strategy);
-            }
-        }
-
-        private void setXboxAuth<T>(XboxAuthStrategyBuilder<T> builder)
-        {
-            var strategy = cbXboxLoginMode.Text;
-            builder.WithDeviceType(txtDeviceType.Text);
-            builder.WithDeviceVersion(txtDeviceVersion.Text);
-            if (strategy == "Basic")
-            {
-                builder.UseBasicStrategy();
-            }
-            else if (strategy == "Full")
-            {
-                builder.UseFullStrategy();
-            }
-            else if (strategy == "Sisu")
-            {
-                builder.UseSisuStrategy(txtClientId.Text);
+                authenticator.AddForceJEAuthenticator(jeBuilder);
             }
         }
     }
