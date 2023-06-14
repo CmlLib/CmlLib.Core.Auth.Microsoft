@@ -7,11 +7,8 @@ namespace CmlLib.Core.Bedrock.Auth.Test;
 
 public class Sample
 {
-    MicrosoftOAuthClientInfo clientInfo = new()
-    {
-        Scopes = "<MICROSOFT_OAUTH_SCOPES>",
-        ClientId = "<MICROSOFT_OAUTH_CLIENTID>"
-    };
+    MicrosoftOAuthClientInfo clientInfo = new(
+        "<MICROSOFT_OAUTH_SCOPES>", "<MICROSOFT_OAUTH_CLIENTID>");
 
     private XboxGameLoginHandler buildLoginHandler()
     {

@@ -2,11 +2,8 @@ using XboxAuthNet.OAuth;
 
 namespace XboxAuthNet.Game.OAuth;
 
-public class MicrosoftOAuthClientInfo
+public record class MicrosoftOAuthClientInfo(string ClientId, string Scopes)
 {
-    public string? ClientId { get; set; }
-    public string? Scopes { get; set; }
-
     public MicrosoftOAuthCodeApiClient CreateApiClientForOAuthCode(HttpClient httpClient)
     {
         if (string.IsNullOrEmpty(ClientId))

@@ -48,6 +48,6 @@ public class MicrosoftOAuthBuilderTest
 
     public MicrosoftOAuthBuilder createBuilder()
     {
-        return new MicrosoftOAuthBuilder(new MicrosoftOAuthClientInfo());
+        return new MicrosoftOAuthBuilder(new MicrosoftOAuthClientInfo("ClientId", "Scopes"));
     }
 }

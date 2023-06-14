@@ -10,11 +10,9 @@ namespace CmlLib.Core.Auth.Microsoft;
 
 public class JELoginHandler : XboxGameLoginHandler
 {
-    public readonly static MicrosoftOAuthClientInfo DefaultMicrosoftOAuthClientInfo = new()
-    {
-        ClientId = XboxGameTitles.MinecraftJava,
-        Scopes = XboxAuthConstants.XboxScope
-    };
+    public readonly static MicrosoftOAuthClientInfo DefaultMicrosoftOAuthClientInfo = new(
+        ClientId: XboxGameTitles.MinecraftJava, 
+        Scopes: XboxAuthConstants.XboxScope);
 
     public readonly static string RelyingParty = "rp://api.minecraftservices.com/";
 
@@ -23,7 +21,7 @@ public class JELoginHandler : XboxGameLoginHandler
         IXboxGameAccountManager accountManager) :
         base(httpClient, accountManager)
     {
-
+        
     }
 
     public Task<MSession> Authenticate(CancellationToken cancellationToken = default)
