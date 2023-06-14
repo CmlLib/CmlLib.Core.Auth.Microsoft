@@ -34,6 +34,7 @@ public abstract class CompositeAuthenticatorBase : ICompositeAuthenticator
     {
         foreach (var authenticator in PostAuthenticators)
         {
+            context.CancellationToken.ThrowIfCancellationRequested();
             await authenticator.ExecuteAsync(context);
         }
     }

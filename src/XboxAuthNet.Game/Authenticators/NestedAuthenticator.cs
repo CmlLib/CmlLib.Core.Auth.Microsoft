@@ -16,19 +16,21 @@ public class NestedAuthenticator : CompositeAuthenticatorBase
 
     public override async ValueTask ExecuteAsync(AuthenticateContext context)
     {
-        await auth(Authenticators.Count() - 1, context); // starts from last one
+        await doInnerAuth(Authenticators.Count() - 1, context); // starts from last one
         await ExecutePostAuthenticators(context);
     }
 
-    private async ValueTask auth(int index, AuthenticateContext context)
+    private async ValueTask doInnerAuth(int index, AuthenticateContext context)
     {
+        context.CancellationToken.ThrowIfCancellationRequested();
+
         if (index < 0)
             return;
 
         var valid = await Validators.ElementAt(index).Validate(context);
         if (!valid)
         {
-            await auth(index - 1, context);
+            await doInnerAuth(index - 1, context);
             await Authenticators.ElementAt(index).ExecuteAsync(context);
         }
     }

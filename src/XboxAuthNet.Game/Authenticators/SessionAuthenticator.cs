@@ -14,8 +14,6 @@ public abstract class SessionAuthenticator<T> : IAuthenticator
     
     public async ValueTask ExecuteAsync(AuthenticateContext context)
     {
-        context.CancellationToken.ThrowIfCancellationRequested();
-        
         _context = context;
         var result = await Authenticate(context);
         SessionSource.Set(context.SessionStorage, result);

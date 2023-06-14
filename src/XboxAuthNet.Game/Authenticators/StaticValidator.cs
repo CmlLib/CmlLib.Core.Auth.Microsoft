@@ -11,7 +11,6 @@ public class StaticValidator : ISessionValidator
 
     public ValueTask<bool> Validate(AuthenticateContext context)
     {
-        context.CancellationToken.ThrowIfCancellationRequested();
         return new ValueTask<bool>(_valid);
     }
 }

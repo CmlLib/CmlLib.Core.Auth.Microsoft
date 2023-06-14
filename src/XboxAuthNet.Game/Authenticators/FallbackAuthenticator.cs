@@ -15,6 +15,8 @@ public class FallbackAuthenticator : CompositeAuthenticatorBase
 
         for (int i = 0; i < count; i++)
         {
+            context.CancellationToken.ThrowIfCancellationRequested();
+
             var authenticator = Authenticators.ElementAt(i);
             var validator = Validators.ElementAt(i);
 

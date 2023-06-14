@@ -13,8 +13,6 @@ public abstract class SessionValidator<T> : ISessionValidator
 
     public ValueTask<bool> Validate(AuthenticateContext context)
     {
-        context.CancellationToken.ThrowIfCancellationRequested();
-        
         var session = _sessionSource.Get(context.SessionStorage);
         if (session == null)
             return new ValueTask<bool>(false);
