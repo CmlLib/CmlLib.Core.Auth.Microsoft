@@ -108,29 +108,4 @@ public class XboxGameAccountCollectionTest
             account1, account4
         }));
     }
-
-    class TestAccount : XboxGameAccount
-    {
-        public static TestAccount Create(string identifier) => 
-            Create(identifier, DateTime.MinValue);
-
-        public static TestAccount Create(string identifier, DateTime lastAccess)
-        {
-            var sessionStorage = new InMemorySessionStorage();
-            sessionStorage.Set<string>("identifier", identifier);
-            LastAccessSource.Default.Set(sessionStorage, lastAccess);
-            return new TestAccount(sessionStorage);
-        }
-
-        public TestAccount(ISessionStorage sessionStorage)
-        : base(sessionStorage)
-        {
-            
-        }
-
-        protected override string? GetIdentifier()
-        {
-            return SessionStorage.Get<string>("identifier");
-        }
-    }
 }
