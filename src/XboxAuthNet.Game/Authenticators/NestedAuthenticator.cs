@@ -2,7 +2,7 @@ using XboxAuthNet.Game.SessionStorages;
 
 namespace XboxAuthNet.Game.Authenticators;
 
-public class CompositeAuthenticator : CompositeAuthenticatorBase
+public class NestedAuthenticator : CompositeAuthenticatorBase
 {
     public AuthenticateContext? Context { get; set; }
 

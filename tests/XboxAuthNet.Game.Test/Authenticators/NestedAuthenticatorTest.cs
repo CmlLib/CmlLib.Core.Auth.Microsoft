@@ -5,13 +5,13 @@ using XboxAuthNet.Game.SessionStorages;
 namespace XboxAuthNet.Game.Test.Authenticators;
 
 [TestFixture]
-public class CompositeAuthenticatorTest
+public class NestedAuthenticatorTest
 {
     [Test]
     public async Task TestMixedAuthenticator1()
     {
         var mocks = new MockAuthenticatorFactory();
-        var authenticator = new CompositeAuthenticator();
+        var authenticator = new NestedAuthenticator();
         authenticator.AddAuthenticator(StaticValidator.Invalid, mocks.ExpectToNotBeExecuted());
         authenticator.AddAuthenticator(StaticValidator.Valid, mocks.ExpectToNotBeExecuted());
         authenticator.AddPostAuthenticator(mocks.ExpectToBeExecuted());
@@ -39,7 +39,7 @@ public class CompositeAuthenticatorTest
     public async Task TestValidAuthenticator()
     {
         var mocks = new MockAuthenticatorFactory();
-        var authenticator = new CompositeAuthenticator();
+        var authenticator = new NestedAuthenticator();
         authenticator.AddAuthenticator(StaticValidator.Valid, mocks.ExpectToNotBeExecuted());
         authenticator.AddAuthenticator(StaticValidator.Valid, mocks.ExpectToNotBeExecuted());
         authenticator.AddPostAuthenticator(mocks.ExpectToBeExecuted());

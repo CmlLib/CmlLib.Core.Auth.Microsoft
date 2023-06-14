@@ -52,7 +52,7 @@ public static class Extensions
         self.AddAuthenticator(StaticValidator.Invalid, authenticator);
     }
 
-    public static async Task<MSession> ExecuteForLauncherAsync(this CompositeAuthenticator self)
+    public static async Task<MSession> ExecuteForLauncherAsync(this NestedAuthenticator self)
     {
         var session = await self.ExecuteAsync();
         var account = JEGameAccount.FromSessionStorage(session);

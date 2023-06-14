@@ -13,11 +13,11 @@ public class XboxGameLoginHandler
         IXboxGameAccountManager accountManager) =>
         (HttpClient, AccountManager) = (httpClient, accountManager);
 
-    public CompositeAuthenticator CreateAuthenticator(
+    public NestedAuthenticator CreateAuthenticator(
         IXboxGameAccount account,
         CancellationToken cancellationToken)
     {
-        var authenticator = new CompositeAuthenticator();
+        var authenticator = new NestedAuthenticator();
         authenticator.Context = createContext(account, cancellationToken);
         authenticator.AddPostAuthenticator(LastAccessLogger.Default);
         authenticator.AddPostAuthenticator(new AccountSaver(AccountManager));
@@ -34,11 +34,11 @@ public class XboxGameLoginHandler
             cancellationToken);
     }
 
-    public CompositeAuthenticator CreateAuthenticatorWithDefaultAccount(
+    public NestedAuthenticator CreateAuthenticatorWithDefaultAccount(
         CancellationToken cancellationToken = default) =>
         CreateAuthenticator(AccountManager.GetDefaultAccount(), cancellationToken);
 
-    public CompositeAuthenticator CreateAuthenticatorWithNewAccount(
+    public NestedAuthenticator CreateAuthenticatorWithNewAccount(
         CancellationToken cancellationToken = default) =>
         CreateAuthenticator(AccountManager.NewAccount(), cancellationToken);
 }

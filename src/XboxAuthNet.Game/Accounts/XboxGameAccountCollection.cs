@@ -28,7 +28,7 @@ public class XboxGameAccountCollection : ICollection<IXboxGameAccount>
     {
         var account = getAccount(identifier);
         if (account == null)
-            throw new Exception();
+            throw new KeyNotFoundException(identifier);
         return account;
     }
 

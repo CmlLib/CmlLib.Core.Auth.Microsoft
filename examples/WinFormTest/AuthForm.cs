@@ -135,7 +135,7 @@ namespace WinFormTest
             MessageBox.Show(result.Username);
         }
 
-        private async void addOAuth(CompositeAuthenticator authenticator)
+        private async void addOAuth(NestedAuthenticator authenticator)
         {
             var mode = cbOAuthLoginMode.Text;
             if (mode.Contains("OAuth"))
@@ -148,7 +148,7 @@ namespace WinFormTest
             }
         }
 
-        private async Task addMsalOAuth(CompositeAuthenticator authenticator, string mode)
+        private async Task addMsalOAuth(NestedAuthenticator authenticator, string mode)
         {
             msalApp = await JELoginWrapper.Instance.GetMsalAppAsync(txtClientId.Text);
             authenticator.AddMsalOAuth(msalApp, msal =>
@@ -178,7 +178,7 @@ namespace WinFormTest
             });
         }
 
-        private void addMicrosoftOAuth(CompositeAuthenticator authenticator, string mode)
+        private void addMicrosoftOAuth(NestedAuthenticator authenticator, string mode)
         {
             var oauthClient = JELoginWrapper.Instance.GetOAuthClientInfo(txtClientId.Text);
             var oauthSelector = (MicrosoftOAuthBuilder oauth) =>
@@ -209,7 +209,7 @@ namespace WinFormTest
             }
         }
 
-        private void addXboxAuth(CompositeAuthenticator authenticator)
+        private void addXboxAuth(NestedAuthenticator authenticator)
         {
             var mode = cbXboxLoginMode.Text;
             var clientId = txtClientId.Text;
@@ -236,7 +236,7 @@ namespace WinFormTest
             });
         }
 
-        private void addJEAuth(CompositeAuthenticator authenticator)
+        private void addJEAuth(NestedAuthenticator authenticator)
         {
             var jeBuilder = (JEAuthenticatorBuilder builder) =>
             {
