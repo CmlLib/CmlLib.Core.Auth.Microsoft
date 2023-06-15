@@ -10,12 +10,12 @@ public class XboxGameLoginHandler
     protected readonly HttpClient HttpClient;
     public IXboxGameAccountManager AccountManager { get; }
 
-    public XboxGameLoginHandler(
-        HttpClient httpClient,
-        IXboxGameAccountManager accountManager,
-        ILogger logger) =>
-        (HttpClient, AccountManager, _logger) = 
-        (httpClient, accountManager, logger);
+    public XboxGameLoginHandler(LoginHandlerParameters parameters)
+    {
+        _logger = parameters.Logger;
+        HttpClient = parameters.HttpClient;
+        AccountManager = parameters.AccountManager;
+    }
 
     public NestedAuthenticator CreateAuthenticator(
         IXboxGameAccount account,

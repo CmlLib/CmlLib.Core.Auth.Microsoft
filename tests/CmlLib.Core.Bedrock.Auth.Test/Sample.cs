@@ -13,10 +13,9 @@ public class Sample
 
     private XboxGameLoginHandler buildLoginHandler()
     {
-        return new XboxGameLoginHandler(
-            HttpHelper.DefaultHttpClient.Value, 
-            new InMemoryXboxGameAccountManager(XboxGameAccount.FromSessionStorage),
-            NullLogger.Instance);
+        var parameters = new XboxGameLoginHandlerBuilder()
+            .BuildParameters();
+        return new XboxGameLoginHandler(parameters);
     }
 
     public async Task<BESession?> AuthenticateInteractively()

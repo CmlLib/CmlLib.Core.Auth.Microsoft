@@ -17,10 +17,8 @@ public class JELoginHandler : XboxGameLoginHandler
     public readonly static string RelyingParty = "rp://api.minecraftservices.com/";
 
     public JELoginHandler(
-        HttpClient httpClient,
-        IXboxGameAccountManager accountManager,
-        ILogger logger) :
-        base(httpClient, accountManager, logger)
+        LoginHandlerParameters parameters) :
+        base(parameters)
     {
         
     }
