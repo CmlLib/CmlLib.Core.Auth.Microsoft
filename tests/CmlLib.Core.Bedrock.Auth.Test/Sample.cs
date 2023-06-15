@@ -2,6 +2,7 @@ using XboxAuthNet.Game;
 using XboxAuthNet.Game.Accounts;
 using CmlLib.Core.Bedrock.Auth.Sessions;
 using XboxAuthNet.Game.OAuth;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace CmlLib.Core.Bedrock.Auth.Test;
 
@@ -14,7 +15,8 @@ public class Sample
     {
         return new XboxGameLoginHandler(
             HttpHelper.DefaultHttpClient.Value, 
-            new InMemoryXboxGameAccountManager(XboxGameAccount.FromSessionStorage));
+            new InMemoryXboxGameAccountManager(XboxGameAccount.FromSessionStorage),
+            NullLogger.Instance);
     }
 
     public async Task<BESession?> AuthenticateInteractively()
