@@ -1,5 +1,7 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using XboxAuthNet.Game.Authenticators;
+using XboxAuthNet.Game.SessionStorages;
 
 namespace XboxAuthNet.Game.Test.Authenticators;
 
@@ -38,5 +40,17 @@ public class MockAuthenticatorFactory
                         $"Expected: {toStr(authenticators[failIndex].ExpectedToBeExecuted)}, " + 
                         $"Actual: {toStr(authenticators[failIndex].IsExecuted)}");
         }
+    }
+
+    public AuthenticateContext CreateContext() => 
+        CreateContext(new InMemorySessionStorage());
+
+    public AuthenticateContext CreateContext(ISessionStorage sessionStorage)
+    {
+        return new AuthenticateContext(
+            sessionStorage, 
+            null!, 
+            default, 
+            NullLogger.Instance);
     }
 }

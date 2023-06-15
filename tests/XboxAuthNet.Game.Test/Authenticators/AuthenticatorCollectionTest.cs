@@ -17,7 +17,7 @@ public class AuthenticatorCollectionTest
         collection.AddPostAuthenticator(mocks.ExpectToBeExecuted());
         collection.AddPostAuthenticator(mocks.ExpectToBeExecuted());
 
-        await collection.ExecuteAsync(createMockContext());
+        await collection.ExecuteAsync(mocks.CreateContext());
         mocks.TestExpectations();
     }
 
@@ -31,7 +31,7 @@ public class AuthenticatorCollectionTest
         collection.AddPostAuthenticator(mocks.ExpectToBeExecuted());
         collection.AddPostAuthenticator(mocks.ExpectToBeExecuted());
 
-        await collection.ExecuteAsync(createMockContext());
+        await collection.ExecuteAsync(mocks.CreateContext());
         mocks.TestExpectations();
     }
 
@@ -47,15 +47,7 @@ public class AuthenticatorCollectionTest
         collection.AddPostAuthenticator(mocks.ExpectToBeExecuted());
         collection.AddPostAuthenticator(mocks.ExpectToBeExecuted());
 
-        await collection.ExecuteAsync(createMockContext());
+        await collection.ExecuteAsync(mocks.CreateContext());
         mocks.TestExpectations();
-    }
-
-    private static AuthenticateContext createMockContext()
-    {
-        return new AuthenticateContext(
-            new InMemorySessionStorage(), 
-            null!, // mock authenticator does not need real HttpClient 
-            default);
     }
 }

@@ -5,7 +5,8 @@
 
 #if !TEST_SDK
 
-var test = new XboxAuthNet.Game.Test.Authenticators.StaticSessionAuthenticatorTest();
-await test.Test();
+//Console.WriteLine(DateTime.MinValue.CompareTo(DateTime.MinValue));
+var test = new XboxAuthNet.Game.Test.XboxGameAccountTest();
+test.TestCompareToEqual();
 
 #endif

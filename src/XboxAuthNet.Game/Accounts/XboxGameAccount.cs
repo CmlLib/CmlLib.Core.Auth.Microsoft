@@ -28,11 +28,11 @@ public class XboxGameAccount : IXboxGameAccount
 
     public int CompareTo(object? obj)
     {
-        var account = obj as XboxGameAccount;
-        if (account == null)
+        if (obj is not XboxGameAccount account)
             return 1;
-        
-        return this.LastAccess.CompareTo(account.LastAccess);
+        if (Equals(obj))
+            return LastAccess.CompareTo(account.LastAccess);
+        return Identifier.CompareTo(account.Identifier);
     }
 
     public override bool Equals(object? obj)

@@ -19,32 +19,34 @@ public class XboxGameAccountTest
     }
 
     [Test]
-    public void TestCompareToLess()
+    public void TestCompareLastAccess()
     {
-        var instance1 = TestAccount.Create("test1", DateTime.MinValue);
-        var instance2 = TestAccount.Create("test1", DateTime.MinValue.AddSeconds(10));
+        var instance1 = TestAccount.Create("a", DateTime.MinValue);
+        var instance2 = TestAccount.Create("a", DateTime.MinValue.AddSeconds(10));
 
         // instance1 < instance2
         Assert.That(instance1, Is.LessThan(instance2));
+        Assert.That(instance2, Is.GreaterThan(instance1));
     }
 
     [Test]
-    public void TestCompareToGreater()
+    public void TestCompareIdentifier()
     {
-        var instance1 = TestAccount.Create("test1", DateTime.MinValue);
-        var instance2 = TestAccount.Create("test1", DateTime.MinValue.AddSeconds(10));
+        var instance1 = TestAccount.Create("a", DateTime.MinValue);
+        var instance2 = TestAccount.Create("b", DateTime.MinValue);
 
         // instance1 < instance2
+        Assert.That(instance1, Is.LessThan(instance2));
         Assert.That(instance2, Is.GreaterThan(instance1));
     }
 
     [Test]
     public void TestCompareToEqual()
     {
-        var instance1 = TestAccount.Create("test1", DateTime.MinValue);
-        var instance2 = TestAccount.Create("test1", DateTime.MinValue);
+        var instance1 = TestAccount.Create("a", DateTime.MinValue);
+        var instance2 = TestAccount.Create("a", DateTime.MinValue);
 
         // instance1 == instance2
-        Assert.That(instance1.CompareTo(instance2) == 0);
+        Assert.That(instance1.CompareTo(instance2), Is.Zero);
     }
 }

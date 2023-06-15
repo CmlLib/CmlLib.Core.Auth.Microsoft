@@ -7,7 +7,8 @@ public class LastAccessLogger : IAuthenticator
 
     public ValueTask ExecuteAsync(AuthenticateContext context)
     {
-        LastAccessSource.Default.SetToNow(context.SessionStorage);
+        var str = LastAccessSource.Default.SetToNow(context.SessionStorage);
+        context.Logger.LogLastAccess(str);
         return new ValueTask();
     }
 }

@@ -21,15 +21,15 @@ public class XboxGameAccountCollection : ICollection<IXboxGameAccount>
             .Where(account => !string.IsNullOrEmpty(account.Identifier))
             .GroupBy(account => account.Identifier)
             .Select(group => group.OrderByDescending(_ => _).First())
-            .OrderByDescending(_ => _);
+            .OrderBy(_ => _);
     }
 
     public IXboxGameAccount GetAccount(string identifier)
     {
         var account = getAccount(identifier);
-        if (account == null)
-            throw new KeyNotFoundException(identifier);
-        return account;
+        if (account != null)
+            return account;
+        throw new KeyNotFoundException(identifier);
     }
 
     public bool TryGetAccount(string identifier, out IXboxGameAccount account)

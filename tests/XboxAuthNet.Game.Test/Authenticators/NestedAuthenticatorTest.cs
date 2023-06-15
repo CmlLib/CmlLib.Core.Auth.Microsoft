@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using XboxAuthNet.Game.Authenticators;
-using XboxAuthNet.Game.SessionStorages;
 
 namespace XboxAuthNet.Game.Test.Authenticators;
 
@@ -17,7 +16,7 @@ public class NestedAuthenticatorTest
         authenticator.AddPostAuthenticator(mocks.ExpectToBeExecuted());
         authenticator.AddPostAuthenticator(mocks.ExpectToBeExecuted());
     
-        await authenticator.ExecuteAsync(createMockContext());
+        await authenticator.ExecuteAsync(mocks.CreateContext());
         mocks.TestExpectations();
     }
 
@@ -31,7 +30,7 @@ public class NestedAuthenticatorTest
         authenticator.AddPostAuthenticator(mocks.ExpectToBeExecuted());
         authenticator.AddPostAuthenticator(mocks.ExpectToBeExecuted());
     
-        await authenticator.ExecuteAsync(createMockContext());
+        await authenticator.ExecuteAsync(mocks.CreateContext());
         mocks.TestExpectations();
     }
 
@@ -45,7 +44,7 @@ public class NestedAuthenticatorTest
         authenticator.AddPostAuthenticator(mocks.ExpectToBeExecuted());
         authenticator.AddPostAuthenticator(mocks.ExpectToBeExecuted());
     
-        await authenticator.ExecuteAsync(createMockContext());
+        await authenticator.ExecuteAsync(mocks.CreateContext());
         mocks.TestExpectations();
     }
 
@@ -59,15 +58,7 @@ public class NestedAuthenticatorTest
         authenticator.AddPostAuthenticator(mocks.ExpectToBeExecuted());
         authenticator.AddPostAuthenticator(mocks.ExpectToBeExecuted());
     
-        await authenticator.ExecuteAsync(createMockContext());
+        await authenticator.ExecuteAsync(mocks.CreateContext());
         mocks.TestExpectations();
-    }
-
-    private static AuthenticateContext createMockContext()
-    {
-        return new AuthenticateContext(
-            new InMemorySessionStorage(), 
-            null!, // mock authenticator does not need real HttpClient 
-            default);
     }
 }
