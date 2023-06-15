@@ -19,7 +19,6 @@ public class JETokenAuthenticator : SessionAuthenticator<JEToken>
 
     protected override async ValueTask<JEToken?> Authenticate(AuthenticateContext context)
     {
-        var session = GetSessionFromStorage() ?? new();
         var xboxTokens = _xboxSessionSource.Get(context.SessionStorage);
         var uhs = xboxTokens?.XstsToken?.UserHash;
         var xsts = xboxTokens?.XstsToken?.Token;
@@ -30,6 +29,7 @@ public class JETokenAuthenticator : SessionAuthenticator<JEToken>
             throw new JEAuthException("Cannot auth with null UserHash and null Token");
         }
 
+        context.Logger.LogJETokenAuthenticator();
         return await requestToken(uhs, xsts, context.HttpClient);
     }
 

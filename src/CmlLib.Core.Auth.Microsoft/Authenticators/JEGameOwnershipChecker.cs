@@ -16,6 +16,8 @@ public class JEGameOwnershipChecker : IAuthenticator
     {
         var token = _sessionSource.Get(context.SessionStorage);
         
+        context.Logger.LogJEGameOwnershipChecker();
+        
         var own = false;
         if (!string.IsNullOrEmpty(token?.AccessToken))
             own = await checkGameOwnership(context.HttpClient, token.AccessToken);

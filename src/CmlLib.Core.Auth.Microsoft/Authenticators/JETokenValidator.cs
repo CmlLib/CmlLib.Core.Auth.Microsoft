@@ -15,6 +15,7 @@ public class JETokenValidator : SessionValidator<JEToken>
     protected override ValueTask<bool> Validate(AuthenticateContext context, JEToken token)
     {
         var valid = (token != null && token.Validate());
+        context.Logger.LogJETokenValidator(valid);
         return new ValueTask<bool>(valid);
     }
 }

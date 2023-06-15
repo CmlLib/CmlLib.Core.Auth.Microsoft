@@ -14,6 +14,7 @@ public class XboxSessionValidator : SessionValidator<XboxAuthTokens>
     protected override ValueTask<bool> Validate(AuthenticateContext context, XboxAuthTokens session)
     {
         var result = session?.XstsToken?.Validate() ?? false;
+        context.Logger.LogXboxValidation(result);
         return new ValueTask<bool>(result);
     }
 }

@@ -24,6 +24,7 @@ public class XboxUserTokenAuth : SessionAuthenticator<XboxAuthTokens>
         if (string.IsNullOrEmpty(oAuthAccessToken))
             throw new XboxAuthException("OAuth access token was empty", 0);
 
+        context.Logger.LogXboxUserTokenAuth();
         var xboxAuthClient = new XboxAuthClient(context.HttpClient);
         var userToken = await xboxAuthClient.RequestUserToken(oAuthAccessToken);
 

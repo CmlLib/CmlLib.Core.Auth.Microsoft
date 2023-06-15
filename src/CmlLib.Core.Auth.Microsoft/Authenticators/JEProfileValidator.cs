@@ -14,9 +14,10 @@ public class JEProfileValidator : SessionValidator<JEProfile>
 
     protected override ValueTask<bool> Validate(AuthenticateContext context, JEProfile profile)
     {
-        var isValid = (profile != null &&
-            !string.IsNullOrEmpty(profile.Username) &&
+        var isValid = (
+            !string.IsNullOrEmpty(profile.Username) && 
             !string.IsNullOrEmpty(profile.UUID));
+        context.Logger.LogJEProfileValidator(isValid);
         return new ValueTask<bool>(isValid);
     }
 }

@@ -25,6 +25,8 @@ public class InteractiveMicrosoftOAuth : SessionAuthenticator<MicrosoftOAuthResp
         var builder = new MicrosoftOAuthCodeFlowBuilder(apiClient);
         _codeFlowBuilder.Invoke(builder);
         var oauthHandler = builder.Build();
+
+        context.Logger.LogInteractiveMicrosoftOAuth();
         return await oauthHandler.Authenticate(_parameters, context.CancellationToken);
     }
 }

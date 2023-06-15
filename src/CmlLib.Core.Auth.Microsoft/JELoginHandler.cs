@@ -1,7 +1,7 @@
+using Microsoft.Extensions.Logging;
 using XboxAuthNet.XboxLive;
 using XboxAuthNet.Game;
 using XboxAuthNet.Game.Accounts;
-using XboxAuthNet.Game.Authenticators;
 using XboxAuthNet.Game.OAuth;
 using XboxAuthNet.Game.XboxAuth;
 using CmlLib.Core.Auth.Microsoft.Sessions;
@@ -18,8 +18,9 @@ public class JELoginHandler : XboxGameLoginHandler
 
     public JELoginHandler(
         HttpClient httpClient,
-        IXboxGameAccountManager accountManager) :
-        base(httpClient, accountManager)
+        IXboxGameAccountManager accountManager,
+        ILogger logger) :
+        base(httpClient, accountManager, logger)
     {
         
     }

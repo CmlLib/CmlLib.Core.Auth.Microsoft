@@ -3,6 +3,7 @@
 
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using XboxAuthNet.Game.Authenticators;
 using XboxAuthNet.Game.SessionStorages;
 using XboxAuthNet.Game.XboxAuth;
@@ -33,6 +34,7 @@ public class BEAuthenticator : SessionAuthenticator<BESession>
             throw new BEAuthException("Cannot auth with null UserHash and null Token");
         }
 
+        context.Logger.LogInformation("Start BEAuthenticator");
         var tokens = await loginWithXbox(uhs, xsts, context.HttpClient);
         return new BESession()
         {

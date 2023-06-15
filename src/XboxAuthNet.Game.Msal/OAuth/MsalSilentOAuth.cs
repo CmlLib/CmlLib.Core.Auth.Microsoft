@@ -20,6 +20,7 @@ public class MsalSilentOAuth : MsalOAuth
     protected override async ValueTask<AuthenticationResult> AuthenticateWithMsal(
         AuthenticateContext context, IPublicClientApplication app, string[] scopes)
     {
+        context.Logger.LogMsalSilentOAuth(LoginHint);
         if (string.IsNullOrEmpty(LoginHint))
         {
             var accounts = await app.GetAccountsAsync();

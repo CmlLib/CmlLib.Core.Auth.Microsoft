@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using XboxAuthNet.Game.Accounts;
 using XboxAuthNet.Game.Authenticators;
 
@@ -5,13 +6,16 @@ namespace XboxAuthNet.Game;
 
 public class XboxGameLoginHandler
 {
+    private readonly ILogger _logger;
     protected readonly HttpClient HttpClient;
     public IXboxGameAccountManager AccountManager { get; }
 
     public XboxGameLoginHandler(
         HttpClient httpClient,
-        IXboxGameAccountManager accountManager) =>
-        (HttpClient, AccountManager) = (httpClient, accountManager);
+        IXboxGameAccountManager accountManager,
+        ILogger logger) =>
+        (HttpClient, AccountManager, _logger) = 
+        (httpClient, accountManager, logger);
 
     public NestedAuthenticator CreateAuthenticator(
         IXboxGameAccount account,
@@ -31,7 +35,8 @@ public class XboxGameLoginHandler
         return new AuthenticateContext(
             account.SessionStorage,
             HttpClient,
-            cancellationToken);
+            cancellationToken,
+            _logger);
     }
 
     public NestedAuthenticator CreateAuthenticatorWithDefaultAccount(

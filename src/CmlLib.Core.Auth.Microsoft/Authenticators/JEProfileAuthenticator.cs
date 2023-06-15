@@ -21,6 +21,7 @@ public class JEProfileAuthenticator : SessionAuthenticator<JEProfile>
         if (string.IsNullOrEmpty(token?.AccessToken))
             throw new JEAuthException("Null access token");
 
+        context.Logger.LogJEProfileAuthenticator();
         var profile = await requestProfile(token.AccessToken, context.HttpClient);
 
         if (string.IsNullOrEmpty(profile.UUID))

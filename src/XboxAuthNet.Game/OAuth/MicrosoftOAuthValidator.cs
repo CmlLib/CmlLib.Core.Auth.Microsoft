@@ -15,6 +15,8 @@ public class MicrosoftOAuthValidator : SessionValidator<MicrosoftOAuthResponse>
     
     protected override ValueTask<bool> Validate(AuthenticateContext context, MicrosoftOAuthResponse session)
     {
-        return new ValueTask<bool>(session.Validate());
+        var result = session.Validate();
+        context.Logger.LogMicrosoftOAuthValidation(result);
+        return new ValueTask<bool>(result);
     }
 }

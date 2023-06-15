@@ -18,8 +18,9 @@ public class XboxXstsTokenAuth : SessionAuthenticator<XboxAuthTokens>
     protected override async ValueTask<XboxAuthTokens?> Authenticate(AuthenticateContext context)
     {
         var xboxTokens = GetSessionFromStorage() ?? new XboxAuthTokens();
-        var xboxAuthClient = new XboxAuthClient(context.HttpClient);
 
+        context.Logger.LogXboxXstsTokenAuth();
+        var xboxAuthClient = new XboxAuthClient(context.HttpClient);
         var xsts = await xboxAuthClient.RequestXsts(new XboxXstsRequest
         {
             UserToken = xboxTokens.UserToken?.Token,

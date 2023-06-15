@@ -22,6 +22,7 @@ public class MsalInteractiveOAuth : MsalOAuth
     protected override async ValueTask<AuthenticationResult> AuthenticateWithMsal(
         AuthenticateContext context, IPublicClientApplication app, string[] scopes)
     {
+        context.Logger.LogMsalInteractiveOAuth();
         var builder = app.AcquireTokenInteractive(scopes);
         if (!UseDefaultWebViewOption)
             builder.WithUseEmbeddedWebView(UseEmbeddedWebView);

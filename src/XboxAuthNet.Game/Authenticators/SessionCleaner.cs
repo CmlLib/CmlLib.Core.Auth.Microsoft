@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using XboxAuthNet.Game.SessionStorages;
 
 namespace XboxAuthNet.Game.Authenticators;
@@ -12,6 +13,7 @@ public class SessionCleaner<T> : SessionAuthenticator<T>
 
     protected override ValueTask<T?> Authenticate(AuthenticateContext context)
     {
+        context.Logger.LogSessionCleaner(typeof(T).Name);
         return default;
     }
 }

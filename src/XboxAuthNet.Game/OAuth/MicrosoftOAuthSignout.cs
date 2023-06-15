@@ -29,6 +29,7 @@ public class MicrosoftOAuthSignout : SessionAuthenticator<MicrosoftOAuthResponse
         builderInvoker.Invoke(builder);
         var codeFlow = builder.Build();   
 
+        context.Logger.LogMicrosoftOAuthSignout();
         await codeFlow.Signout(context.CancellationToken);
         return null;
     }

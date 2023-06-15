@@ -20,6 +20,7 @@ public class SilentMicrosoftOAuth : SessionAuthenticator<MicrosoftOAuthResponse>
         if (string.IsNullOrEmpty(session?.RefreshToken))
             throw new MicrosoftOAuthException("no refresh token", 0);
 
+        context.Logger.LogSilentMicrosoftOAuth();
         var apiClient = _clientInfo.CreateApiClientForOAuthCode(context.HttpClient);
         return await apiClient.RefreshToken(
             session.RefreshToken, 

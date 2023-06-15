@@ -23,6 +23,7 @@ public class XboxSisuAuth : SessionAuthenticator<XboxAuthTokens>
     {
         var xboxTokens = GetSessionFromStorage() ?? new XboxAuthTokens();
 
+        context.Logger.LogXboxSisu();
         var xboxAuthClient = new XboxAuthClient(context.HttpClient);
         var sisuResponse = await xboxAuthClient.SisuAuth(new XboxSisuAuthRequest
         {

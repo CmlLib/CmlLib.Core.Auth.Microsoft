@@ -1,6 +1,8 @@
 ﻿using XboxAuthNet.Game;
 using XboxAuthNet.Game.Accounts;
 using CmlLib.Core.Auth.Microsoft.Sessions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace CmlLib.Core.Auth.Microsoft
 {
@@ -23,6 +25,8 @@ namespace CmlLib.Core.Auth.Microsoft
             set => _accountManager = value;
         }
 
+        public ILogger Logger { get; set; } = NullLogger.Instance;
+
         public JELoginHandlerBuilder WithHttpClient(HttpClient httpClient)
         {
             HttpClient = httpClient;
@@ -40,6 +44,12 @@ namespace CmlLib.Core.Auth.Microsoft
             return this;
         }
 
+        public JELoginHandlerBuilder WithLogger(ILogger logger)
+        {
+            Logger = logger;
+            return this;
+        }
+
         private IXboxGameAccountManager createDefaultAccountManager()
         {
             var defaultFilePath = Path.Combine(MinecraftPath.GetOSDefaultPath(), "cml_accounts.json");
@@ -53,7 +63,10 @@ namespace CmlLib.Core.Auth.Microsoft
 
         public JELoginHandler Build()
         {
-            return new JELoginHandler(HttpClient, AccountManager);
+            return new JELoginHandler(
+                HttpClient, 
+                AccountManager,
+                Logger);
         }
     }
 }
