@@ -53,7 +53,7 @@ public class JELoginHandler : XboxGameLoginHandler
     {
         var authenticator = CreateAuthenticator(account, cancellationToken);
         authenticator.AddForceMicrosoftOAuthForJE(oauth => oauth.Interactive());
-        authenticator.AddForceXboxAuth(xbox => xbox.Basic());
+        authenticator.AddXboxAuthForJE(xbox => xbox.Basic());
         authenticator.AddForceJEAuthenticator();
 
         return await authenticator.ExecuteForLauncherAsync();
