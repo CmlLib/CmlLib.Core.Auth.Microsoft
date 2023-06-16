@@ -29,6 +29,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "benchmarks", "benchmarks", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XboxAuthNet.Game.Benchmarks", "benchmarks\XboxAuthNet.Game.Benchmarks\XboxAuthNet.Game.Benchmarks.csproj", "{CF046B29-DC9C-4B9E-83A9-4FB166416A26}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTest", "examples\ConsoleTest\ConsoleTest.csproj", "{BDFCFF33-9B1C-4DBF-AB9C-07A281FD69E8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,10 @@ Global
 		{CF046B29-DC9C-4B9E-83A9-4FB166416A26}.Debug|Any CPU.Build.0 = Release|Any CPU
 		{CF046B29-DC9C-4B9E-83A9-4FB166416A26}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF046B29-DC9C-4B9E-83A9-4FB166416A26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDFCFF33-9B1C-4DBF-AB9C-07A281FD69E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDFCFF33-9B1C-4DBF-AB9C-07A281FD69E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDFCFF33-9B1C-4DBF-AB9C-07A281FD69E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDFCFF33-9B1C-4DBF-AB9C-07A281FD69E8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -85,5 +91,6 @@ Global
 		{F1437601-5192-4212-B921-0DDBBD8C5B87} = {88C2E145-1488-409C-88A4-3ADD7C45563D}
 		{45014B23-99CA-4A60-AFE4-C4D37E70911D} = {FC0D3241-6BBC-48DC-BBFE-5834BC26DFA0}
 		{CF046B29-DC9C-4B9E-83A9-4FB166416A26} = {81C1B932-6FBC-4647-B33E-8C99568E42B4}
+		{BDFCFF33-9B1C-4DBF-AB9C-07A281FD69E8} = {FC0D3241-6BBC-48DC-BBFE-5834BC26DFA0}
 	EndGlobalSection
 EndGlobal
