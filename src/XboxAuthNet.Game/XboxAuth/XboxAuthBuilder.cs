@@ -140,5 +140,8 @@ public class XboxAuthBuilder
         new SessionCleaner<XboxAuthTokens>(SessionSource);
 
     private string tryGetRelyingParty() => RelyingParty ?? 
-        throw new InvalidOperationException(nameof(RelyingParty));
+        throw new InvalidOperationException(
+            "RelyingParty was not set. " + 
+            "Call `WithRelyingParty(\"relyingParty\")` first or " + 
+            "Call method with relyingParty parameter.");
 }
