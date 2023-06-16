@@ -15,4 +15,8 @@
     <ProjectReference Include="../../src/XboxAuthNet.Game.Msal/XboxAuthNet.Game.Msal.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
+  </ItemGroup>
+
 </Project>

@@ -48,11 +48,8 @@ public class JELoginWrapper
 
     private void initializeOAuthClient(string cid)
     {
-        oauthClient = new MicrosoftOAuthClientInfo
-        {
-            ClientId = cid,
-            Scopes = JELoginHandler.DefaultMicrosoftOAuthClientInfo.Scopes
-        };
+        oauthClient = new MicrosoftOAuthClientInfo(
+            cid, JELoginHandler.DefaultMicrosoftOAuthClientInfo.Scopes);
     }
 
     private bool checkMsalInitializingRequired(string cid)
