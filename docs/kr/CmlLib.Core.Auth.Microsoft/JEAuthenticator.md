@@ -40,3 +40,11 @@ var session = await loginHandler.AuthenticateInteractively()
 `true` 로 설정하면 먼저 캐시된 토큰을 검사해 토큰이 만료된 경우에만 인증을 진행합니다. 토큰이 만료되지 않은 경우라면 캐시된 토큰을 즉시 반환합니다. 
 
 `AuthenticateSilently()` 메서드를 호출한 경우 기본 값은 `true`, `AuthenticateInteractively()` 메서드를 호출한 경우 기본 값은 `false` 입니다. 
+
+## JEAuthException
+
+마인크래프트 JE 로그인 도중 문제가 발생한 경우 이 예외가 발생합니다. `ErrorType`, `Error`, `ErrorMessage` 속성으로 자세한 에러 내용을 확인할 수 있습니다. 
+
+### NOT_FOUND
+
+유저가 게임을 가지고 있지 않은 경우. (데모 버전) 

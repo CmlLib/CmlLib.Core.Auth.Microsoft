@@ -29,13 +29,6 @@ var oauth = sessionSource.Get();
 
 `IXboxGameAccount` 는 `ISessionStorage` 를 대표하는 문자열(Identifier)을 만들어 다른 `ISessionStorage` 와 구분할 수 있는 방법을 제공합니다. 예를 들어 `CmlLib.Core.Auth.Microsoft` 는 기본적으로 `JEGameAccount` 구현체를 사용하는데, 이는 마인크래프트 JE 유저의 UUID 값을 Identifier 로 사용합니다. 
 
-### JEGameAccount
-
-```csharp
-var account = loginHandler.GetAccounts().First();
-
-```
-
 ## IXboxGameAccountManager
 
 `IXboxGameAccountManager` 는 `XboxGameAccountCollection`을 저장하고 불러오는 방법을 제공합니다. `JsonXboxGameAccountManager` 는 모든 `IXboxGameAccount` 를 하나의 Json 파일에 저장하고 불러옵니다. 
