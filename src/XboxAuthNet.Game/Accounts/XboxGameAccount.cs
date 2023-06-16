@@ -26,13 +26,23 @@ public class XboxGameAccount : IXboxGameAccount
         return uhs;
     }
 
-    public int CompareTo(object? obj)
+    public int CompareTo(object? other)
     {
-        if (obj is not XboxGameAccount account)
+        // -1: this instance precedes other
+        //  0: same position
+        //  1: this instance follows other or other is not a valid object
+
+        if (other is not XboxGameAccount account)
             return 1;
-        if (Equals(obj))
+
+        if (Equals(other))
             return LastAccess.CompareTo(account.LastAccess);
-        return Identifier.CompareTo(account.Identifier);
+        else
+        {
+            var thisIdentifier = Identifier ?? "";
+            var otherIdentifier = account.Identifier ?? "";
+            return thisIdentifier.CompareTo(otherIdentifier);
+        }
     }
 
     public override bool Equals(object? obj)
