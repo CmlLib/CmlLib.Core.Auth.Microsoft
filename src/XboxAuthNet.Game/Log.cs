@@ -18,7 +18,7 @@ internal static partial class Log
 
     public static void LogFallbackAuthenticatorException(this ILogger logger, Exception exception)
     {
-        logger.LogError("Catch exception by FallbackAuthenticator", exception);
+        logger.LogError(exception, "Catch exception by FallbackAuthenticator");
     }
 
     [LoggerMessage(

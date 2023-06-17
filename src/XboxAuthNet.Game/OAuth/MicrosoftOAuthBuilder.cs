@@ -19,6 +19,11 @@ public class MicrosoftOAuthBuilder
         set => _sessionSource = value;
     }
 
+    private MicrosoftOAuthParameters createDefaultParameters() => new MicrosoftOAuthParameters
+    {
+        Prompt = MicrosoftOAuthPromptModes.SelectAccount
+    };
+
     public ISessionValidator Validator() =>
         new MicrosoftOAuthValidator(SessionSource);
 
@@ -26,13 +31,13 @@ public class MicrosoftOAuthBuilder
         new SilentMicrosoftOAuth(_clientInfo, SessionSource);
 
     public IAuthenticator Interactive() =>
-        Interactive(builder => {}, new MicrosoftOAuthParameters());
+        Interactive(builder => {}, createDefaultParameters());
 
     public IAuthenticator Interactive(MicrosoftOAuthParameters parameters) =>
         Interactive(builder => {}, parameters);
 
     public IAuthenticator Interactive(Action<MicrosoftOAuthCodeFlowBuilder> builderInvoker) =>
-        Interactive(builderInvoker, new MicrosoftOAuthParameters());
+        Interactive(builderInvoker, createDefaultParameters());
 
     public IAuthenticator Interactive(
         Action<MicrosoftOAuthCodeFlowBuilder> builderInvoker,
