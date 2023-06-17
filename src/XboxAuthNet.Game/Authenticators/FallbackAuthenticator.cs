@@ -31,11 +31,11 @@ public class FallbackAuthenticator : CompositeAuthenticatorBase
             }
             catch (Exception ex)
             {
+                context.Logger.LogFallbackAuthenticatorException(ex);
                 exceptions.Add(ex);
 
                 if (i == count - 1) // failed at last authenticator
                 {
-                    context.Logger.LogFallbackAuthenticatorException(ex.ToString());
                     throw new AggregateException(exceptions);
                 }
             }

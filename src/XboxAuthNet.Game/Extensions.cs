@@ -17,18 +17,20 @@ public static class Extensions
     public static void AddAuthenticatorCollection(
         this ICompositeAuthenticator self,
         ISessionValidator validator, 
-        Func<AuthenticatorCollection, AuthenticatorCollection> collection)
+        Action<AuthenticatorCollection> collection)
     {
-        var authenticator = collection.Invoke(new AuthenticatorCollection());
+        var authenticator = new AuthenticatorCollection();
+        collection.Invoke(new AuthenticatorCollection());
         self.AddAuthenticator(validator, authenticator);
     }
 
     public static void AddFallbackAuthenticator(
         this ICompositeAuthenticator self,
         ISessionValidator validator,
-        Func<FallbackAuthenticator, FallbackAuthenticator> fallback)
+        Action<FallbackAuthenticator> fallback)
     {
-        var authenticator = fallback.Invoke(new FallbackAuthenticator());
+        var authenticator = new FallbackAuthenticator();
+        fallback.Invoke(authenticator);
         self.AddAuthenticator(validator, authenticator);
     }
     

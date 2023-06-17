@@ -16,11 +16,10 @@ internal static partial class Log
         Message = "Write last access: {lastAccess}")]
     public static partial void LogLastAccess(this ILogger logger, string lastAccess);
 
-    [LoggerMessage(
-        EventId = 1,
-        Level = LogLevel.Error,
-        Message = "Catch exception by FallbackAuthenticator: {error}")]
-    public static partial void LogFallbackAuthenticatorException(this ILogger logger, string error);
+    public static void LogFallbackAuthenticatorException(this ILogger logger, Exception exception)
+    {
+        logger.LogError("Catch exception by FallbackAuthenticator", exception);
+    }
 
     [LoggerMessage(
         EventId = 51, 
