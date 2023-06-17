@@ -5,6 +5,7 @@ using XboxAuthNet.Game.Accounts;
 using XboxAuthNet.Game.OAuth;
 using XboxAuthNet.Game.XboxAuth;
 using CmlLib.Core.Auth.Microsoft.Sessions;
+using XboxAuthNet.Game.Authenticators;
 
 namespace CmlLib.Core.Auth.Microsoft;
 
@@ -33,14 +34,15 @@ public class JELoginHandler : XboxGameLoginHandler
         IXboxGameAccount account,
         CancellationToken cancellationToken = default)
     {
-        try
+        var authenticator = CreateAuthenticator(account, cancellationToken);
+        authenticator.AddFallbackAuthenticator(StaticValidator.Invalid, fallback =>
         {
-            return await AuthenticateSilently(account, cancellationToken);
-        }
-        catch
-        {
-            return await AuthenticateInteractively(account, cancellationToken);
-        }
+            fallback.AddMicrosoftOAuthForJE(oauth => oauth.Silent());
+            fallback.AddForceMicrosoftOAuthForJE(oauth => oauth.Interactive());
+        });
+        authenticator.AddXboxAuthForJE(xbox => xbox.Basic());
+        authenticator.AddJEAuthenticator();
+        return await authenticator.ExecuteForLauncherAsync();
     }
 
     public Task<MSession> AuthenticateInteractively(
