@@ -59,4 +59,4 @@ MSAL 로 Microsoft OAuth 를 진행한 경우 TokenPrefix 를 바꿔야 합니�
 
 Xbox 인증 시 다양한 오류 시나리오가 있습니다. 인증 시 오류가 발생하면 `XboxAuthException` 이 발생하며 ErrorCode 와 ErrorMessage 를 얻을 수 있습니다.
 
-모든 ErrorCode 는 [여기서](./XboxAuthErrors.md) 확인할 수 있습니다. 
+모든 ErrorCode 는 [여기서](./Errors.md) 확인할 수 있습니다. 

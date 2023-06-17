@@ -1,16 +1,8 @@
-# OAuthStrategies
+# OAuth
 
 MSAL 을 통해 Microsoft OAuth 를 진행하는 방법을 제공합니다. 
 
 먼저 [ClientID](./ClientID.md) 를 통해 [IPublicClientAppliction 를 초기화](./MsalClientHelper.md)해야 합니다.
-
-For example:
-
-```csharp
-using XboxAuthNet.Game.Msal;
-
-var app = await MsalClientHelper.BuildApplicationWithCache("<CLIENT-ID>");
-```
 
 ## Interactive
 
@@ -23,7 +15,7 @@ authenticator.AddMsalOAuth(app, msal => msal.Interactive());
 ## EmbeddedWebView
 
 ```csharp
-authenticator.AddMsalOAuth(app, msal => msal.EmbeddedWebView())
+authenticator.AddMsalOAuth(app, msal => msal.EmbeddedWebView());
 ```
 
 <img src="https://user-images.githubusercontent.com/17783561/154946636-960d3673-bb51-4f3a-ae92-f36940b8e3ad.png" width="500">
@@ -51,18 +43,28 @@ MSAL 에 캐시된 계정 정보를 이용해 로그인을 시도합니다.
 ## DeviceCode
 
 ```csharp
-authenticator.AddMsalOAuth(app, msal => msal.DeviceCode());
+
+authenticator.AddMsalOAuth(app, msal => msal.DeviceCode(deviceCode =>
+{
+    Console.WriteLine(deviceCode.Message);
+    return Task.CompletedTask;
+}));
 ```
 
-<img src="https://user-images.githubusercontent.com/17783561/154950501-4ffbd21f-b780-4217-bd83-641ae3ac5e95.png" width="500">
-<img src="https://user-images.githubusercontent.com/17783561/154950743-823d5ecf-b303-4caf-a9cc-a1167007dd7c.png" width="500">
+DeviceCode 방식으로 로그인을 시도합니다. 이 방식은 클라이언트에서 웹 브라우저나 UI 가 필요하지 않은 대신 다른 기기에서 로그인을 진행할 수 있도록 해줍니다. 
 
-DeviceCode 방식으로 로그인을 시도합니다. 
+콘솔에서만 작동하는 런처를 제작한다면 이 방식을 사용하여 로그인을 진행하세요. 로그인은 유저가 웹 브라우저를 직접 열어 [https://www.microsoft.com/link] 으로 접속하여 진행할 수 있습니다. 이때 로그인은 런처를 실행하는 기기와 전혀 다른 기기에서도 진행할 수 있습니다. 예를 들어 유저는 자신의 휴대폰으로 위 링크에 접속해 로그인을 진행할 수 있습니다. 
+
+예제 코드는 콘솔에 다음과 같은 메세지를 출력합니다:
+
+```
+To sign in, use a web browser to open the page https://www.microsoft.com/link and enter the code XXXXXXXX to authenticate.
+```
 
 ## FromResult
 
 ```csharp
-var result = await app.AcquireTokenInteractive().ExecuteAsync();
+var result = await app.AcquireTokenInteractive(MsalClientHelper.XboxScopes).ExecuteAsync();
 authenticator.AddMsalOAuth(app, msal => msal.FromResult(result));
 ```
 

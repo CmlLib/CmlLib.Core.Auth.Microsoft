@@ -21,8 +21,7 @@ var session = await loginHandler.Authenticate();
 ## 새로운 계정으로 로그인
 
 ```csharp
-var session = await loginHandler.AuthenticateInteractively()
-    .ExecuteForLauncherAsync();
+var session = await loginHandler.AuthenticateInteractively();
 ```
 
 <img src="https://user-images.githubusercontent.com/17783561/154854388-38c473f1-7860-4a47-bdbe-622de37eef8b.png" width="500">
@@ -32,8 +31,7 @@ var session = await loginHandler.AuthenticateInteractively()
 ## 가장 최근에 플레이한 계정으로 로그인
 
 ```csharp
-var session = await loginHandler.AuthenticateSilently()
-    .ExecuteForLauncherAsync();
+var session = await loginHandler.AuthenticateSilently();
 ```
 
 가장 최근에 플레이한 계정 정보를 이용하여 로그인합니다. 로그인 정보가 이미 저장되어 있기 때문에 사용자가 마이크로소프트 계정을 입력할 필요 없이 자동으로 로그인이 완료됩니다. 로그인 정보가 저장되어 있지 않거나 만료된 로그인 정보를 가지고 있다면 예외를 발생합니다. 
@@ -98,7 +96,7 @@ var session = await authenticator.ExecuteForLauncherAsync();
 
 ### 2. Microsoft OAuth
 
-기본 로그인 방식은 [여기를 참고](./OAuth.md)하세요. 
+기본 로그인 방식은 [여기를 참고](../XboxAuthNet.Game/OAuth.md)하세요. 
 
 #### AddMicrosoftOAuthForJE(oauthBuilder)
 
@@ -108,11 +106,11 @@ var session = await authenticator.ExecuteForLauncherAsync();
 
 `AddForceMicrosoftOAuth(JELoginHandler.DefaultMicrosoftOAuthClientInfo, oauthBuilder)` 와 같습니다. 
 
-[MSAL](../XboxAuthNet.Game.Msal/Home.md) 로그인 방식은 [여기를 참고](../XboxAuthNet.Game.Msal/OAuthStrategies.md)하세요.
+[MSAL](../XboxAuthNet.Game.Msal/Home.md) 로그인 방식은 [여기를 참고](../XboxAuthNet.Game.Msal/OAuth.md)하세요.
 
 ### 3. XboxAuth
 
-[XboxAuth](./XboxAuth.md)를 참고하세요. 
+[XboxAuth](../XboxAuthNet.Game/XboxAuth.md)를 참고하세요. 
 
 #### AddXboxAuthForJE(xboxBuilder) 
 

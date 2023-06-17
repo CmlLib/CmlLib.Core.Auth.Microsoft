@@ -35,6 +35,6 @@ JELoginHandler 의 인스턴스를 만들어 주는 객체입니다.
 
 로그인, 로그아웃 기능과 계정 관리 기능을 제공합니다. 
 
-### [AccountManager](./AccountManager.md)
+### [AccountManager](../XboxAuthNet.Game/AccountManager.md)
 
 여러 계정을 저장하고 불러올 수 있습니다. 

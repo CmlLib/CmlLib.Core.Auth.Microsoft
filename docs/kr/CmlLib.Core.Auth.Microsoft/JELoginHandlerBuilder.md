@@ -7,7 +7,7 @@ var loginHandler = new JELoginHandlerBuilder()
     .WithHttpClient(httpClient)
     .WithAccountManager("accounts.json")
     //.WithAccountManager(new InMemoryXboxGameAccountManager(JEGameAccount.FromSessionStorage))
-    .Build()
+    .Build();
 var session = await loginHandler.Authenticate();
 ```
 
@@ -23,4 +23,4 @@ HTTP 요청에 사용될 `HttpClient` 객체를 설정합니다. 모든 HTTP 요
 
 ### WithLogger
 
-로깅 기능을 위한 [ILogger]() 설정을 합니다. 
+로깅 기능을 위한 [ILogger](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.logging.ilogger?view=dotnet-plat-ext-7.0) 설정을 합니다. 라이브러리에서 사용하는 로깅 라이브러리는 [Microsoft.Extensions.Logging](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line) 입니다. 

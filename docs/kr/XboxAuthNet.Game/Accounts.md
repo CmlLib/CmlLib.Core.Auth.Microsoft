@@ -18,27 +18,28 @@ sessionStorage.Set<string>("myData", "HelloWorld");
 var myData = sessionStorage.Get<string>("myData");
 
 // save and load data via ISessionSource
-var sessionSource = new MicrosoftOAuthSessionSource(sessionStorage);
-sessionSource.Set(new MicrosoftOAuthResponse());
-var oauth = sessionSource.Get();
+var sessionSource = MicrosoftOAuthSessionSource.Default;
+sessionSource.Set(sessionStorage, new MicrosoftOAuthResponse());
+var oauth = sessionSource.Get(sessionStorage);
 ```
 
-## IXboxGameAccount
+## XboxGameAccount
 
-여러 계정을 관리하기 위해서 `IXboxGameAccount` 와 `IXboxGameAccountManager` 인터페이스가 있습니다.
+XboxGameAccount 는 내부적으로 ISessionStorage 를 가지며 추가적인 기능을 제공합니다.
 
-`IXboxGameAccount` 는 `ISessionStorage` 를 대표하는 문자열(Identifier)을 만들어 다른 `ISessionStorage` 와 구분할 수 있는 방법을 제공합니다. 예를 들어 `CmlLib.Core.Auth.Microsoft` 는 기본적으로 `JEGameAccount` 구현체를 사용하는데, 이는 마인크래프트 JE 유저의 UUID 값을 Identifier 로 사용합니다. 
+- ISessionStorage 를 구분할 수 있도록 식별자(identifier)를 제공
+- ISessionStorage 가 가지고 있는 세션 정보에 쉽게 접근하기 위한 프로퍼티 제공 (예: LastAccess, XboxTokens)
 
-## IXboxGameAccountManager
+### Identifier
 
-`IXboxGameAccountManager` 는 `XboxGameAccountCollection`을 저장하고 불러오는 방법을 제공합니다. `JsonXboxGameAccountManager` 는 모든 `IXboxGameAccount` 를 하나의 Json 파일에 저장하고 불러옵니다. 
+여러 계정을 관리하기 위해서는 여러 ISessionStorage 관리해야 합니다. 이때 각 ISessionStorage 를 구분하기 위한 식별자가 필요합니다. 
 
-```csharp
-var jsonAccountManager = new JsonXboxGameAccountManager("accounts.json", JEGameAccount.FromSessionStorage);
-jsonAccountManager.Load();
-foreach (var account in jsonAccountManager.Accounts)
-{
-    Console.WriteLine(account.Identifier);
-}
-jsonAccountManager.Save();
-```
+두 계정의 Identifier 가 같다면 ISessionStorage 가 서로 다른 데이터를 가지고 있다 하더라도 같은 계정이라고 판단합니다. 
+
+예를 들어 마인크래프트 자바 에디션 계정을 나타내는 `JEGameAccount` 는 유저의 UUID 를 식별자로 사용합니다. 
+
+### LastAccess
+
+마지막으로 이 계정에 접근한 시간을 나타냅니다. 
+
+### XboxTokens

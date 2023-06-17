@@ -7,6 +7,8 @@
 `ICompositeAuthenticator` 의 확장 메서드를 통해 `Authenticator` 를 추가합니다. 
 
 ```csharp
+using XboxAuthNet.Game;
+
 var clientInfo = new MicrosoftOAuthClientInfo("<MICROSOFT_OAUTH_CLIENT_ID>", "<MICROSOFT_OAUTH_SCOPES>");
 
 // 예시 1
@@ -50,3 +52,21 @@ authenticator.AddMicrosoftOAuth(clientInfo, oauth => oauth.Silent());
 ```
 
 유저에게 로그인 입력 창을 띄우지 않고 로그인을 진행합니다. 캐시된 세션이 만료되지 않은 상태라면 토큰을 그대로 사용하고, 만료된 상황이라면 재발급을 시도합니다. 재발급에 실패한다면 `MicrosoftOAuthException` 예외가 발생합니다. 
+
+### Signout
+
+간단한 버전: 
+```csharp
+authenticator.AddMicrosoftOAuthSignout(clientInfo);
+```
+
+설정: 
+```csharp
+authenticator.AddForceMicrosoftOAuth(clientInfo, oauth => oauth.Signout(codeFlow =>
+{
+    // UI 설정 
+    codeFlow.WithUITitle("My Window");
+}));
+```
+
+OAuth 로그아웃 페이지를 표시하고 세션을 지웁니다. 

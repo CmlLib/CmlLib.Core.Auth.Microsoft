@@ -36,7 +36,7 @@ Xbox authentication 을 위해 설정된 `IPublicClientApplication` 을 만들�
 
 ## BuildApplicationWithCache(string cid, MsalCacheSettings cacheSettings)
 
-Xbox authentication 을 위햇 설정된 `IPublicClientApplication` 을 만들고 캐시 설정인 `cacheSettings` 를 적용하여 반환합니다. 
+Xbox authentication 을 위해 설정된 `IPublicClientApplication` 을 만들고 캐시 설정인 `cacheSettings` 를 적용하여 반환합니다. 
 
 ## BuildApplicationWithCache(string cid, StorageCreationProperties storageProperties)
 
