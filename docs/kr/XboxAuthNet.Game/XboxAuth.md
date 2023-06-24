@@ -52,7 +52,7 @@ authenticator.AddXboxAuth(xbox => xbox
     .Full("relyingParty"));
 ```
 
-MSAL 로 Microsoft OAuth 를 진행한 경우 TokenPrefix 를 바꿔야 합니다. `WithAzureTokenPrefix()` 를 호출하면 Azure 클라이언트를 통해 Microsoft OAuth 세션을 얻은 경우 (MSAL 로 로그인), `WithXboxTokenPrefix()` 를 호출하면 엑스박스 게임 관련 클라이언트트를 통해 Microsoft OAuth 세션을 얻은 경우 (예시: `JELoginHandler.DefaultMicrosoftOAuthClientInfo`) 사용합니다. 
+`WithAzureTokenPrefix()` 를 호출하면 Azure 클라이언트를 통해 Microsoft OAuth 세션을 얻은 경우 (MSAL 로 로그인), `WithXboxTokenPrefix()` 를 호출하면 엑스박스 게임 관련 클라이언트를 통해 Microsoft OAuth 세션을 얻은 경우 (예시: `JELoginHandler.DefaultMicrosoftOAuthClientInfo`) 사용합니다. 
 `WithTokenPrefix("t=")` 처럼 TokenPrefix 를 직접 설정할 수 있습니다. 
 
 ## 오류 처리

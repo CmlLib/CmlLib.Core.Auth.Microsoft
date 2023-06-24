@@ -1,3 +1,7 @@
+Version: 3.0.0
+
+[한국어](./kr/Home.md)
+
 # [CmlLib.Core.Auth.Microsoft](./CmlLib.Core.Auth.Microsoft/Home.md)
 
 Log into Minecraft: Java Edition with a Microsoft Xbox account.
