@@ -22,7 +22,7 @@ public class XboxGameAccount : IXboxGameAccount
 
     protected virtual string? GetIdentifier()
     {
-        var uhs = XboxTokens?.XstsToken?.UserHash;
+        var uhs = XboxTokens?.XstsToken?.XuiClaims?.UserHash;
         return uhs;
     }
 

@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using XboxAuthNet.Game.Authenticators;
 using XboxAuthNet.Game.OAuth;
-using XboxAuthNet.OAuth.Models;
+using XboxAuthNet.OAuth;
 
 namespace XboxAuthNet.Game.Test;
 

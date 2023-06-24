@@ -1,6 +1,7 @@
 using XboxAuthNet.Game.SessionStorages;
 using XboxAuthNet.Game.Authenticators;
-using XboxAuthNet.OAuth.Models;
+using XboxAuthNet.OAuth;
+using XboxAuthNet.OAuth.CodeFlow.Parameters;
 
 namespace XboxAuthNet.Game.OAuth;
 
@@ -21,9 +22,10 @@ public class SilentMicrosoftOAuth : SessionAuthenticator<MicrosoftOAuthResponse>
             throw new MicrosoftOAuthException("no refresh token", 0);
 
         context.Logger.LogSilentMicrosoftOAuth();
+        var parameterFactory = new CodeFlowParameterFactory();
         var apiClient = _clientInfo.CreateApiClientForOAuthCode(context.HttpClient);
         return await apiClient.RefreshToken(
-            session.RefreshToken, 
+            parameterFactory.CreateRefreshTokenParameter(session.RefreshToken), 
             context.CancellationToken);
     }
 }

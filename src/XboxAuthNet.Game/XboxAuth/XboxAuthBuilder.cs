@@ -1,8 +1,9 @@
 using XboxAuthNet.Game.SessionStorages;
 using XboxAuthNet.Game.Authenticators;
 using XboxAuthNet.Game.OAuth;
-using XboxAuthNet.OAuth.Models;
+using XboxAuthNet.OAuth;
 using XboxAuthNet.XboxLive;
+using XboxAuthNet.XboxLive.Crypto;
 
 namespace XboxAuthNet.Game.XboxAuth;
 
@@ -11,7 +12,7 @@ public class XboxAuthBuilder
     public string? RelyingParty { get; set; }
     public string DeviceType { get; set; } = XboxDeviceTypes.Win32;
     public string DeviceVersion { get; set; } = "0.0.0";
-    public string TokenPrefix { get; set; } = "";
+    public string TokenPrefix { get; set; } = XboxAuthConstants.XboxTokenPrefix;
 
     private ISessionSource<MicrosoftOAuthResponse>? _oauthSessionSource;
     public ISessionSource<MicrosoftOAuthResponse> OAuthSessionSource
@@ -25,6 +26,13 @@ public class XboxAuthBuilder
     {
         get => _sessionSource ??= XboxSessionSource.Default;
         set => _sessionSource = value;
+    }
+
+    private IXboxRequestSigner? _requestSigner;
+    public IXboxRequestSigner RequestSigner
+    {
+        get => _requestSigner ??= new XboxRequestSigner(new ECDCertificatePopCryptoProvider());
+        set => _requestSigner = value;
     }
 
     public XboxAuthBuilder WithRelyingParty(string relyingParty)
@@ -73,6 +81,12 @@ public class XboxAuthBuilder
         return this;
     }
 
+    public XboxAuthBuilder WithRequestSigner(IXboxRequestSigner signer)
+    {
+        RequestSigner = signer;
+        return this;
+    }
+
     public ISessionValidator Validator() =>
         new XboxSessionValidator(SessionSource);
 
@@ -80,10 +94,10 @@ public class XboxAuthBuilder
         new XboxUserTokenAuth(OAuthSessionSource, SessionSource);
 
     public IAuthenticator SignedUserTokenAuth() =>
-        new XboxSignedUserTokenAuth(OAuthSessionSource, SessionSource);
+        new XboxSignedUserTokenAuth(RequestSigner, OAuthSessionSource, SessionSource);
 
     public IAuthenticator DeviceTokenAuth() =>
-        new XboxDeviceTokenAuth(DeviceType, DeviceVersion, SessionSource);
+        new XboxDeviceTokenAuth(DeviceType, DeviceVersion, RequestSigner, SessionSource);
 
     public IAuthenticator XstsTokenAuth() => XstsTokenAuth(tryGetRelyingParty());
     public IAuthenticator XstsTokenAuth(string relyingParty)
@@ -126,12 +140,13 @@ public class XboxAuthBuilder
             throw new ArgumentNullException(nameof(relyingParty));
 
         var collection = new AuthenticatorCollection();
-        collection.AddAuthenticatorWithoutValidator(SignedUserTokenAuth());
         collection.AddAuthenticatorWithoutValidator(DeviceTokenAuth());
         collection.AddAuthenticatorWithoutValidator(new XboxSisuAuth(
             clientId, 
             TokenPrefix, 
             relyingParty,
+            RequestSigner,
+            OAuthSessionSource,
             SessionSource));
         return collection;
     }

@@ -2,6 +2,7 @@ using XboxAuthNet.Game.Authenticators;
 using XboxAuthNet.Game.SessionStorages;
 using XboxAuthNet.XboxLive;
 using XboxAuthNet.XboxLive.Requests;
+using XboxAuthNet.XboxLive.Responses;
 
 namespace XboxAuthNet.Game.XboxAuth;
 
@@ -24,9 +25,11 @@ public class XboxXstsTokenAuth : SessionAuthenticator<XboxAuthTokens>
         var xsts = await xboxAuthClient.RequestXsts(new XboxXstsRequest
         {
             UserToken = xboxTokens.UserToken?.Token,
-            RelyingParty = _relyingParty
+            DeviceToken = xboxTokens.DeviceToken?.Token,
+            TitleToken = xboxTokens.TitleToken?.Token,
+            RelyingParty = _relyingParty,
         });
-
+        
         xboxTokens.XstsToken = xsts;
         return xboxTokens;
     }

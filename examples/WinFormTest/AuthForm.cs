@@ -3,7 +3,7 @@ using Microsoft.Identity.Client;
 using XboxAuthNet.Game.Authenticators;
 using XboxAuthNet.Game.Accounts;
 using XboxAuthNet.Game.Msal;
-using XboxAuthNet.OAuth.Models;
+using XboxAuthNet.OAuth;
 using XboxAuthNet.XboxLive;
 using XboxAuthNet.Game.OAuth;
 using CmlLib.Core.Auth.Microsoft.Authenticators;
@@ -185,10 +185,7 @@ namespace WinFormTest
             {
                 if (mode == "InteractiveMicrosoftOAuth")
                 {
-                    return oauth.Interactive(new MicrosoftOAuthParameters
-                    {
-                        Prompt = MicrosoftOAuthPromptModes.SelectAccount
-                    });
+                    return oauth.Interactive();
                 }
                 else if (mode == "SilentMicrosoftOAuth")
                 {

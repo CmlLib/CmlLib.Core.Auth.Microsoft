@@ -1,6 +1,6 @@
 using XboxAuthNet.Game.Authenticators;
 using XboxAuthNet.Game.SessionStorages;
-using XboxAuthNet.OAuth.Models;
+using XboxAuthNet.OAuth;
 
 namespace XboxAuthNet.Game.OAuth;
 

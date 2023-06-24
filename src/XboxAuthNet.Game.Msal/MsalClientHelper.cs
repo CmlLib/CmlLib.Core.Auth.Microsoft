@@ -1,68 +1,64 @@
 ﻿using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
-using System.Linq;
-using System.Threading.Tasks;
-using XboxAuthNet.OAuth.Models;
+using XboxAuthNet.OAuth;
 
-namespace XboxAuthNet.Game.Msal
+namespace XboxAuthNet.Game.Msal;
+
+public static class MsalClientHelper
 {
-    public static class MsalClientHelper
+    public static readonly string[] XboxScopes = new[] { "XboxLive.signin" };
+
+    public static PublicClientApplicationBuilder CreateDefaultApplicationBuilder(string cid)
+        => PublicClientApplicationBuilder.Create(cid)
+            .WithTenantId("consumers")
+            .WithRedirectUri("http://localhost");
+
+    public static Task RegisterCache(IPublicClientApplication app, MsalCacheSettings cacheSettings)
+        => RegisterCache(app, cacheSettings.ToStorageCreationPropertiesBuilder().Build());
+
+    public async static Task RegisterCache(IPublicClientApplication app, StorageCreationProperties storageProperties)
     {
-        public static readonly string[] XboxScopes = new[] { "XboxLive.signin" };
+        var cacheHelper = await MsalCacheHelper.CreateAsync(storageProperties);
+        cacheHelper.RegisterCache(app.UserTokenCache);
+    }
 
-        public static PublicClientApplicationBuilder CreateDefaultApplicationBuilder(string cid)
-            => PublicClientApplicationBuilder.Create(cid)
-                .WithTenantId("consumers")
-                .WithRedirectUri("http://localhost");
+    public static IPublicClientApplication BuildApplication(string cid)
+        => CreateDefaultApplicationBuilder(cid).Build();
 
-        public static Task RegisterCache(IPublicClientApplication app, MsalCacheSettings cacheSettings)
-            => RegisterCache(app, cacheSettings.ToStorageCreationPropertiesBuilder().Build());
+    public static Task<IPublicClientApplication> BuildApplicationWithCache(string cid)
+        => BuildApplicationWithCache(cid, new MsalCacheSettings());
 
-        public async static Task RegisterCache(IPublicClientApplication app, StorageCreationProperties storageProperties)
+    public async static Task<IPublicClientApplication> BuildApplicationWithCache(string cid, StorageCreationProperties storageProperties)
+    {
+        var app = BuildApplication(cid);
+        await RegisterCache(app, storageProperties);
+        return app;
+    }
+
+    public async static Task<IPublicClientApplication> BuildApplicationWithCache(string cid, MsalCacheSettings cacheSettings)
+    {
+        var storageProperties = cacheSettings.ToStorageCreationPropertiesBuilder().Build();
+        return await BuildApplicationWithCache(cid, storageProperties);
+    }
+
+    public static MicrosoftOAuthResponse ToMicrosoftOAuthResponse(AuthenticationResult result)
+    {
+        return new MicrosoftOAuthResponse
         {
-            var cacheHelper = await MsalCacheHelper.CreateAsync(storageProperties);
-            cacheHelper.RegisterCache(app.UserTokenCache);
-        }
+            AccessToken = "d=" + result.AccessToken, // token prefix
+            TokenType = result.TokenType,
+            Scope = string.Join(",", result.Scopes)
+        };
+    }
 
-        public static IPublicClientApplication BuildApplication(string cid)
-            => CreateDefaultApplicationBuilder(cid).Build();
-
-        public static Task<IPublicClientApplication> BuildApplicationWithCache(string cid)
-            => BuildApplicationWithCache(cid, new MsalCacheSettings());
-
-        public async static Task<IPublicClientApplication> BuildApplicationWithCache(string cid, StorageCreationProperties storageProperties)
+    public static async Task RemoveAccounts(IPublicClientApplication app)
+    {
+        var accounts = await app.GetAccountsAsync();
+        while (accounts.Any())
         {
-            var app = BuildApplication(cid);
-            await RegisterCache(app, storageProperties);
-            return app;
-        }
-
-        public async static Task<IPublicClientApplication> BuildApplicationWithCache(string cid, MsalCacheSettings cacheSettings)
-        {
-            var storageProperties = cacheSettings.ToStorageCreationPropertiesBuilder().Build();
-            return await BuildApplicationWithCache(cid, storageProperties);
-        }
-
-        public static MicrosoftOAuthResponse ToMicrosoftOAuthResponse(AuthenticationResult result)
-        {
-            return new MicrosoftOAuthResponse
-            {
-                AccessToken = "d=" + result.AccessToken, // token prefix
-                UserId = result.UniqueId,
-                TokenType = result.TokenType,
-                Scope = string.Join(",", result.Scopes)
-            };
-        }
-
-        public static async Task RemoveAccounts(IPublicClientApplication app)
-        {
-            var accounts = await app.GetAccountsAsync();
-            while (accounts.Any())
-            {
-                var first = accounts.First();
-                await app.RemoveAsync(first);
-                accounts = await app.GetAccountsAsync();
-            }
+            var first = accounts.First();
+            await app.RemoveAsync(first);
+            accounts = await app.GetAccountsAsync();
         }
     }
 }

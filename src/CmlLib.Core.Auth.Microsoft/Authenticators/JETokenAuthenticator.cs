@@ -20,7 +20,7 @@ public class JETokenAuthenticator : SessionAuthenticator<JEToken>
     protected override async ValueTask<JEToken?> Authenticate(AuthenticateContext context)
     {
         var xboxTokens = _xboxSessionSource.Get(context.SessionStorage);
-        var uhs = xboxTokens?.XstsToken?.UserHash;
+        var uhs = xboxTokens?.XstsToken?.XuiClaims?.UserHash;
         var xsts = xboxTokens?.XstsToken?.Token;
 
         if (string.IsNullOrEmpty(uhs) ||

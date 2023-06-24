@@ -11,7 +11,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
     <PackageReference Include="System.Text.Json" Version="7.0.1" />
-    <PackageReference Include="XboxAuthNet" Version="3.0.0-beta.3" />
+    <PackageReference Include="XboxAuthNet" Version="3.0.0" />
   </ItemGroup>
 
   <!-- private assets -->

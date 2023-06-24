@@ -1,6 +1,6 @@
 ﻿using CmlLib.Core.Auth.Microsoft;
 using CmlLib.Core.Auth.Microsoft.Sessions;
-using XboxAuthNet.OAuth.Models;
+using XboxAuthNet.OAuth;
 using CmlLib.Core.Auth;
 
 namespace WinFormTest
@@ -44,10 +44,7 @@ namespace WinFormTest
                 var loginHandler = JELoginWrapper.Instance.LoginHandler;
                 //var session = await loginHandler.AuthenticateInteractively();
                 var authenticator = loginHandler.CreateAuthenticatorWithNewAccount();
-                authenticator.AddForceMicrosoftOAuthForJE(oauth => oauth.Interactive(new MicrosoftOAuthParameters
-                {
-                    Prompt = MicrosoftOAuthPromptModes.SelectAccount
-                }));
+                authenticator.AddForceMicrosoftOAuthForJE(oauth => oauth.Interactive());
                 authenticator.AddXboxAuthForJE(xbox => xbox.Basic());
                 authenticator.AddForceJEAuthenticator();
                 var session = await authenticator.ExecuteForLauncherAsync();
@@ -57,7 +54,7 @@ namespace WinFormTest
             {
                 MessageBox.Show(ex.ToString());
             }
-            
+
             this.Enabled = true;
         }
 
@@ -83,7 +80,7 @@ namespace WinFormTest
             {
                 MessageBox.Show(ex.ToString());
             }
-            
+
             this.Enabled = true;
         }
 

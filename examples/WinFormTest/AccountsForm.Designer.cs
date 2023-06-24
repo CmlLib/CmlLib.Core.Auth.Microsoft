@@ -41,30 +41,27 @@
             // 
             label1.AutoSize = true;
             label1.Font = new Font("맑은 고딕", 14.25F, FontStyle.Regular, GraphicsUnit.Point);
-            label1.Location = new Point(24, 19);
-            label1.Margin = new Padding(6, 0, 6, 0);
+            label1.Location = new Point(12, 9);
             label1.Name = "label1";
-            label1.Size = new Size(428, 51);
+            label1.Size = new Size(217, 25);
             label1.TabIndex = 0;
             label1.Text = "Select account to login:";
             // 
             // lbAccounts
             // 
             lbAccounts.FormattingEnabled = true;
-            lbAccounts.ItemHeight = 32;
-            lbAccounts.Location = new Point(24, 107);
-            lbAccounts.Margin = new Padding(6);
+            lbAccounts.ItemHeight = 15;
+            lbAccounts.Location = new Point(12, 50);
             lbAccounts.Name = "lbAccounts";
-            lbAccounts.Size = new Size(846, 324);
+            lbAccounts.Size = new Size(425, 154);
             lbAccounts.TabIndex = 1;
             lbAccounts.SelectedIndexChanged += lbAccounts_SelectedIndexChanged;
             // 
             // btnLogin
             // 
-            btnLogin.Location = new Point(24, 1232);
-            btnLogin.Margin = new Padding(6);
+            btnLogin.Location = new Point(12, 578);
             btnLogin.Name = "btnLogin";
-            btnLogin.Size = new Size(850, 60);
+            btnLogin.Size = new Size(425, 28);
             btnLogin.TabIndex = 2;
             btnLogin.Text = "Login";
             btnLogin.UseVisualStyleBackColor = true;
@@ -73,18 +70,16 @@
             // pgAccount
             // 
             pgAccount.BackColor = Color.Silver;
-            pgAccount.Location = new Point(24, 448);
-            pgAccount.Margin = new Padding(6);
+            pgAccount.Location = new Point(12, 210);
             pgAccount.Name = "pgAccount";
-            pgAccount.Size = new Size(850, 567);
+            pgAccount.Size = new Size(425, 266);
             pgAccount.TabIndex = 3;
             // 
             // btnAddAccount
             // 
-            btnAddAccount.Location = new Point(24, 1028);
-            btnAddAccount.Margin = new Padding(6);
+            btnAddAccount.Location = new Point(12, 482);
             btnAddAccount.Name = "btnAddAccount";
-            btnAddAccount.Size = new Size(850, 49);
+            btnAddAccount.Size = new Size(425, 23);
             btnAddAccount.TabIndex = 2;
             btnAddAccount.Text = "AddAccount";
             btnAddAccount.UseVisualStyleBackColor = true;
@@ -92,10 +87,9 @@
             // 
             // btnRemoveAccount
             // 
-            btnRemoveAccount.Location = new Point(24, 1090);
-            btnRemoveAccount.Margin = new Padding(6);
+            btnRemoveAccount.Location = new Point(12, 511);
             btnRemoveAccount.Name = "btnRemoveAccount";
-            btnRemoveAccount.Size = new Size(850, 49);
+            btnRemoveAccount.Size = new Size(425, 23);
             btnRemoveAccount.TabIndex = 7;
             btnRemoveAccount.Text = "RemoveAccount";
             btnRemoveAccount.UseVisualStyleBackColor = true;
@@ -103,10 +97,9 @@
             // 
             // btnAdvOptions
             // 
-            btnAdvOptions.Location = new Point(23, 1160);
-            btnAdvOptions.Margin = new Padding(6);
+            btnAdvOptions.Location = new Point(12, 544);
             btnAdvOptions.Name = "btnAdvOptions";
-            btnAdvOptions.Size = new Size(850, 60);
+            btnAdvOptions.Size = new Size(425, 28);
             btnAdvOptions.TabIndex = 8;
             btnAdvOptions.Text = "Advanced Options";
             btnAdvOptions.UseVisualStyleBackColor = true;
@@ -114,9 +107,9 @@
             // 
             // AccountsForm
             // 
-            AutoScaleDimensions = new SizeF(14F, 32F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(895, 1329);
+            ClientSize = new Size(448, 617);
             Controls.Add(btnAdvOptions);
             Controls.Add(btnRemoveAccount);
             Controls.Add(btnAddAccount);
@@ -124,7 +117,6 @@
             Controls.Add(btnLogin);
             Controls.Add(lbAccounts);
             Controls.Add(label1);
-            Margin = new Padding(6);
             Name = "AccountsForm";
             Text = "AccountsForm";
             Load += AccountsForm_Load;

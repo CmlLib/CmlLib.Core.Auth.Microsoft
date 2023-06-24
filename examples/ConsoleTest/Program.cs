@@ -5,6 +5,10 @@ using Microsoft.Extensions.Logging;
 using XboxAuthNet.Game.Msal;
 using XboxAuthNet.Game.Accounts;
 using Microsoft.Identity.Client;
+using XboxAuthNet.Game;
+using XboxAuthNet.Game.OAuth;
+using XboxAuthNet.Game.XboxAuth;
+using XboxAuthNet.XboxLive;
 
 // logger
 var loggerFactory = LoggerFactory.Create(config => 
@@ -64,25 +68,27 @@ Console.WriteLine(
     "[3] Silent (OAuth)\n" + 
     "[4] Interactive (Msal)\n" +
     "[5] Silent (Msal)\n" + 
-    "[6] DeviceCode (Msal)\n\n");
-Console.Write("Number: ");
+    "[6] DeviceCode (Msal)\n" + 
+    "[7] Signout without OAuth signout page\n" +
+    "[8] Signout with OAuth signout page");
+Console.Write("\n\nNumber: ");
 var selectedAuthMode = int.Parse(Console.ReadLine() ?? "1");
 
 // authentication
 Console.WriteLine("Start Authentication...");
 MSession session;
-switch (selectedAuthMode) // Default
+switch (selectedAuthMode)
 {
-    case 1:
+    case 1: // default
         session = await loginHandler.Authenticate(selectedAccount);
         break;
-    case 2:
+    case 2: // interactive (OAuth)
         session = await loginHandler.AuthenticateInteractively(selectedAccount);
         break;
-    case 3:
+    case 3: // silent (OAuth)
         session = await loginHandler.AuthenticateSilently(selectedAccount);
         break;
-    case 4:
+    case 4: // Interactive (Msal)
         {
             var authenticator = loginHandler.CreateAuthenticatorWithNewAccount();
             authenticator.AddMsalOAuth(getApp(), msal => msal.Interactive());
@@ -92,7 +98,7 @@ switch (selectedAuthMode) // Default
             break;
         }
 
-    case 5:
+    case 5: // Silent (Msal)
         {
             var authenticator = loginHandler.CreateAuthenticatorWithDefaultAccount();
             authenticator.AddMsalOAuth(getApp(), msal => msal.Silent());
@@ -102,7 +108,7 @@ switch (selectedAuthMode) // Default
             break;
         }
 
-    case 6:
+    case 6: // DeviceCode (Msal)
         {
             var authenticator = loginHandler.CreateAuthenticatorWithNewAccount();
             authenticator.AddMsalOAuth(getApp(), msal => msal.DeviceCode(code =>
@@ -115,7 +121,28 @@ switch (selectedAuthMode) // Default
             session = await authenticator.ExecuteForLauncherAsync();
             break;
         }
-
+    case 7: // Signout without OAuth signout page 
+        {
+            var authenticator = loginHandler.CreateAuthenticator(selectedAccount, default);
+            authenticator.AddSessionCleaner(MicrosoftOAuthSessionSource.Default);
+            authenticator.AddSessionCleaner(XboxSessionSource.Default);
+            authenticator.AddSessionCleaner(JEProfileSource.Default);
+            authenticator.AddSessionCleaner(JETokenSource.Default);
+            await authenticator.ExecuteAsync();
+            return;
+        }
+    case 8: // Signout with OAuth signout page
+        {
+            await loginHandler.Signout();
+            return;
+        }
+    case 9:
+        {
+            var authenticator = loginHandler.CreateAuthenticator(selectedAccount, default);
+            authenticator.AddForceXboxAuthForJE(xbox => xbox.Sisu(XboxGameTitles.MinecraftJava));
+            await authenticator.ExecuteAsync();
+            return;
+        }
     default:
         Console.WriteLine("Wrong authentication mode");
         return;

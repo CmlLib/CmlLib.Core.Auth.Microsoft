@@ -28,6 +28,15 @@ public static class Extensions
             return builderInvoker(builder);
         });
 
+    public static void AddForceXboxAuthForJE(
+        this ICompositeAuthenticator self,
+        Func<XboxAuthBuilder, IAuthenticator> builderInvoker) =>
+        self.AddForceXboxAuth(builder =>
+        {
+            builder.WithRelyingParty(JELoginHandler.RelyingParty);
+            return builderInvoker(builder);
+        });
+
     public static void AddJEAuthenticator(this ICompositeAuthenticator self) =>
         self.AddJEAuthenticator(builder => builder.Build());
 
@@ -37,7 +46,7 @@ public static class Extensions
     {
         var builder = new JEAuthenticatorBuilder();
         var authenticator = builderInvoker.Invoke(builder);
-        self.AddAuthenticator(builder.TokenValidator(), builder.Build());
+        self.AddAuthenticator(builder.TokenValidator(), authenticator);
     }
 
     public static void AddForceJEAuthenticator(this ICompositeAuthenticator self) =>

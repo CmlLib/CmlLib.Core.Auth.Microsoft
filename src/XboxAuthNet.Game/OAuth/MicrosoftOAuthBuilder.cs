@@ -1,7 +1,8 @@
 using XboxAuthNet.OAuth;
-using XboxAuthNet.OAuth.Models;
+using XboxAuthNet.OAuth.CodeFlow;
 using XboxAuthNet.Game.SessionStorages;
 using XboxAuthNet.Game.Authenticators;
+using XboxAuthNet.OAuth.CodeFlow.Parameters;
 
 namespace XboxAuthNet.Game.OAuth;
 
@@ -19,10 +20,12 @@ public class MicrosoftOAuthBuilder
         set => _sessionSource = value;
     }
 
-    private MicrosoftOAuthParameters createDefaultParameters() => new MicrosoftOAuthParameters
+    private CodeFlowAuthorizationParameter createDefaultParameters()
     {
-        Prompt = MicrosoftOAuthPromptModes.SelectAccount
-    };
+        var parameter = new CodeFlowParameterFactory().CreateAuthorizationParameter();
+        parameter.Prompt = MicrosoftOAuthPromptModes.SelectAccount;
+        return parameter;
+    }
 
     public ISessionValidator Validator() =>
         new MicrosoftOAuthValidator(SessionSource);
@@ -33,15 +36,15 @@ public class MicrosoftOAuthBuilder
     public IAuthenticator Interactive() =>
         Interactive(builder => {}, createDefaultParameters());
 
-    public IAuthenticator Interactive(MicrosoftOAuthParameters parameters) =>
+    public IAuthenticator Interactive(CodeFlowAuthorizationParameter parameters) =>
         Interactive(builder => {}, parameters);
 
-    public IAuthenticator Interactive(Action<MicrosoftOAuthCodeFlowBuilder> builderInvoker) =>
+    public IAuthenticator Interactive(Action<CodeFlowBuilder> builderInvoker) =>
         Interactive(builderInvoker, createDefaultParameters());
 
     public IAuthenticator Interactive(
-        Action<MicrosoftOAuthCodeFlowBuilder> builderInvoker,
-        MicrosoftOAuthParameters parameters)
+        Action<CodeFlowBuilder> builderInvoker,
+        CodeFlowAuthorizationParameter parameters)
     {
         return new InteractiveMicrosoftOAuth(
             _clientInfo, 
@@ -53,7 +56,7 @@ public class MicrosoftOAuthBuilder
     public IAuthenticator Signout() => 
         Signout(builder => {});
 
-    public IAuthenticator Signout(Action<MicrosoftOAuthCodeFlowBuilder> builderInvoker)
+    public IAuthenticator Signout(Action<CodeFlowBuilder> builderInvoker)
     {
         return new MicrosoftOAuthSignout(
             _clientInfo, 

@@ -3,7 +3,7 @@ using XboxAuthNet.Game.Authenticators;
 using XboxAuthNet.Game.OAuth;
 using XboxAuthNet.Game.Msal.OAuth;
 using Microsoft.Identity.Client;
-using XboxAuthNet.OAuth.Models;
+using XboxAuthNet.OAuth;
 
 namespace XboxAuthNet.Game.Msal;
 
