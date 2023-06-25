@@ -97,6 +97,10 @@ public class JsonXboxGameAccountManager : IXboxGameAccountManager
     {
         var json = serializeToJson();
 
+        var dirPath = Path.GetDirectoryName(_filePath);
+        if (!string.IsNullOrEmpty(dirPath))
+            Directory.CreateDirectory(dirPath);
+
         using var fs = File.Create(_filePath);
         using var writer = new Utf8JsonWriter(fs);
         json.WriteTo(writer, _jsonOptions);
