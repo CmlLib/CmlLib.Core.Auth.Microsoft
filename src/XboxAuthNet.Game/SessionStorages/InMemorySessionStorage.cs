@@ -25,12 +25,22 @@ namespace XboxAuthNet.Game.SessionStorages
 
         public bool TryGetValue<T>(string key, out T? value)
         {
-            var result = _storage.TryGetValue(key, out object? objValue);
+            _storage.TryGetValue(key, out object? objValue);
             if (objValue == null)
+            {
                 value = default;
+                return false;
+            }
+            else if (objValue is not T)
+            {
+                value = default;
+                return false;
+            }
             else
+            {
                 value = (T)objValue;
-            return result;
+                return true;
+            }
         }
 
         public void Set<T>(string key, T obj) => 
