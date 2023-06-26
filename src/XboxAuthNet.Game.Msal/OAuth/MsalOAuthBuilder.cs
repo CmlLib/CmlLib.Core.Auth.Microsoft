@@ -24,7 +24,7 @@ public class MsalOAuthBuilder
     private ISessionSource<string>? _loginHintSource;
     public ISessionSource<string> LoginHintSource
     {
-        get => _loginHintSource ??= new SessionFromStorage<string>("microsoftLoginHint");
+        get => _loginHintSource ??= MicrosoftOAuthLoginHintSource.Default;
         set => _loginHintSource = value;
     }
 

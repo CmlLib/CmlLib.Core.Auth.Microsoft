@@ -139,7 +139,7 @@ switch (selectedAuthMode)
     case 9:
         {
             var authenticator = loginHandler.CreateAuthenticator(selectedAccount, default);
-            authenticator.AddForceXboxAuthForJE(xbox => xbox.Sisu(XboxGameTitles.MinecraftJava));
+            authenticator.AddMsalOAuth(getApp(), msal => msal.Silent());
             await authenticator.ExecuteAsync();
             return;
         }
