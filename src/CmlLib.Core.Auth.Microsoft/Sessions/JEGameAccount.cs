@@ -27,7 +27,8 @@ public class JEGameAccount : XboxGameAccount
             Username = Profile?.Username,
             UUID = Profile?.UUID,
             AccessToken = Token?.AccessToken,
-            UserType = "msa"
+            UserType = "msa",
+            Xuid = XboxTokens?.XstsToken?.XuiClaims?.XboxUserId
         };
     }
 }
