@@ -21,17 +21,22 @@ public class MsalOAuthBuilder
         set => _sessionSource = value;
     }
 
-    public IAuthenticator Silent() => Silent(null);
+    private ISessionSource<string>? _loginHintSource;
+    public ISessionSource<string> LoginHintSource
+    {
+        get => _loginHintSource ??= new SessionFromStorage<string>("microsoftLoginHint");
+        set => _loginHintSource = value;
+    }
 
-    public IAuthenticator Silent(string? loginHint) => 
-        new MsalSilentOAuth(_app, Scopes, loginHint, SessionSource);
+    public IAuthenticator Silent() => 
+        new MsalSilentOAuth(createParameters());
 
     public IAuthenticator Interactive() =>
-        new MsalInteractiveOAuth(_app, Scopes, SessionSource);
+        new MsalInteractiveOAuth(createParameters());
 
     public IAuthenticator EmbeddedWebView()
     {
-        var authenticator = new MsalInteractiveOAuth(_app, Scopes, SessionSource);
+        var authenticator = new MsalInteractiveOAuth(createParameters());
         authenticator.UseDefaultWebViewOption = false;
         authenticator.UseEmbeddedWebView = true;
         return authenticator;
@@ -39,17 +44,23 @@ public class MsalOAuthBuilder
 
     public IAuthenticator SystemBrowser()
     {
-        var authenticator = new MsalInteractiveOAuth(_app, Scopes, SessionSource);
+        var authenticator = new MsalInteractiveOAuth(createParameters());
         authenticator.UseDefaultWebViewOption = false;
         authenticator.UseEmbeddedWebView = false;
         return authenticator;
     }
 
     public IAuthenticator DeviceCode(Func<DeviceCodeResult, Task> deviceResultCallback) =>
-        new MsalDeviceCodeOAuth(_app, Scopes, SessionSource, deviceResultCallback);
+        new MsalDeviceCodeOAuth(createParameters(), deviceResultCallback);
 
     public IAuthenticator FromResult(AuthenticationResult result) =>
         new StaticSessionAuthenticator<MicrosoftOAuthResponse>(
             MsalClientHelper.ToMicrosoftOAuthResponse(result), 
             SessionSource);
+
+    private MsalOAuthParameters createParameters() => new(
+        app: _app,
+        scopes: Scopes,
+        loginHintSource: LoginHintSource,
+        sessionSource: SessionSource);
 }

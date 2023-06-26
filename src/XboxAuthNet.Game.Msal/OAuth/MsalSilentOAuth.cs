@@ -1,33 +1,23 @@
 ﻿using XboxAuthNet.Game.Authenticators;
-using XboxAuthNet.Game.SessionStorages;
 using Microsoft.Identity.Client;
-using XboxAuthNet.OAuth;
 
 namespace XboxAuthNet.Game.Msal.OAuth;
 
 public class MsalSilentOAuth : MsalOAuth
 {
-    public string? LoginHint { get; set; }
+    public MsalSilentOAuth(MsalOAuthParameters parameters) : 
+        base(parameters)
+    {
 
-    public MsalSilentOAuth(
-        IPublicClientApplication app,
-        string[] scopes,
-        string? loginHint,
-        ISessionSource<MicrosoftOAuthResponse> sessionSource)
-        : base(app, scopes, sessionSource) =>
-        LoginHint = loginHint;
+    }
 
     protected override async ValueTask<AuthenticationResult> AuthenticateWithMsal(
-        AuthenticateContext context, IPublicClientApplication app, string[] scopes)
+        AuthenticateContext context, MsalOAuthParameters parameters)
     {
-        context.Logger.LogMsalSilentOAuth(LoginHint);
-        if (string.IsNullOrEmpty(LoginHint))
-        {
-            var accounts = await app.GetAccountsAsync();
-            return await app.AcquireTokenSilent(scopes, accounts.FirstOrDefault()).ExecuteAsync();
-        }
-        else
-            return await app.AcquireTokenSilent(scopes, LoginHint).ExecuteAsync();
-
+        var loginHint = parameters.LoginHintSource.Get(context.SessionStorage);
+        context.Logger.LogMsalSilentOAuth(loginHint);
+        return await parameters.MsalApplication
+            .AcquireTokenSilent(parameters.Scopes, loginHint)
+            .ExecuteAsync();
     }
 }
