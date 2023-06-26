@@ -72,7 +72,7 @@ public class JsonXboxGameAccountManager : IXboxGameAccountManager
 
     public IXboxGameAccount GetDefaultAccount()
     {
-        var first = _accounts.FirstOrDefault();
+        var first = GetAccounts().FirstOrDefault();
         if (first != null)
             return first;
         else
@@ -83,13 +83,13 @@ public class JsonXboxGameAccountManager : IXboxGameAccountManager
     {
         var sessionStorage = JsonSessionStorage.CreateEmpty(_jsonOptions);
         var account = convertSessionStorageToAccount(sessionStorage);
-        _accounts.Add(account);
+        GetAccounts().Add(account);
         return account;
     }
 
     public void ClearAccounts()
     {
-        _accounts.Clear();
+        GetAccounts().Clear();
         SaveAccounts();
     }
 
@@ -111,7 +111,7 @@ public class JsonXboxGameAccountManager : IXboxGameAccountManager
     private JsonNode serializeToJson()
     {
         var rootObject = new JsonObject();
-        foreach (var account in _accounts)
+        foreach (var account in GetAccounts())
         {
             var identifier = account.Identifier;
             if (string.IsNullOrEmpty(identifier))

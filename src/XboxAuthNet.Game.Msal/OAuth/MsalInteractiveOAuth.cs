@@ -1,7 +1,5 @@
 using XboxAuthNet.Game.Authenticators;
-using XboxAuthNet.Game.SessionStorages;
 using Microsoft.Identity.Client;
-using XboxAuthNet.OAuth;
 
 namespace XboxAuthNet.Game.Msal.OAuth;
 
@@ -10,22 +8,23 @@ public class MsalInteractiveOAuth : MsalOAuth
     public bool UseDefaultWebViewOption { get; set; } = true;
     public bool UseEmbeddedWebView { get; set; } = true;
 
-    public MsalInteractiveOAuth(
-        IPublicClientApplication app,
-        string[] scopes,
-        ISessionSource<MicrosoftOAuthResponse> sessionSource)
-        : base(app, scopes, sessionSource)
+    public MsalInteractiveOAuth(MsalOAuthParameters parameters) : 
+        base(parameters)
     {
 
     }
 
     protected override async ValueTask<AuthenticationResult> AuthenticateWithMsal(
-        AuthenticateContext context, IPublicClientApplication app, string[] scopes)
+        AuthenticateContext context, MsalOAuthParameters parameters)
     {
         context.Logger.LogMsalInteractiveOAuth();
-        var builder = app.AcquireTokenInteractive(scopes);
+
+        var builder = parameters.MsalApplication
+            .AcquireTokenInteractive(parameters.Scopes);
+
         if (!UseDefaultWebViewOption)
             builder.WithUseEmbeddedWebView(UseEmbeddedWebView);
+
         var result = await builder.ExecuteAsync(context.CancellationToken);
         return result;
     }
