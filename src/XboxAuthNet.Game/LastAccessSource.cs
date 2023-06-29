@@ -34,4 +34,10 @@ public class LastAccessSource : ISessionSource<DateTime>
         sessionStorage.Set(KeyName, dateTimeStr);
         return dateTimeStr;
     }
+
+    public SessionStorageKeyMode GetKeyMode(ISessionStorage sessionStorage) => 
+        sessionStorage.GetKeyMode(KeyName);
+
+    public void SetKeyMode(ISessionStorage sessionStorage, SessionStorageKeyMode mode) => 
+        sessionStorage.SetKeyMode(KeyName, mode);
 }

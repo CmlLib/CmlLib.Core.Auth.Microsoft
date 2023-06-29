@@ -4,7 +4,8 @@ namespace XboxAuthNet.Game.SessionStorages
 {
     public class InMemorySessionStorage : ISessionStorage
     {
-        private readonly Dictionary<string, object?> _storage = new Dictionary<string, object?>();
+        private readonly KeyModeStorage _keyModeStorage = new();
+        private readonly Dictionary<string, object?> _storage = new();
 
         public IEnumerable<string> Keys => _storage.Keys;
         public int Count => _storage.Count;
@@ -25,8 +26,8 @@ namespace XboxAuthNet.Game.SessionStorages
 
         public bool TryGetValue<T>(string key, out T? value)
         {
-            _storage.TryGetValue(key, out object? objValue);
-            if (objValue == null)
+            var result = _storage.TryGetValue(key, out object? objValue);
+            if (!result)
             {
                 value = default;
                 return false;
@@ -63,5 +64,11 @@ namespace XboxAuthNet.Game.SessionStorages
 
         public void Clear() =>
             _storage.Clear();
+
+        public SessionStorageKeyMode GetKeyMode(string key) => 
+            _keyModeStorage.Get(key);
+
+        public void SetKeyMode(string key, SessionStorageKeyMode mode) => 
+            _keyModeStorage.Set(key, mode);
     }
 }

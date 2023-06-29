@@ -47,8 +47,16 @@ public class JsonXboxGameAccountManager : IXboxGameAccountManager
     {
         if (!File.Exists(_filePath))
             return null;
-        using var fs = File.OpenRead(_filePath);
-        return JsonNode.Parse(fs);
+
+        try
+        {
+            using var fs = File.OpenRead(_filePath);
+            return JsonNode.Parse(fs);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 
     private IEnumerable<IXboxGameAccount> parseAccounts(JsonNode? node)
@@ -121,7 +129,7 @@ public class JsonXboxGameAccountManager : IXboxGameAccountManager
             if (jsonSessionStorage == null)
                 continue;
 
-            rootObject.Add(identifier, jsonSessionStorage.ToJsonObject());
+            rootObject.Add(identifier, jsonSessionStorage.ToJsonObjectForStoring());
         }
         return rootObject;
     }

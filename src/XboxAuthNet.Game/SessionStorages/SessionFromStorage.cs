@@ -15,4 +15,10 @@ public class SessionFromStorage<T> : ISessionSource<T>
 
     public void Clear(ISessionStorage sessionStorage) =>
         Set(sessionStorage, default);
+
+    public SessionStorageKeyMode GetKeyMode(ISessionStorage sessionStorage) =>
+        sessionStorage.GetKeyMode(_keyName);
+
+    public void SetKeyMode(ISessionStorage sessionStorage, SessionStorageKeyMode mode) =>
+        sessionStorage.SetKeyMode(_keyName, mode);
 }

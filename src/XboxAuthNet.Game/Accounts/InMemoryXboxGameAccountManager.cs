@@ -41,6 +41,18 @@ public class InMemoryXboxGameAccountManager : IXboxGameAccountManager
     
     public void SaveAccounts()
     {
-        // Accounts are already saved in memory
+        foreach (var account in Accounts)
+        {
+            removeNoStore(account.SessionStorage);
+        }
+    }
+
+    private void removeNoStore(ISessionStorage sessionStorage)
+    {
+        foreach (var key in sessionStorage.Keys)
+        {
+            if (sessionStorage.GetKeyMode(key) == SessionStorageKeyMode.NoStore)
+                sessionStorage.Remove(key);
+        }
     }
 }

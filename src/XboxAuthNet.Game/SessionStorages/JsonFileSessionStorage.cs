@@ -12,6 +12,7 @@ namespace XboxAuthNet.Game.SessionStorages
     {
         private readonly string _filePath;
         private readonly JsonSerializerOptions _jsonOptions;
+        private readonly KeyModeStorage _keyModeStorage = new();
 
         private JsonSessionStorage? _innerStorage;
         public IEnumerable<string> Keys => _innerStorage?.Keys ?? Enumerable.Empty<string>();
@@ -109,5 +110,11 @@ namespace XboxAuthNet.Game.SessionStorages
             using var jsonWriter = new Utf8JsonWriter(fs);
             json.WriteTo(jsonWriter, _jsonOptions);
         }
+
+        public SessionStorageKeyMode GetKeyMode(string key) =>
+            _keyModeStorage.Get(key);
+
+        public void SetKeyMode(string key, SessionStorageKeyMode mode) =>
+            _keyModeStorage.Set(key, mode);
     }
 }
