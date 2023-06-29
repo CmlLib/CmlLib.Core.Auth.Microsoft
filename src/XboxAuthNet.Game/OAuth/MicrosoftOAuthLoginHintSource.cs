@@ -1,6 +1,6 @@
 ﻿using XboxAuthNet.Game.SessionStorages;
 
-namespace XboxAuthNet.Game.Msal.OAuth;
+namespace XboxAuthNet.Game.OAuth;
 
 public class MicrosoftOAuthLoginHintSource : SessionFromStorage<string>
 {

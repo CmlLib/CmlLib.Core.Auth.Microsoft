@@ -6,23 +6,23 @@ using XboxAuthNet.OAuth.CodeFlow.Parameters;
 
 namespace XboxAuthNet.Game.OAuth;
 
-public class InteractiveMicrosoftOAuth : SessionAuthenticator<MicrosoftOAuthResponse>
+public class InteractiveMicrosoftOAuth : MicrosoftOAuth
 {
-    private readonly MicrosoftOAuthClientInfo _clientInfo;
     private readonly Action<CodeFlowBuilder> _codeFlowBuilder;
     private readonly CodeFlowAuthorizationParameter _parameters;
 
     public InteractiveMicrosoftOAuth(
-        MicrosoftOAuthClientInfo clientInfo,
+        MicrosoftOAuthParameters parameters,
         Action<CodeFlowBuilder> codeFlowBuilder,
-        CodeFlowAuthorizationParameter parameters,
-        ISessionSource<MicrosoftOAuthResponse> sessionSource)
-         : base(sessionSource) =>
-        (_clientInfo, _codeFlowBuilder, _parameters) = (clientInfo, codeFlowBuilder, parameters);
+        CodeFlowAuthorizationParameter codeFlowParameters)
+         : base(parameters) =>
+        (_codeFlowBuilder, _parameters) = 
+        (codeFlowBuilder, codeFlowParameters);
 
-    protected override async ValueTask<MicrosoftOAuthResponse?> Authenticate(AuthenticateContext context)
+    protected override async ValueTask<MicrosoftOAuthResponse?> Authenticate(
+        AuthenticateContext context, MicrosoftOAuthParameters parameters)
     {
-        var apiClient = _clientInfo.CreateApiClientForOAuthCode(context.HttpClient);
+        var apiClient = parameters.ClientInfo.CreateApiClientForOAuthCode(context.HttpClient);
         var builder = new CodeFlowBuilder(apiClient);
         _codeFlowBuilder.Invoke(builder);
         var oauthHandler = builder.Build();

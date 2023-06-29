@@ -1,21 +1,18 @@
-using XboxAuthNet.Game.SessionStorages;
 using XboxAuthNet.Game.Authenticators;
 using XboxAuthNet.OAuth;
 using XboxAuthNet.OAuth.CodeFlow.Parameters;
 
 namespace XboxAuthNet.Game.OAuth;
 
-public class SilentMicrosoftOAuth : SessionAuthenticator<MicrosoftOAuthResponse>
+public class SilentMicrosoftOAuth : MicrosoftOAuth
 {
-    private readonly MicrosoftOAuthClientInfo _clientInfo;
+    public SilentMicrosoftOAuth(MicrosoftOAuthParameters parameters) : base(parameters)
+    {
 
-    public SilentMicrosoftOAuth(
-        MicrosoftOAuthClientInfo clientInfo,
-        ISessionSource<MicrosoftOAuthResponse> sessionSource)
-        : base(sessionSource) =>
-        _clientInfo = clientInfo;
+    }
 
-    protected override async ValueTask<MicrosoftOAuthResponse?> Authenticate(AuthenticateContext context)
+    protected override async ValueTask<MicrosoftOAuthResponse?> Authenticate(
+        AuthenticateContext context, MicrosoftOAuthParameters parameters)
     {
         var session = GetSessionFromStorage();
         if (string.IsNullOrEmpty(session?.RefreshToken))
@@ -23,7 +20,7 @@ public class SilentMicrosoftOAuth : SessionAuthenticator<MicrosoftOAuthResponse>
 
         context.Logger.LogSilentMicrosoftOAuth();
         var parameterFactory = new CodeFlowParameterFactory();
-        var apiClient = _clientInfo.CreateApiClientForOAuthCode(context.HttpClient);
+        var apiClient = parameters.ClientInfo.CreateApiClientForOAuthCode(context.HttpClient);
         return await apiClient.RefreshToken(
             parameterFactory.CreateRefreshTokenParameter(session.RefreshToken), 
             context.CancellationToken);
