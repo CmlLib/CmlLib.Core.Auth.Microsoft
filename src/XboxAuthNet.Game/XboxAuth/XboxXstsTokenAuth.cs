@@ -2,7 +2,6 @@ using XboxAuthNet.Game.Authenticators;
 using XboxAuthNet.Game.SessionStorages;
 using XboxAuthNet.XboxLive;
 using XboxAuthNet.XboxLive.Requests;
-using XboxAuthNet.XboxLive.Responses;
 
 namespace XboxAuthNet.Game.XboxAuth;
 
