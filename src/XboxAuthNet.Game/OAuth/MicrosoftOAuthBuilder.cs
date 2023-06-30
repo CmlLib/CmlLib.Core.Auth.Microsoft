@@ -23,7 +23,7 @@ public class MicrosoftOAuthBuilder
     private ISessionSource<string>? _loginHintSource;
     public ISessionSource<string> LoginHintSource
     {
-        get => _loginHintSource = MicrosoftOAuthLoginHintSource.Default;
+        get => _loginHintSource ??= MicrosoftOAuthLoginHintSource.Default;
         set => _loginHintSource = value;
     }
 
@@ -59,12 +59,24 @@ public class MicrosoftOAuthBuilder
         return new InteractiveMicrosoftOAuth(createParameters(), builderInvoker, parameters);
     }
 
-    public IAuthenticator Signout() => 
-        Signout(builder => {});
-
-    public IAuthenticator Signout(Action<CodeFlowBuilder> builderInvoker)
+    public IAuthenticator Signout()
     {
-        return new MicrosoftOAuthSignout(createParameters(), builderInvoker);
+        var authenticator = new AuthenticatorCollection();
+        authenticator.AddAuthenticatorWithoutValidator(new SessionCleaner<string>(LoginHintSource));
+        authenticator.AddAuthenticatorWithoutValidator(new SessionCleaner<MicrosoftOAuthResponse>(SessionSource));
+        return authenticator;
+    }
+
+    public IAuthenticator SignoutWithBrowser() =>
+        SignoutWithBrowser(builder => { });
+
+    public IAuthenticator SignoutWithBrowser(Action<CodeFlowBuilder> builderInvoker)
+    {
+        var authenticator = new AuthenticatorCollection();
+        authenticator.AddAuthenticatorWithoutValidator(new SessionCleaner<string>(LoginHintSource));
+        authenticator.AddAuthenticatorWithoutValidator(new SessionCleaner<MicrosoftOAuthResponse>(SessionSource));
+        authenticator.AddAuthenticatorWithoutValidator(new MicrosoftOAuthSignout(createParameters(), builderInvoker));
+        return authenticator;
     }
 
     public IAuthenticator ClearSession() =>
