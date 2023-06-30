@@ -29,7 +29,7 @@ public class JsonSessionStorage : ISessionStorage
         }
     }
 
-    public bool TryGetValue<T>(string key, out T? value)
+    public bool TryGetValue<T>(string key, out T value)
     {
         if (_cache.TryGetValue(key, out value))
         {
@@ -41,7 +41,7 @@ public class JsonSessionStorage : ISessionStorage
         }
     }
 
-    public T? Get<T>(string key)
+    public T Get<T>(string key)
     {
         var result = TryGetValue<T>(key, out var value);
         if (!result)
@@ -49,7 +49,7 @@ public class JsonSessionStorage : ISessionStorage
         return value;
     }
 
-    public T? GetOrDefault<T>(string key, T? defaultValue)
+    public T GetOrDefault<T>(string key, T defaultValue)
     {
         if (TryGetValue<T>(key, out var value))
             return value;
@@ -57,7 +57,7 @@ public class JsonSessionStorage : ISessionStorage
             return defaultValue;
     }
 
-    private bool cacheJson<T>(string key, out T? value)
+    private bool cacheJson<T>(string key, out T value)
     {
         var result = getFromJson(key, out value);
         if (result)
@@ -65,16 +65,25 @@ public class JsonSessionStorage : ISessionStorage
         return result;
     }
 
-    private bool getFromJson<T>(string key, out T? value)
+    private bool getFromJson<T>(string key, out T value)
     {
         if (_jsonObject.ContainsKey(key))
         {
-            value = _jsonObject[key].Deserialize<T?>(_jsonOptions);
-            return true;
+            var jsonValue = _jsonObject[key].Deserialize<T>(_jsonOptions);
+            if (jsonValue == null)
+            {
+                value = default!;
+                return false;
+            }
+            else
+            {
+                value = jsonValue;
+                return true;
+            }
         }
         else
         {
-            value = default;
+            value = default!;
             return false;
         }
     }
@@ -82,7 +91,10 @@ public class JsonSessionStorage : ISessionStorage
     public void Set<T>(string key, T obj)
     {
         _cache.Set(key, obj);
-        _keys.Add(key);
+        if (EqualityComparer<T>.Default.Equals(obj, default))
+            _keys.Remove(key);
+        else
+            _keys.Add(key);
     }
 
     public bool ContainsKey(string key) => _cache.ContainsKey(key);
@@ -122,7 +134,7 @@ public class JsonSessionStorage : ISessionStorage
     public JsonObject ToJsonObject() =>
         ToJsonObjectByKeys(Keys);
 
-    public JsonObject ToJsonObjectForStoring() =>
+    public JsonObject ToJsonObjectForStoring() => 
         ToJsonObjectByKeys(this.GetKeysForStoring());
 
     public JsonObject ToJsonObjectByKeys(IEnumerable<string> keys)
@@ -133,14 +145,13 @@ public class JsonSessionStorage : ISessionStorage
             var result = TryGetValue<object>(key, out var value);
             if (!result)
                 continue;
-
             var node = JsonSerializer.SerializeToNode(value);
             json.Add(key, node);
         }
         return json;
     }
 
-    public SessionStorageKeyMode GetKeyMode(string key) =>
+    public SessionStorageKeyMode GetKeyMode(string key) => 
         _keyModeStorage.Get(key);
 
     public void SetKeyMode(string key, SessionStorageKeyMode mode) =>

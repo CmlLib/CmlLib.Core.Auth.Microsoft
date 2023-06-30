@@ -30,6 +30,7 @@ public class TestAccount : XboxGameAccount
 
     protected override string? GetIdentifier()
     {
-        return SessionStorage.Get<string>("identifier");
+        SessionStorage.TryGetValue<string?>("identifier", out var value);
+        return value;
     }
 }

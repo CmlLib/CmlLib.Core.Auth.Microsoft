@@ -5,8 +5,9 @@
 
 #if !TEST_SDK
 
-//Console.WriteLine(DateTime.MinValue.CompareTo(DateTime.MinValue));
-var test = new XboxAuthNet.Game.Test.XboxGameAccountTest();
-test.TestCompareToEqual();
+using XboxAuthNet.Game.Test;
+
+var test = new XboxGameAccountTest();
+test.TestEqualOne();
 
 #endif

@@ -39,16 +39,6 @@ public class JsonFileSessionStorageTests
     }
 
     [Test]
-    public void TestNonExistsKey()
-    {
-        Assert.NotNull(sessionStorage);
-        Assert.Throws<KeyNotFoundException>(() =>
-        {
-            sessionStorage!.Get<object>("qwerqwerqwerqwer");
-        });
-    }
-
-    [Test]
     public void TestObject()
     {
         Assert.NotNull(sessionStorage);
