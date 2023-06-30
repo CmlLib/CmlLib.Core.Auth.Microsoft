@@ -35,9 +35,13 @@ public class JsonSessionStorage : ISessionStorage
         {
             return true;
         }
-        else
+        else if (Keys.Contains(key))
         { 
             return cacheJson(key, out value);
+        }
+        else
+        {
+            return false;
         }
     }
 
