@@ -4,6 +4,7 @@ using XboxAuthNet.Game.XboxAuth;
 using XboxAuthNet.Game.Authenticators;
 using CmlLib.Core.Auth.Microsoft.Sessions;
 using CmlLib.Core.Auth.Microsoft.Authenticators;
+using XboxAuthNet.Game.Accounts;
 
 namespace CmlLib.Core.Auth.Microsoft;
 
@@ -59,6 +60,21 @@ public static class Extensions
         var builder = new JEAuthenticatorBuilder();
         var authenticator = builderInvoker.Invoke(builder);
         self.AddAuthenticator(StaticValidator.Invalid, authenticator);
+    }
+
+    public static JEGameAccount GetJEAccountByUsername(this XboxGameAccountCollection self, string username)
+    {
+        return (JEGameAccount)self.First(account =>
+        {
+            if (account is JEGameAccount jeAccount)
+            {
+                return jeAccount.Profile?.Username == username;
+            }
+            else
+            {
+                return false;
+            }
+        });
     }
 
     public static async Task<MSession> ExecuteForLauncherAsync(this NestedAuthenticator self)
