@@ -83,6 +83,18 @@ internal static partial class Log
     public static partial void LogXboxXstsTokenAuth(this ILogger logger, string relyingParty);
 
     [LoggerMessage(
+        EventId = 62,
+        Level = LogLevel.Information,
+        Message = "XboxXuiClaimsValidatorResult: {result}")]
+    public static partial void LogXboxXuiClaimsValidation(this ILogger logger, bool result);
+
+    [LoggerMessage(
+        EventId = 63,
+        Level = LogLevel.Information,
+        Message = "Start XboxXuiClaimsAuth")]
+    public static partial void LogXboxXuiClaims(this ILogger logger);
+
+    [LoggerMessage(
         EventId = 61,
         Level = LogLevel.Information,
         Message = "XboxSessionValidatorResult: {result}")]

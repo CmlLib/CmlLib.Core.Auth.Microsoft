@@ -9,6 +9,8 @@ using XboxAuthNet.Game;
 using XboxAuthNet.Game.OAuth;
 using XboxAuthNet.Game.XboxAuth;
 using XboxAuthNet.XboxLive;
+using XboxAuthNet.Game.SessionStorages;
+using System.Text.Json;
 
 // logger
 var loggerFactory = LoggerFactory.Create(config => 
@@ -70,7 +72,8 @@ Console.WriteLine(
     "[5] Silent (Msal)\n" + 
     "[6] DeviceCode (Msal)\n" + 
     "[7] Signout without OAuth signout page\n" +
-    "[8] Signout with OAuth signout page");
+    "[8] Signout with OAuth signout page\n" + 
+    "[9] Show token informations");
 Console.Write("\n\nNumber: ");
 var selectedAuthMode = int.Parse(Console.ReadLine() ?? "1");
 
@@ -138,8 +141,24 @@ switch (selectedAuthMode)
         }
     case 9:
         {
+            var ss = selectedAccount.SessionStorage;
+            if (ss is JsonSessionStorage jsonSessionStorage)
+            {
+                var jsonObject = jsonSessionStorage.ToJsonObject();
+                var json = JsonSerializer.Serialize(jsonObject, new JsonSerializerOptions
+                {
+                    WriteIndented = true
+                });
+                Console.WriteLine(json);
+            }
+            return;
+        }
+    case 10:
+        {
             var authenticator = loginHandler.CreateAuthenticator(selectedAccount, default);
-            authenticator.AddMsalOAuth(getApp(), msal => msal.Silent());
+            //authenticator.AddMsalOAuth(getApp(), msal => msal.Silent());
+            var xbox = new XboxAuthBuilder();
+            authenticator.AddAuthenticator(xbox.XuiClaimsValidator(), xbox.XuiClaimsAuth());
             await authenticator.ExecuteAsync();
             return;
         }
