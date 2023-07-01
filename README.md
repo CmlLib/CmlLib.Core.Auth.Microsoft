@@ -12,4 +12,7 @@
 Minecraft login with Microsoft Xbox account
 
 ## Usage
-[documents](./docs/Home.md)
+
+[wiki](https://alphabs.gitbook.io/cmllib/cmllib.core.auth.microsoft/home)
+
+[설명서](https://alphabs.gitbook.io/cmllib/v/ko/cmllib.core.auth.microsoft/undefined)
