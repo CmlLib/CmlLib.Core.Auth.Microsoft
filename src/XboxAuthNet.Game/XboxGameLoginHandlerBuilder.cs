@@ -49,7 +49,7 @@ public abstract class XboxGameLoginHandlerBuilderBase<T>
 
     protected virtual IXboxGameAccountManager CreateDefaultAccountManager()
     {
-        return new JsonXboxGameAccountManager("accounts.json", XboxGameAccount.FromSessionStorage);
+        return new JsonXboxGameAccountManager("accounts.json");
     }
 
     private T getThis() => (T)this;

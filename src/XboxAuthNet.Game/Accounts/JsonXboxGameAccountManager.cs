@@ -6,16 +6,28 @@ namespace XboxAuthNet.Game.Accounts;
 
 public class JsonXboxGameAccountManager : IXboxGameAccountManager
 {
+    public static readonly JsonSerializerOptions DefaultSerializerOption = new JsonSerializerOptions
+    {
+        WriteIndented = false,
+        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+    };
+
     private readonly string _filePath;
     private Func<ISessionStorage, IXboxGameAccount> _converter;
     private readonly JsonSerializerOptions? _jsonOptions;
     private XboxGameAccountCollection _accounts = new();
     private bool isLoaded = false;
 
+    public JsonXboxGameAccountManager(string filePath) : 
+        this(filePath, XboxGameAccount.FromSessionStorage, DefaultSerializerOption)
+    {
+
+    }
+
     public JsonXboxGameAccountManager(
         string filePath,
         Func<ISessionStorage, IXboxGameAccount> converter,
-        JsonSerializerOptions? jsonOptions = default)
+        JsonSerializerOptions? jsonOptions)
     {
         this._filePath = filePath;
         this._converter = converter;

@@ -23,7 +23,10 @@ public class JELoginHandlerBuilder :
 
     private IXboxGameAccountManager createAccountManager(string filePath)
     {
-        return new JsonXboxGameAccountManager(filePath, JEGameAccount.FromSessionStorage);
+        return new JsonXboxGameAccountManager(
+            filePath, 
+            JEGameAccount.FromSessionStorage, 
+            JsonXboxGameAccountManager.DefaultSerializerOption);
     }
 
     public JELoginHandler Build()

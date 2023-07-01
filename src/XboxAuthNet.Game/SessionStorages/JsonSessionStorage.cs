@@ -149,7 +149,7 @@ public class JsonSessionStorage : ISessionStorage
             var result = TryGetValue<object>(key, out var value);
             if (!result)
                 continue;
-            var node = JsonSerializer.SerializeToNode(value);
+            var node = JsonSerializer.SerializeToNode(value, _jsonOptions);
             json.Add(key, node);
         }
         return json;
