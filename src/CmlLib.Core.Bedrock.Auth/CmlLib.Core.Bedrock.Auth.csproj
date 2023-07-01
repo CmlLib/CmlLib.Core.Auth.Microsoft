@@ -20,6 +20,7 @@
         <PackageIcon>icon.png</PackageIcon>
         <RepositoryType>git</RepositoryType>
         <PackageId>CmlLib.Core.Bedrock.Auth</PackageId>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -37,5 +38,6 @@
     <!-- others-->
     <ItemGroup>
         <None Include="../../icon.png" Pack="true" Visible="false" PackagePath="" />
+        <None Include="../../README.md" Pack="true" Visible="false" PackagePath="" />
     </ItemGroup>
 </Project>

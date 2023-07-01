@@ -1,14 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>1.2.0</Version>
     <OutputType>Library</OutputType>
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <ImplicitUsings>enable</ImplicitUsings>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>10.0</LangVersion>
   </PropertyGroup>
 
+	<PropertyGroup>
+		<Description>XboxAuthNet.Game</Description>
+		<Copyright>Copyright (c) 2023 AlphaBs</Copyright>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft</RepositoryUrl>
+		<Authors>ksi123456ab</Authors>
+		<PackageTags>microsoft xbox game auth</PackageTags>
+		<Version>1.2.0</Version>
+		<PackageIcon>icon.png</PackageIcon>
+		<RepositoryType>git</RepositoryType>
+		<PackageId>XboxAuthNet.Game</PackageId>
+	</PropertyGroup>
+
+	<!-- package refernces-->
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
     <PackageReference Include="System.Text.Json" Version="7.0.1" />
@@ -22,4 +38,8 @@
     <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[5.0.0]" />
   </ItemGroup>
 
+	<!-- others-->
+	<ItemGroup>
+		<None Include="../../icon.png" Pack="true" Visible="false" PackagePath="" />
+	</ItemGroup>
 </Project>
