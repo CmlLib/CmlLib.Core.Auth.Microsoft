@@ -15,6 +15,8 @@ namespace WinFormTest
         [Category("Account")]
         public string? Identifier => account.Identifier;
         [Category("Account")]
+        public string? Gamertag => account.Gamertag;
+        [Category("Account")]
         public DateTime? LastAccess => account.LastAccess;
 
         [Category("Profile")]
