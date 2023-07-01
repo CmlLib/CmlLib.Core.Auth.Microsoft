@@ -2,6 +2,7 @@ using XboxAuthNet.Game.Authenticators;
 using XboxAuthNet.Game.SessionStorages;
 using XboxAuthNet.Game.OAuth;
 using XboxAuthNet.Game.XboxAuth;
+using XboxAuthNet.OAuth.CodeFlow;
 
 namespace XboxAuthNet.Game;
 
@@ -55,11 +56,26 @@ public static class Extensions
     }
 
     public static void AddMicrosoftOAuthSignout(
-        this ICompositeAuthenticator self, 
+        this ICompositeAuthenticator self,
         MicrosoftOAuthClientInfo clientInfo)
     {
         var builder = new MicrosoftOAuthBuilder(clientInfo);
         var signout = builder.Signout();
+        self.AddAuthenticatorWithoutValidator(signout);
+    }
+
+    public static void AddMicrosoftOAuthBrowserSignout(
+        this ICompositeAuthenticator self,
+        MicrosoftOAuthClientInfo clientInfo) =>
+        self.AddMicrosoftOAuthBrowserSignout(clientInfo, _ => { });
+
+    public static void AddMicrosoftOAuthBrowserSignout(
+        this ICompositeAuthenticator self,
+        MicrosoftOAuthClientInfo clientInfo,
+        Action<CodeFlowBuilder> builderInvoker)
+    {
+        var builder = new MicrosoftOAuthBuilder(clientInfo);
+        var signout = builder.SignoutWithBrowser(builderInvoker);
         self.AddAuthenticatorWithoutValidator(signout);
     }
 
