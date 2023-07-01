@@ -108,6 +108,18 @@ public class XboxAuthBuilder
         return new XboxXstsTokenAuth(relyingParty, SessionSource);
     }
 
+    public ISessionValidator XuiClaimsValidator() =>
+        XuiClaimsValidator(new [] { XboxAuthXuiClaimNames.Gamertag, XboxAuthXuiClaimNames.XboxUserId });
+    
+    public ISessionValidator XuiClaimsValidator(string[] claimNames) =>
+        new XboxXuiClaimsValidator(claimNames, SessionSource);
+
+    public IAuthenticator XuiClaimsAuth() =>
+        XuiClaimsAuth(new [] { XboxAuthXuiClaimNames.Gamertag, XboxAuthXuiClaimNames.XboxUserId });
+
+    public IAuthenticator XuiClaimsAuth(string[] claimNames) =>
+        new XboxXuiClaimsAuth(claimNames, SessionSource);
+
     public IAuthenticator Basic() => Basic(tryGetRelyingParty());
     public IAuthenticator Basic(string relyingParty)
     {
@@ -117,6 +129,7 @@ public class XboxAuthBuilder
         var collection = new AuthenticatorCollection();
         collection.AddAuthenticatorWithoutValidator(UserTokenAuth());
         collection.AddAuthenticatorWithoutValidator(XstsTokenAuth(relyingParty));
+        collection.AddAuthenticator(XuiClaimsValidator(), XuiClaimsAuth());
         return collection;
     }
 
@@ -130,6 +143,7 @@ public class XboxAuthBuilder
         collection.AddAuthenticatorWithoutValidator(UserTokenAuth());
         collection.AddAuthenticatorWithoutValidator(DeviceTokenAuth());
         collection.AddAuthenticatorWithoutValidator(XstsTokenAuth(relyingParty));
+        collection.AddAuthenticator(XuiClaimsValidator(), XuiClaimsAuth());
         return collection;
     }
 
@@ -148,6 +162,7 @@ public class XboxAuthBuilder
             RequestSigner,
             OAuthSessionSource,
             SessionSource));
+        collection.AddAuthenticatorWithoutValidator(XuiClaimsAuth());
         return collection;
     }
 

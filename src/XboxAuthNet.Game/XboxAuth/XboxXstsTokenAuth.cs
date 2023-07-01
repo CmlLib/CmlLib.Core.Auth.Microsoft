@@ -19,7 +19,7 @@ public class XboxXstsTokenAuth : SessionAuthenticator<XboxAuthTokens>
     {
         var xboxTokens = GetSessionFromStorage() ?? new XboxAuthTokens();
 
-        context.Logger.LogXboxXstsTokenAuth();
+        context.Logger.LogXboxXstsTokenAuth(_relyingParty);
         var xboxAuthClient = new XboxAuthClient(context.HttpClient);
         var xsts = await xboxAuthClient.RequestXsts(new XboxXstsRequest
         {

@@ -18,8 +18,6 @@ public class JEGameAccount : XboxGameAccount
     public JEProfile? Profile => JEProfileSource.Default.Get(SessionStorage);
     public JEToken? Token => JETokenSource.Default.Get(SessionStorage);
 
-    protected override string? GetIdentifier() => Profile?.UUID;
-
     public MSession ToLauncherSession()
     {
         return new MSession
