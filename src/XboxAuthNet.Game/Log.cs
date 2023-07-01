@@ -66,8 +66,8 @@ internal static partial class Log
     [LoggerMessage(
         EventId = 58,
         Level = LogLevel.Information,
-        Message = "Start XboxSisuAuth")]
-    public static partial void LogXboxSisu(this ILogger logger);
+        Message = "Start XboxSisuAuth, {relyingParty}")]
+    public static partial void LogXboxSisu(this ILogger logger, string relyingParty);
 
     [LoggerMessage(
         EventId = 59,
@@ -79,8 +79,8 @@ internal static partial class Log
     [LoggerMessage(
         EventId = 60,
         Level = LogLevel.Information,
-        Message = "Start XstsTokenAuth")]
-    public static partial void LogXboxXstsTokenAuth(this ILogger logger);
+        Message = "Start XstsTokenAuth, {relyingParty}")]
+    public static partial void LogXboxXstsTokenAuth(this ILogger logger, string relyingParty);
 
     [LoggerMessage(
         EventId = 61,
