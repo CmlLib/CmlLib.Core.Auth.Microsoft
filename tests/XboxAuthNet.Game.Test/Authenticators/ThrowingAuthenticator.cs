@@ -4,8 +4,13 @@ namespace XboxAuthNet.Game.Test.Authenticators;
 
 public class ThrowingAuthenticator : IAuthenticator
 {
+    private readonly Exception _ex;
+
+    public ThrowingAuthenticator(Exception ex) => 
+        _ex = ex;
+
     public ValueTask ExecuteAsync(AuthenticateContext context)
     {
-        throw new TaskCanceledException();
+        throw _ex;
     }
 }

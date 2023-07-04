@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using XboxAuthNet.Game.Authenticators;
-using XboxAuthNet.Game.SessionStorages;
 
 namespace XboxAuthNet.Game.Test.Authenticators;
 
@@ -61,5 +60,22 @@ public class FallbackAuthenticatorTest
         
         await authenticator.ExecuteAsync(mocks.CreateContext());
         mocks.TestExpectations();
+    }
+
+    [Test]
+    public void TestThrowing()
+    {
+        var ex1 = new ArgumentException();
+        var ex2 = new FormatException();
+        var mocks = new MockAuthenticatorFactory();
+        var authenticator = new FallbackAuthenticator();
+        authenticator.AddAuthenticator(StaticValidator.Invalid, mocks.Throw(ex1));
+        authenticator.AddAuthenticator(StaticValidator.Invalid, mocks.Throw(ex2));
+        
+        var ex = Assert.ThrowsAsync<AggregateException>(async () => 
+        {
+            await authenticator.ExecuteAsync(mocks.CreateContext());
+        });
+        Assert.That(ex?.InnerExceptions.ToArray(), Is.EqualTo(new Exception[] { ex2, ex1 }));
     }
 }

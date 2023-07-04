@@ -36,7 +36,7 @@ public class FallbackAuthenticator : CompositeAuthenticatorBase
 
                 if (i == count - 1) // failed at last authenticator
                 {
-                    throw new AggregateException(exceptions);
+                    throw new AggregateException(exceptions.AsEnumerable().Reverse());
                 }
             }
         }

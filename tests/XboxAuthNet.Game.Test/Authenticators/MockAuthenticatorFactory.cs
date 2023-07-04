@@ -23,9 +23,12 @@ public class MockAuthenticatorFactory
         return authenticator;
     }
 
-    public IAuthenticator Throw()
+    public IAuthenticator Throw() =>
+        Throw(new TaskCanceledException());
+
+    public IAuthenticator Throw(Exception ex)
     {
-        var authenticator = new ThrowingAuthenticator();
+        var authenticator = new ThrowingAuthenticator(ex);
         return authenticator;
     }
 
