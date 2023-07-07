@@ -28,39 +28,69 @@ public class MsalOAuthBuilder
         set => _loginHintSource = value;
     }
 
+    public ISessionValidator LoginHintValidator(bool throwWhenInvalid = false) =>
+        new MicrosoftOAuthLoginHintValidator(throwWhenInvalid, LoginHintSource);
+
     public IAuthenticator Silent() => 
-        new MsalSilentOAuth(createParameters());
+        new MsalSilentOAuth(createParameters(false));
 
     public IAuthenticator Interactive() =>
-        new MsalInteractiveOAuth(createParameters());
+        Interactive(builderInvoker => { });
+
+    public IAuthenticator Interactive(Action<AcquireTokenInteractiveParameterBuilder> builderInvoker) =>
+        new MsalInteractiveOAuth(createParameters(false), builderInvoker);
 
     public IAuthenticator EmbeddedWebView()
     {
-        var authenticator = new MsalInteractiveOAuth(createParameters());
-        authenticator.UseDefaultWebViewOption = false;
-        authenticator.UseEmbeddedWebView = true;
+        var authenticator = new MsalInteractiveOAuth(createParameters(false), builder =>
+        {
+            builder.WithUseEmbeddedWebView(true);
+        });
         return authenticator;
     }
 
     public IAuthenticator SystemBrowser()
     {
-        var authenticator = new MsalInteractiveOAuth(createParameters());
-        authenticator.UseDefaultWebViewOption = false;
-        authenticator.UseEmbeddedWebView = false;
+        var authenticator = new MsalInteractiveOAuth(createParameters(false), builder =>
+        {
+            builder.WithUseEmbeddedWebView(false);
+        });
+        return authenticator;
+    }
+
+    public IAuthenticator InteractiveWithSingleAccount()
+    {
+        var authenticator = new FallbackAuthenticator();
+        authenticator.AddAuthenticatorWithoutValidator(Interactive(builder =>
+        {
+            // NoPrompt with LoginHint will try 'none' and also 'login' mode.
+            // Prompt.ForceLogin is unnecessary.
+            builder.WithPrompt(Prompt.NoPrompt);
+        }));
+        return authenticator;
+    }
+
+    public IAuthenticator CodeFlow()
+    {
+        var authenticator = new FallbackAuthenticator();
+        authenticator.AddAuthenticatorWithoutValidator(Silent());
+        authenticator.AddAuthenticator(LoginHintValidator(true), InteractiveWithSingleAccount());
+        authenticator.AddAuthenticatorWithoutValidator(Interactive());
         return authenticator;
     }
 
     public IAuthenticator DeviceCode(Func<DeviceCodeResult, Task> deviceResultCallback) =>
-        new MsalDeviceCodeOAuth(createParameters(), deviceResultCallback);
+        new MsalDeviceCodeOAuth(createParameters(false), deviceResultCallback);
 
     public IAuthenticator FromResult(AuthenticationResult result) =>
         new StaticSessionAuthenticator<MicrosoftOAuthResponse>(
             MsalClientHelper.ToMicrosoftOAuthResponse(result), 
             SessionSource);
 
-    private MsalOAuthParameters createParameters() => new(
+    private MsalOAuthParameters createParameters(bool loginHint) => new(
         app: _app,
         scopes: Scopes,
         loginHintSource: LoginHintSource,
+        throwWhenEmptyLoginHint: loginHint,
         sessionSource: SessionSource);
 }

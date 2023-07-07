@@ -9,14 +9,14 @@ namespace XboxAuthNet.Game.OAuth;
 public class InteractiveMicrosoftOAuth : MicrosoftOAuth
 {
     private readonly Action<CodeFlowBuilder> _codeFlowBuilder;
-    private readonly CodeFlowAuthorizationParameter _parameters;
+    private readonly CodeFlowAuthorizationParameter _codeFlowParameters;
 
     public InteractiveMicrosoftOAuth(
         MicrosoftOAuthParameters parameters,
         Action<CodeFlowBuilder> codeFlowBuilder,
         CodeFlowAuthorizationParameter codeFlowParameters)
          : base(parameters) =>
-        (_codeFlowBuilder, _parameters) = 
+        (_codeFlowBuilder, _codeFlowParameters) = 
         (codeFlowBuilder, codeFlowParameters);
 
     protected override async ValueTask<MicrosoftOAuthResponse?> Authenticate(
@@ -27,7 +27,11 @@ public class InteractiveMicrosoftOAuth : MicrosoftOAuth
         _codeFlowBuilder.Invoke(builder);
         var oauthHandler = builder.Build();
 
+        var loginHint = parameters.LoginHintSource.Get(context.SessionStorage);
+        if (string.IsNullOrEmpty(_codeFlowParameters.LoginHint))
+            _codeFlowParameters.LoginHint = loginHint;
+
         context.Logger.LogInteractiveMicrosoftOAuth();
-        return await oauthHandler.AuthenticateInteractively(_parameters, context.CancellationToken);
+        return await oauthHandler.AuthenticateInteractively(_codeFlowParameters, context.CancellationToken);
     }
 }

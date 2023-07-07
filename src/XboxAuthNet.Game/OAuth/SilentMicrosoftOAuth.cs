@@ -19,10 +19,12 @@ public class SilentMicrosoftOAuth : MicrosoftOAuth
             throw new MicrosoftOAuthException("Cached RefreshToken of the user was empty. Interactive microsoft authentication is required.", 0);
 
         context.Logger.LogSilentMicrosoftOAuth();
-        var parameterFactory = new CodeFlowParameterFactory();
         var apiClient = parameters.ClientInfo.CreateApiClientForOAuthCode(context.HttpClient);
         return await apiClient.RefreshToken(
-            parameterFactory.CreateRefreshTokenParameter(session.RefreshToken), 
+            new CodeFlowRefreshTokenParameter
+            {
+                RefreshToken = session.RefreshToken
+            }, 
             context.CancellationToken);
     }
 }

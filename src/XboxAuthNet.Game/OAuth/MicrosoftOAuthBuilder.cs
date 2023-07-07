@@ -27,36 +27,65 @@ public class MicrosoftOAuthBuilder
         set => _loginHintSource = value;
     }
 
-    private CodeFlowAuthorizationParameter createCodeFlowParameters()
-    {
-        var parameter = new CodeFlowParameterFactory().CreateAuthorizationParameter();
-        parameter.Prompt = MicrosoftOAuthPromptModes.SelectAccount;
-        return parameter;
-    }
-
     private MicrosoftOAuthParameters createParameters() => 
         new MicrosoftOAuthParameters(_clientInfo, SessionSource, LoginHintSource);
 
     public ISessionValidator Validator() =>
         new MicrosoftOAuthValidator(SessionSource);
 
+    public ISessionValidator LoginHintValidator(bool throwWhenInvalid = false) =>
+        new MicrosoftOAuthLoginHintValidator(throwWhenInvalid, LoginHintSource);
+
     public IAuthenticator Silent() =>
         new SilentMicrosoftOAuth(createParameters());
 
     public IAuthenticator Interactive() =>
-        Interactive(builder => {}, createCodeFlowParameters());
+        Interactive(builder => {}, new CodeFlowAuthorizationParameter());
 
     public IAuthenticator Interactive(CodeFlowAuthorizationParameter parameters) =>
         Interactive(builder => {}, parameters);
 
     public IAuthenticator Interactive(Action<CodeFlowBuilder> builderInvoker) =>
-        Interactive(builderInvoker, createCodeFlowParameters());
+        Interactive(builderInvoker, new CodeFlowAuthorizationParameter());
 
     public IAuthenticator Interactive(
         Action<CodeFlowBuilder> builderInvoker,
-        CodeFlowAuthorizationParameter parameters)
+        CodeFlowAuthorizationParameter parameters) => 
+        new InteractiveMicrosoftOAuth(createParameters(), builderInvoker, parameters);
+
+    public IAuthenticator InteractiveWithSingleAccount() =>
+        InteractiveWithSingleAccount(builderInvoker => { });
+
+    public IAuthenticator InteractiveWithSingleAccount(Action<CodeFlowBuilder> builderInvoker)
     {
-        return new InteractiveMicrosoftOAuth(createParameters(), builderInvoker, parameters);
+        var authenticator = new FallbackAuthenticator();
+        authenticator.AddAuthenticatorWithoutValidator(
+            Interactive(
+                builderInvoker, 
+                new CodeFlowAuthorizationParameter
+                {
+                    Prompt = MicrosoftOAuthPromptModes.None
+                }));
+        authenticator.AddAuthenticatorWithoutValidator(
+            Interactive(
+                builderInvoker, 
+                new CodeFlowAuthorizationParameter
+                {
+                    Prompt = MicrosoftOAuthPromptModes.Login
+                }));
+        return authenticator;
+    }
+
+    public IAuthenticator CodeFlow() =>
+        CodeFlow(builderInvoker => { });
+
+    public IAuthenticator CodeFlow(Action<CodeFlowBuilder> builderInvoker)
+    {
+        var authenticator = new FallbackAuthenticator();
+        authenticator.AddAuthenticatorWithoutValidator(Silent());
+        authenticator.AddAuthenticator(LoginHintValidator(true), InteractiveWithSingleAccount(builderInvoker));
+        authenticator.AddAuthenticatorWithoutValidator(Interactive(builderInvoker));
+        return authenticator;
     }
 
     public IAuthenticator Signout()
