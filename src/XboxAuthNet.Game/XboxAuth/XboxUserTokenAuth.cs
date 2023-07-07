@@ -22,7 +22,7 @@ public class XboxUserTokenAuth : SessionAuthenticator<XboxAuthTokens>
             .AccessToken;
 
         if (string.IsNullOrEmpty(oAuthAccessToken))
-            throw new XboxAuthException("OAuth access token was empty", 0);
+            throw new XboxAuthException("OAuth access token was empty. Microsoft OAuth is required.", 0);
 
         context.Logger.LogXboxUserTokenAuth();
         var xboxAuthClient = new XboxAuthClient(context.HttpClient);

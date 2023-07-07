@@ -33,7 +33,7 @@ public class JEToken
     public MojangXboxAccessTokenPayload? DecodeAccesTokenPayload()
     {
         if (string.IsNullOrEmpty(this.AccessToken))
-            throw new InvalidOperationException("AccessToken is null");
+            throw new InvalidOperationException("this.AccessToken was empty.");
 
         return JwtDecoder.DecodePayload<MojangXboxAccessTokenPayload>(this.AccessToken!);
     }

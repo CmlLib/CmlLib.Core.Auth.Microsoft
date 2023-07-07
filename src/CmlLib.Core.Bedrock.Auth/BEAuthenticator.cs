@@ -31,7 +31,7 @@ public class BEAuthenticator : SessionAuthenticator<BESession>
         if (string.IsNullOrEmpty(uhs) ||
             string.IsNullOrEmpty(xsts))
         {
-            throw new BEAuthException("Cannot auth with null UserHash and null Token");
+            throw new BEAuthException("Cannot auth with null UserHash and null Token. Xbox authentication is required.");
         }
 
         context.Logger.LogInformation("Start BEAuthenticator");

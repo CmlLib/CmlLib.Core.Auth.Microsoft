@@ -16,7 +16,7 @@ public class MsalSilentOAuth : MsalOAuth
     {
         var loginHint = parameters.LoginHintSource.Get(context.SessionStorage);
         if (string.IsNullOrEmpty(loginHint))
-            throw new MsalException("loginHint was empty");
+            throw new MsalException("loginHint was empty. Interactive Microsfot OAuth with IdToken is required. (ex: MsalInteractiveOAuth)");
 
         context.Logger.LogMsalSilentOAuth(loginHint);
         return await parameters.MsalApplication

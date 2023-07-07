@@ -23,11 +23,10 @@ public class JETokenAuthenticator : SessionAuthenticator<JEToken>
         var uhs = xboxTokens?.XstsToken?.XuiClaims?.UserHash;
         var xsts = xboxTokens?.XstsToken?.Token;
 
-        if (string.IsNullOrEmpty(uhs) ||
-            string.IsNullOrEmpty(xsts))
-        {
-            throw new JEAuthException("Cannot auth with null UserHash and null Token");
-        }
+        if (string.IsNullOrEmpty(uhs))
+            throw new JEAuthException("UserHash was empty. Xbox authentication is required.");
+        if (string.IsNullOrEmpty(xsts))
+            throw new JEAuthException("XstsToken was empty. Xbox authentication is required.");
 
         context.Logger.LogJETokenAuthenticator();
         return await requestToken(uhs, xsts, context.HttpClient);
@@ -52,7 +51,7 @@ public class JETokenAuthenticator : SessionAuthenticator<JEToken>
             if (resObj == null && res.IsSuccessStatusCode)
                 throw new JEAuthException($"{(int)res.StatusCode}: {res.ReasonPhrase}");
             else if (resObj == null)
-                throw new JEAuthException("Response was null");
+                throw new JEAuthException("The response was null.");
 
             resObj.ExpiresOn = DateTime.UtcNow.AddSeconds(resObj.ExpiresIn);
             return resObj;

@@ -46,8 +46,7 @@ while (true)
     {
         if (account is not JEGameAccount jeAccount)
             continue;
-
-        Console.WriteLine();
+        
         Console.WriteLine($"[{number}] {account.Identifier}");
         Console.WriteLine($"    LastAccess: {jeAccount.LastAccess}");
         Console.WriteLine($"    Username: {jeAccount.Profile?.Username}");
@@ -129,20 +128,17 @@ while (true)
             }
         case 7: // Signout without OAuth signout page 
             {
-                var authenticator = loginHandler.CreateAuthenticator(selectedAccount, default);
-                authenticator.AddSessionCleaner(MicrosoftOAuthSessionSource.Default);
-                authenticator.AddSessionCleaner(XboxSessionSource.Default);
-                authenticator.AddSessionCleaner(JEProfileSource.Default);
-                authenticator.AddSessionCleaner(JETokenSource.Default);
-                await authenticator.ExecuteAsync();
+                await loginHandler.Signout(selectedAccount);
                 continue;
             }
         case 8: // Signout with OAuth signout page
             {
-                await loginHandler.Signout();
+                var authenticator = loginHandler.CreateAuthenticator(selectedAccount, default);
+                authenticator.AddMicrosoftOAuthBrowserSignout(JELoginHandler.DefaultMicrosoftOAuthClientInfo);
+                await authenticator.ExecuteAsync();
                 continue;
             }
-        case 9:
+        case 9: // Show entire session
             {
                 var ss = selectedAccount.SessionStorage;
                 if (ss is JsonSessionStorage jsonSessionStorage)

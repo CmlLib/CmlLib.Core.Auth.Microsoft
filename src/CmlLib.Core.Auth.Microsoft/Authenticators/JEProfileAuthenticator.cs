@@ -19,15 +19,15 @@ public class JEProfileAuthenticator : SessionAuthenticator<JEProfile>
     {
         var token = _jeSessionSource.Get(context.SessionStorage);
         if (string.IsNullOrEmpty(token?.AccessToken))
-            throw new JEAuthException("Null access token");
+            throw new JEAuthException("JEToken.AccessToken was empty. JETokenAuthenticator must run first.");
 
         context.Logger.LogJEProfileAuthenticator();
         var profile = await requestProfile(token.AccessToken, context.HttpClient);
 
         if (string.IsNullOrEmpty(profile.UUID))
-            throw new JEAuthException("No uuid");
+            throw new JEAuthException("The mojang server returned empty UUID.");
         if (string.IsNullOrEmpty(profile.Username))
-            throw new JEAuthException("No username");
+            throw new JEAuthException("The mojang server returned empty username.");
 
         return profile;
     }
@@ -50,7 +50,7 @@ public class JEProfileAuthenticator : SessionAuthenticator<JEProfile>
             var profile = JsonSerializer.Deserialize<JEProfile>(resBody);
 
             if (profile == null)
-                throw new JsonException();
+                throw new JsonException("The response was null.");
 
             return profile;
         }

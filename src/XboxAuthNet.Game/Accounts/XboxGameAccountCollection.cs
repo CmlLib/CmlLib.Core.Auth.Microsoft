@@ -26,10 +26,13 @@ public class XboxGameAccountCollection : ICollection<IXboxGameAccount>
 
     public IXboxGameAccount GetAccount(string identifier)
     {
+        if (string.IsNullOrEmpty(identifier))
+            throw new ArgumentNullException(nameof(identifier));
+
         var account = getAccount(identifier);
         if (account != null)
             return account;
-        throw new KeyNotFoundException(identifier);
+        throw new KeyNotFoundException("Cannot find any account with the specified identifier: " + identifier);
     }
 
     public bool TryGetAccount(string identifier, out IXboxGameAccount account)

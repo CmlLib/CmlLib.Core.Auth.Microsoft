@@ -25,7 +25,7 @@ public class XboxSignedUserTokenAuth : SessionAuthenticator<XboxAuthTokens>
             .AccessToken;
 
         if (string.IsNullOrEmpty(oAuthAccessToken))
-            throw new XboxAuthException("OAuth access token was empty", 0);
+            throw new XboxAuthException("OAuth access token was empty. Microsoft OAuth is required.", 0);
 
         context.Logger.LogXboxSignedUserToken();
         var xboxAuthClient = new XboxSignedClient(_signer, context.HttpClient);

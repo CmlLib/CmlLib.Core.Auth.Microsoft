@@ -16,7 +16,7 @@ public class SilentMicrosoftOAuth : MicrosoftOAuth
     {
         var session = GetSessionFromStorage();
         if (string.IsNullOrEmpty(session?.RefreshToken))
-            throw new MicrosoftOAuthException("no refresh token", 0);
+            throw new MicrosoftOAuthException("Cached RefreshToken of the user was empty. Interactive microsoft authentication is required.", 0);
 
         context.Logger.LogSilentMicrosoftOAuth();
         var parameterFactory = new CodeFlowParameterFactory();

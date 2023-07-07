@@ -9,7 +9,7 @@ public class NestedAuthenticator : CompositeAuthenticatorBase
     public async ValueTask<ISessionStorage> ExecuteAsync()
     {
         if (Context == null)
-            throw new InvalidOperationException("Context was not set");
+            throw new InvalidOperationException("Context was not set. Set Context property first or use ExecuteAsync(AuthenticateContext context) method instead.");
         await ExecuteAsync(Context);
         return Context.SessionStorage;
     }
