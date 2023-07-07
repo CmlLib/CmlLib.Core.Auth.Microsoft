@@ -2,6 +2,18 @@ namespace XboxAuthNet.Game.Authenticators;
 
 public class FallbackAuthenticator : CompositeAuthenticatorBase
 {
+    private readonly Type[] _catchExceptions;
+
+    public FallbackAuthenticator() : this(new[] { typeof(Exception) })
+    {
+
+    }
+
+    public FallbackAuthenticator(Type[] exceptions)
+    {
+        _catchExceptions = exceptions;
+    }
+
     public override async ValueTask ExecuteAsync(AuthenticateContext context)
     {
         await tryAuth(context);
@@ -31,6 +43,9 @@ public class FallbackAuthenticator : CompositeAuthenticatorBase
             }
             catch (Exception ex)
             {
+                if (!checkToCatch(ex))
+                    throw;
+                    
                 context.Logger.LogFallbackAuthenticatorException(ex);
                 exceptions.Add(ex);
 
@@ -40,5 +55,15 @@ public class FallbackAuthenticator : CompositeAuthenticatorBase
                 }
             }
         }
+    }
+
+    private bool checkToCatch(Exception ex)
+    {
+        foreach (var exType in _catchExceptions)
+        {
+            if (exType.IsAssignableFrom(ex.GetType()))
+                return true;
+        }
+        return false;
     }
 }

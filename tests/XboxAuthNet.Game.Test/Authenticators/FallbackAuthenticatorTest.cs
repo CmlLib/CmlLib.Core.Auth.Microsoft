@@ -78,4 +78,32 @@ public class FallbackAuthenticatorTest
         });
         Assert.That(ex?.InnerExceptions.ToArray(), Is.EqualTo(new Exception[] { ex2, ex1 }));
     }
+
+    [Test]
+    public async Task TestCatchExceptionType()
+    {
+        var mocks = new MockAuthenticatorFactory();
+        var authenticator = new FallbackAuthenticator(new[] { typeof(IOException) });
+        authenticator.AddAuthenticator(StaticValidator.Invalid, mocks.Throw(new IOException()));
+        authenticator.AddAuthenticator(StaticValidator.Invalid, mocks.Throw(new FileNotFoundException()));
+        authenticator.AddAuthenticator(StaticValidator.Invalid, mocks.ExpectToBeExecuted());
+
+        await authenticator.ExecuteAsync(mocks.CreateContext());
+        mocks.TestExpectations();
+    }
+
+    [Test]
+    public void TestThrowExceptionType()
+    {
+        var mocks = new MockAuthenticatorFactory();
+        var authenticator = new FallbackAuthenticator(new[] { typeof(FileNotFoundException) });
+        authenticator.AddAuthenticator(StaticValidator.Invalid, mocks.Throw(new IOException()));
+        authenticator.AddAuthenticator(StaticValidator.Invalid, mocks.ExpectToNotBeExecuted());
+
+        Assert.ThrowsAsync<IOException>(async () =>
+        {
+            await authenticator.ExecuteAsync(mocks.CreateContext());
+        });
+        mocks.TestExpectations();
+    } 
 }
