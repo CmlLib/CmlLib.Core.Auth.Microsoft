@@ -32,12 +32,11 @@ public class FallbackAuthenticator : CompositeAuthenticatorBase
             var authenticator = Authenticators.ElementAt(i);
             var validator = Validators.ElementAt(i);
 
-            var valid = await validator.Validate(context);
-            if (valid)
-                continue;
-
             try
             {
+                var valid = await validator.Validate(context);
+                if (valid)
+                    continue;
                 await authenticator.ExecuteAsync(context);
                 return;
             }
