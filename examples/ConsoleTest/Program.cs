@@ -2,17 +2,12 @@
 using CmlLib.Core.Auth.Microsoft;
 using CmlLib.Core.Auth.Microsoft.Sessions;
 using Microsoft.Extensions.Logging;
-using XboxAuthNet.Game.Msal;
-using XboxAuthNet.Game.Accounts;
 using Microsoft.Identity.Client;
-using XboxAuthNet.Game;
-using XboxAuthNet.Game.OAuth;
-using XboxAuthNet.Game.XboxAuth;
-using XboxAuthNet.XboxLive;
-using XboxAuthNet.Game.SessionStorages;
 using System.Text.Json;
-using XboxAuthNet.OAuth.CodeFlow;
-using XboxAuthNet.OAuth.CodeFlow.Parameters;
+using XboxAuthNet.Game;
+using XboxAuthNet.Game.Accounts;
+using XboxAuthNet.Game.Msal;
+using XboxAuthNet.Game.SessionStorages;
 
 // logger
 var loggerFactory = LoggerFactory.Create(config => 
@@ -135,9 +130,7 @@ while (true)
             }
         case 8: // Signout with OAuth signout page
             {
-                var authenticator = loginHandler.CreateAuthenticator(selectedAccount, default);
-                authenticator.AddMicrosoftOAuthBrowserSignout(JELoginHandler.DefaultMicrosoftOAuthClientInfo);
-                await authenticator.ExecuteAsync();
+                await loginHandler.SignoutWithBrowser(selectedAccount);
                 continue;
             }
         case 9: // Show entire session
@@ -154,13 +147,13 @@ while (true)
                 }
                 continue;
             }
-        case 10:
+        case 10: // hidden menu for testing
             {
                 var authenticator = loginHandler.CreateAuthenticator(selectedAccount, default);
                 authenticator.AddForceMicrosoftOAuthForJE(oauth => oauth.CodeFlow());
                 //authenticator.AddMsalOAuth(getApp(), msal => msal.InteractiveWithSingleAccount());
                 await authenticator.ExecuteAsync();
-                return;
+                continue;
             }
         default:
             Console.WriteLine("Wrong authentication mode");

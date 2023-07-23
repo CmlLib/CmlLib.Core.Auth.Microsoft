@@ -62,6 +62,12 @@ public static class Extensions
         self.AddAuthenticator(StaticValidator.Invalid, authenticator);
     }
 
+    public static void AddJESignout(this ICompositeAuthenticator self)
+    {
+        self.AddSessionCleaner(JETokenSource.Default);
+        self.AddSessionCleaner(JEProfileSource.Default);
+    }
+
     public static JEGameAccount GetJEAccountByUsername(this XboxGameAccountCollection self, string username)
     {
         return (JEGameAccount)self.First(account =>

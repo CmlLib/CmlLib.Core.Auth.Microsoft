@@ -17,7 +17,7 @@ public static class Extensions
 
     public static void AddAuthenticatorCollection(
         this ICompositeAuthenticator self,
-        ISessionValidator validator, 
+        ISessionValidator validator,
         Action<AuthenticatorCollection> collection)
     {
         var authenticator = new AuthenticatorCollection();
@@ -34,7 +34,7 @@ public static class Extensions
         fallback.Invoke(authenticator);
         self.AddAuthenticator(validator, authenticator);
     }
-    
+
     public static void AddMicrosoftOAuth(
         this ICompositeAuthenticator self,
         MicrosoftOAuthClientInfo clientInfo,
@@ -95,6 +95,11 @@ public static class Extensions
         var builder = new XboxAuthBuilder();
         var authenticator = builderInvoker.Invoke(builder);
         self.AddAuthenticatorWithoutValidator(authenticator);
+    }
+
+    public static void AddXboxAuthSignout(this ICompositeAuthenticator self)
+    {
+        self.AddSessionCleaner(XboxSessionSource.Default);
     }
 
     public static void AddSessionCleaner<T>(

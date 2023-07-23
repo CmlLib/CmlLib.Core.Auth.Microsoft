@@ -10,7 +10,7 @@ namespace CmlLib.Core.Auth.Microsoft;
 public class JELoginHandler : XboxGameLoginHandler
 {
     public readonly static MicrosoftOAuthClientInfo DefaultMicrosoftOAuthClientInfo = new(
-        ClientId: XboxGameTitles.MinecraftJava, 
+        ClientId: XboxGameTitles.MinecraftJava,
         Scopes: XboxAuthConstants.XboxScope);
 
     public readonly static string RelyingParty = "rp://api.minecraftservices.com/";
@@ -19,7 +19,7 @@ public class JELoginHandler : XboxGameLoginHandler
         LoginHandlerParameters parameters) :
         base(parameters)
     {
-        
+
     }
 
     public Task<MSession> Authenticate(CancellationToken cancellationToken = default)
@@ -80,9 +80,22 @@ public class JELoginHandler : XboxGameLoginHandler
     {
         var authenticator = CreateAuthenticator(account, cancellationToken);
         authenticator.AddMicrosoftOAuthSignout(DefaultMicrosoftOAuthClientInfo);
-        authenticator.AddSessionCleaner(XboxSessionSource.Default);
-        authenticator.AddSessionCleaner(JETokenSource.Default);
-        authenticator.AddSessionCleaner(JEProfileSource.Default);
+        authenticator.AddXboxAuthSignout();
+        authenticator.AddJESignout();
+        await authenticator.ExecuteAsync();
+    }
+
+    public Task SignoutWithBrowser(CancellationToken cancellationToken = default) =>
+        SignoutWithBrowser(AccountManager.GetDefaultAccount(), cancellationToken);
+
+    public async Task SignoutWithBrowser(
+        IXboxGameAccount account,
+        CancellationToken cancellationToken = default)
+    {
+        var authenticator = CreateAuthenticator(account, cancellationToken);
+        authenticator.AddMicrosoftOAuthBrowserSignout(DefaultMicrosoftOAuthClientInfo);
+        authenticator.AddXboxAuthSignout();
+        authenticator.AddJESignout();
         await authenticator.ExecuteAsync();
     }
 }
