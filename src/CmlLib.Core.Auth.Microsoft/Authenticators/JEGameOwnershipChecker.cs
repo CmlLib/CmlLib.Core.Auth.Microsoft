@@ -14,14 +14,14 @@ public class JEGameOwnershipChecker : IAuthenticator
 
     public async ValueTask ExecuteAsync(AuthenticateContext context)
     {
-        var token = _sessionSource.Get(context.SessionStorage);
         context.Logger.LogJEGameOwnershipChecker();
+        var token = _sessionSource.Get(context.SessionStorage);
         
-        var own = false;
         if (string.IsNullOrEmpty(token?.AccessToken))
             throw new JEAuthException("JEToken.AccessToken was empty. JETokenAuthenticator must run first.");
-        own = await checkGameOwnership(context.HttpClient, token.AccessToken);
-        if (!own)
+
+        var result = await checkGameOwnership(context.HttpClient, token.AccessToken);
+        if (!result)
             throw new JEAuthException("The user doesn't own the game.");
     }
 

@@ -20,12 +20,13 @@ public class MicrosoftOAuthSignout : MicrosoftOAuth
     protected override async ValueTask<MicrosoftOAuthResponse?> Authenticate(
         AuthenticateContext context, MicrosoftOAuthParameters parameters)
     {
+        context.Logger.LogMicrosoftOAuthSignout();
+
         var apiClient = parameters.ClientInfo.CreateApiClientForOAuthCode(context.HttpClient);
         var builder = new CodeFlowBuilder(apiClient);
         builderInvoker.Invoke(builder);
         var codeFlow = builder.Build();   
 
-        context.Logger.LogMicrosoftOAuthSignout();
         await codeFlow.Signout(context.CancellationToken);
         return null;
     }

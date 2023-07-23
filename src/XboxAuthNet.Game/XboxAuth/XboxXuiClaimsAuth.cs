@@ -18,8 +18,8 @@ public class XboxXuiClaimsAuth : SessionAuthenticator<XboxAuthTokens>
 
     protected async override ValueTask<XboxAuthTokens?> Authenticate(AuthenticateContext context)
     {
-        var xboxAuthTokens = GetSessionFromStorage() ?? new XboxAuthTokens();
         context.Logger.LogXboxXuiClaims();
+        var xboxAuthTokens = GetSessionFromStorage() ?? new XboxAuthTokens();
 
         var tempXboxAuthToken = new XboxAuthTokens
         {

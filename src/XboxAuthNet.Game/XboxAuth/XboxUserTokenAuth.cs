@@ -17,6 +17,8 @@ public class XboxUserTokenAuth : SessionAuthenticator<XboxAuthTokens>
 
     protected override async ValueTask<XboxAuthTokens?> Authenticate(AuthenticateContext context)
     {
+        context.Logger.LogXboxUserTokenAuth();
+
         var oAuthAccessToken = _oauthSessionSource
             .Get(context.SessionStorage)?
             .AccessToken;
@@ -24,7 +26,6 @@ public class XboxUserTokenAuth : SessionAuthenticator<XboxAuthTokens>
         if (string.IsNullOrEmpty(oAuthAccessToken))
             throw new XboxAuthException("OAuth access token was empty. Microsoft OAuth is required.", 0);
 
-        context.Logger.LogXboxUserTokenAuth();
         var xboxAuthClient = new XboxAuthClient(context.HttpClient);
         var userToken = await xboxAuthClient.RequestUserToken(oAuthAccessToken);
 

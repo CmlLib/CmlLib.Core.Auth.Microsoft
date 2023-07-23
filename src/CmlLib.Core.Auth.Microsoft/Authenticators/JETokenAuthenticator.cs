@@ -19,6 +19,8 @@ public class JETokenAuthenticator : SessionAuthenticator<JEToken>
 
     protected override async ValueTask<JEToken?> Authenticate(AuthenticateContext context)
     {
+        context.Logger.LogJETokenAuthenticator();
+
         var xboxTokens = _xboxSessionSource.Get(context.SessionStorage);
         var uhs = xboxTokens?.XstsToken?.XuiClaims?.UserHash;
         var xsts = xboxTokens?.XstsToken?.Token;
@@ -28,7 +30,6 @@ public class JETokenAuthenticator : SessionAuthenticator<JEToken>
         if (string.IsNullOrEmpty(xsts))
             throw new JEAuthException("XstsToken was empty. Xbox authentication is required.");
 
-        context.Logger.LogJETokenAuthenticator();
         return await requestToken(uhs, xsts, context.HttpClient);
     }
 

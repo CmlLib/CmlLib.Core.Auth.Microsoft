@@ -22,6 +22,8 @@ public class InteractiveMicrosoftOAuth : MicrosoftOAuth
     protected override async ValueTask<MicrosoftOAuthResponse?> Authenticate(
         AuthenticateContext context, MicrosoftOAuthParameters parameters)
     {
+        context.Logger.LogInteractiveMicrosoftOAuth();
+
         var apiClient = parameters.ClientInfo.CreateApiClientForOAuthCode(context.HttpClient);
         var builder = new CodeFlowBuilder(apiClient);
         _codeFlowBuilder.Invoke(builder);
@@ -31,7 +33,6 @@ public class InteractiveMicrosoftOAuth : MicrosoftOAuth
         if (string.IsNullOrEmpty(_codeFlowParameters.LoginHint))
             _codeFlowParameters.LoginHint = loginHint;
 
-        context.Logger.LogInteractiveMicrosoftOAuth();
         return await oauthHandler.AuthenticateInteractively(_codeFlowParameters, context.CancellationToken);
     }
 }

@@ -14,11 +14,14 @@ public class SilentMicrosoftOAuth : MicrosoftOAuth
     protected override async ValueTask<MicrosoftOAuthResponse?> Authenticate(
         AuthenticateContext context, MicrosoftOAuthParameters parameters)
     {
+        context.Logger.LogSilentMicrosoftOAuth();
+
         var session = GetSessionFromStorage();
         if (string.IsNullOrEmpty(session?.RefreshToken))
-            throw new MicrosoftOAuthException("Cached RefreshToken of the user was empty. Interactive microsoft authentication is required.", 0);
+            throw new MicrosoftOAuthException(
+                "Cached RefreshToken of the user was empty. " +
+                "Interactive Microsoft authentication is required.", 0);
 
-        context.Logger.LogSilentMicrosoftOAuth();
         var apiClient = parameters.ClientInfo.CreateApiClientForOAuthCode(context.HttpClient);
         return await apiClient.RefreshToken(
             new CodeFlowRefreshTokenParameter

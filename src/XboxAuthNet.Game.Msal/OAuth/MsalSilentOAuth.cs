@@ -15,10 +15,11 @@ public class MsalSilentOAuth : MsalOAuth
         AuthenticateContext context, MsalOAuthParameters parameters)
     {
         var loginHint = parameters.LoginHintSource.Get(context.SessionStorage);
-        if (string.IsNullOrEmpty(loginHint))
-            throw new MsalException("loginHint was empty. Interactive Microsfot OAuth with IdToken is required. (ex: MsalInteractiveOAuth)");
-
         context.Logger.LogMsalSilentOAuth(loginHint);
+
+        if (string.IsNullOrEmpty(loginHint))
+            throw new MsalException("loginHint was empty. Interactive Microsoft OAuth with IdToken is required. (ex: MsalInteractiveOAuth)");
+
         return await parameters.MsalApplication
             .AcquireTokenSilent(parameters.Scopes, loginHint)
             .ExecuteAsync();

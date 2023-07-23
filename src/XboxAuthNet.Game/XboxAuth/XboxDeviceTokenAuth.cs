@@ -21,9 +21,9 @@ public class XboxDeviceTokenAuth : SessionAuthenticator<XboxAuthTokens>
 
     protected override async ValueTask<XboxAuthTokens?> Authenticate(AuthenticateContext context)
     {
-        var xboxTokens = GetSessionFromStorage() ?? new XboxAuthTokens();
-
         context.Logger.LogXboxDeviceToken();
+
+        var xboxTokens = GetSessionFromStorage() ?? new XboxAuthTokens();
         var xboxAuthClient = new XboxSignedClient(_signer, context.HttpClient);
         xboxTokens.DeviceToken = await xboxAuthClient.RequestDeviceToken(
             _deviceType, _deviceVersion);

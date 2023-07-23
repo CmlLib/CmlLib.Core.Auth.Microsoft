@@ -28,6 +28,8 @@ public class XboxSisuAuth : SessionAuthenticator<XboxAuthTokens>
 
     protected override async ValueTask<XboxAuthTokens?> Authenticate(AuthenticateContext context)
     {
+        context.Logger.LogXboxSisu(_relyingParty);
+
         var oAuthAccessToken = _oAuthSessionSource
             .Get(context.SessionStorage)?
             .AccessToken;
@@ -37,7 +39,6 @@ public class XboxSisuAuth : SessionAuthenticator<XboxAuthTokens>
 
         var xboxTokens = GetSessionFromStorage() ?? new XboxAuthTokens();
 
-        context.Logger.LogXboxSisu(_relyingParty);
         var xboxAuthClient = new XboxSignedClient(_signer, context.HttpClient);
         var sisuResponse = await xboxAuthClient.SisuAuth(new XboxSisuAuthRequest
         {
