@@ -11,8 +11,26 @@
 
 Minecraft login with Microsoft Xbox account
 
+## Features
+
+- Multi Account Management
+- Microsoft OAuth with WebView2
+- Microsoft OAuth with [MSAL.NET](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet)
+- Xbox Authentication
+- Minecraft: JE Authentication
+- Minecraft: BE Authentication
+- Crossplatform (with MSAL.NET)
+
+## Install
+
+Install NuGet package: [CmlLib.Core.Auth.Microsoft](https://www.nuget.org/packages/CmlLib.Core.Auth.Microsoft)
+
 ## Usage
 
 [wiki](https://alphabs.gitbook.io/cmllib/cmllib.core.auth.microsoft/home)
 
 [설명서](https://alphabs.gitbook.io/cmllib/v/ko/cmllib.core.auth.microsoft/cmllib.core.auth.microsoft)
+
+## Example
+
+[Sample Launcher](https://github.com/CmlLib/CmlLib-Minecraft-Launcher)
