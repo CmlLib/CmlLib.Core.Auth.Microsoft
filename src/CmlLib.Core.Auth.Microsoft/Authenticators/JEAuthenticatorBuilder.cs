@@ -77,6 +77,8 @@ public class JEAuthenticatorBuilder
         var collection = new AuthenticatorCollection();
         collection.AddAuthenticator(StaticValidator.Invalid, TokenAuthenticator());
         collection.AddAuthenticator(StaticValidator.Invalid, ProfileAuthenticator());
+        if (CheckGameOwnership)
+            collection.AddAuthenticator(StaticValidator.Invalid, GameOwnershipChecker());
         return collection;
     }
 }
