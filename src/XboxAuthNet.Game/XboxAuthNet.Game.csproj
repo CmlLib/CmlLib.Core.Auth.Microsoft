@@ -18,7 +18,7 @@
 		<RepositoryUrl>https://github.com/CmlLib/CmlLib.Core.Auth.Microsoft</RepositoryUrl>
 		<Authors>ksi123456ab</Authors>
 		<PackageTags>microsoft xbox game auth</PackageTags>
-		<Version>1.2.1</Version>
+		<Version>1.2.2</Version>
 		<PackageIcon>icon.png</PackageIcon>
 		<RepositoryType>git</RepositoryType>
 		<PackageId>XboxAuthNet.Game</PackageId>
