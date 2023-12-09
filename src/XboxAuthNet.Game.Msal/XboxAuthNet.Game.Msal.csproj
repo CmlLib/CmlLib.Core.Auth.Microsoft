@@ -18,7 +18,7 @@
 		<RepositoryUrl>https://github.com/AlphaBs/XboxAuthNet</RepositoryUrl>
 		<Authors>ksi123456ab</Authors>
 		<PackageTags>login authentication msal microsoft xbox game</PackageTags>
-		<Version>0.0.5</Version>
+		<Version>0.0.6</Version>
 		<PackageIcon>icon.png</PackageIcon>
 		<RepositoryType>git</RepositoryType>
 		<PackageId>XboxAuthNet.Game.Msal</PackageId>

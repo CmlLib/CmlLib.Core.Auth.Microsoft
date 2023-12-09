@@ -12,20 +12,26 @@ public class LastAccessSource : ISessionSource<DateTime>
 
     public DateTime Get(ISessionStorage sessionStorage)
     {
-        var dateTimeStr = sessionStorage.Get<string>(KeyName);
-        if (DateTime.TryParse(dateTimeStr, out var dateTime))
-            return dateTime;
+        if (sessionStorage.TryGetValue<string>(KeyName, out var dateTimeStr))
+        {
+            if (DateTime.TryParse(dateTimeStr, out var dateTime))
+                return dateTime;
+            else
+                return DateTime.MinValue;
+        }
         else
+        {
             return DateTime.MinValue;
+        }
     }
 
-    public void Set(ISessionStorage sessionStorage, DateTime value) => 
+    public void Set(ISessionStorage sessionStorage, DateTime value) =>
         setInternal(sessionStorage, value);
 
     public string SetToNow(ISessionStorage sessionStorage) =>
         setInternal(sessionStorage, DateTime.UtcNow);
 
-    public void Clear(ISessionStorage sessionStorage) => 
+    public void Clear(ISessionStorage sessionStorage) =>
         Set(sessionStorage, DateTime.MinValue);
 
     private string setInternal(ISessionStorage sessionStorage, DateTime value)
@@ -35,9 +41,9 @@ public class LastAccessSource : ISessionSource<DateTime>
         return dateTimeStr;
     }
 
-    public SessionStorageKeyMode GetKeyMode(ISessionStorage sessionStorage) => 
+    public SessionStorageKeyMode GetKeyMode(ISessionStorage sessionStorage) =>
         sessionStorage.GetKeyMode(KeyName);
 
-    public void SetKeyMode(ISessionStorage sessionStorage, SessionStorageKeyMode mode) => 
+    public void SetKeyMode(ISessionStorage sessionStorage, SessionStorageKeyMode mode) =>
         sessionStorage.SetKeyMode(KeyName, mode);
 }

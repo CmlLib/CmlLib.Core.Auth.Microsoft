@@ -8,6 +8,7 @@ using XboxAuthNet.Game;
 using XboxAuthNet.Game.Accounts;
 using XboxAuthNet.Game.Msal;
 using XboxAuthNet.Game.SessionStorages;
+using XboxAuthNet.XboxLive;
 
 // logger
 var loggerFactory = LoggerFactory.Create(config => 
@@ -152,6 +153,7 @@ while (true)
                 var authenticator = loginHandler.CreateAuthenticator(selectedAccount, default);
                 authenticator.AddForceMicrosoftOAuthForJE(oauth => oauth.CodeFlow());
                 //authenticator.AddMsalOAuth(getApp(), msal => msal.InteractiveWithSingleAccount());
+                authenticator.AddXboxAuthForJE(xbox => xbox.Sisu(JELoginHandler.DefaultMicrosoftOAuthClientInfo.ClientId));
                 await authenticator.ExecuteAsync();
                 continue;
             }
