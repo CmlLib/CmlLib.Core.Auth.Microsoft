@@ -25,11 +25,11 @@ Minecraft login with Microsoft Xbox account
 
 Install NuGet package: [CmlLib.Core.Auth.Microsoft](https://www.nuget.org/packages/CmlLib.Core.Auth.Microsoft)
 
-## Usage
+## Documentation
 
-[wiki](https://alphabs.gitbook.io/cmllib/cmllib.core.auth.microsoft/home)
+[Documentation](https://alphabs.gitbook.io/cmllib/auth.microsoft/cmllib.core.auth.microsoft)
 
-[설명서](https://alphabs.gitbook.io/cmllib/v/ko/cmllib.core.auth.microsoft/cmllib.core.auth.microsoft)
+[한국어](https://alphabs.gitbook.io/cmllib/v/ko/auth.microsoft/cmllib.core.auth.microsoft)
 
 ## Example
 
