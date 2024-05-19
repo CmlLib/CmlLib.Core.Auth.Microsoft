@@ -2,8 +2,6 @@ using XboxAuthNet.XboxLive;
 using XboxAuthNet.Game;
 using XboxAuthNet.Game.Accounts;
 using XboxAuthNet.Game.OAuth;
-using XboxAuthNet.Game.XboxAuth;
-using CmlLib.Core.Auth.Microsoft.Sessions;
 
 namespace CmlLib.Core.Auth.Microsoft;
 
