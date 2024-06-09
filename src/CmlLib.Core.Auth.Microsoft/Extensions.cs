@@ -64,8 +64,8 @@ public static class Extensions
 
     public static void AddJESignout(this ICompositeAuthenticator self)
     {
-        self.AddSessionCleaner(JETokenSource.Default);
-        self.AddSessionCleaner(JEProfileSource.Default);
+        var builder = new JEAuthenticatorBuilder();
+        self.AddAuthenticatorWithoutValidator(builder.SessionCleaner());
     }
 
     public static JEGameAccount GetJEAccountByUsername(this XboxGameAccountCollection self, string username)

@@ -2,6 +2,7 @@ using XboxAuthNet.XboxLive;
 using XboxAuthNet.Game;
 using XboxAuthNet.Game.Accounts;
 using XboxAuthNet.Game.OAuth;
+using CmlLib.Core.Auth.Microsoft.Authenticators;
 
 namespace CmlLib.Core.Auth.Microsoft;
 
@@ -95,5 +96,38 @@ public class JELoginHandler : XboxGameLoginHandler
         authenticator.AddXboxAuthSignout();
         authenticator.AddJESignout();
         await authenticator.ExecuteAsync();
+    }
+
+    public IAuthenticationProvider CreateProvider(Action<JEProviderBuilder> builderInvoker, IXboxGameAccount account)
+    {
+        var builder = new JEProviderBuilder();
+        builderInvoker(builder);
+        return builder.Build();
+    }
+}
+
+public class JEProviderBuilder
+{
+    IAuthenticationProvider _oauthProvider;
+    IAuthenticationProvider _xboxProvider;
+    IAuthenticationProvider _jeProvider;
+
+    public void SetMicrosoftOAuth()
+    {
+
+    }
+
+    public void SetXboxAuth()
+    {
+
+    }
+
+    public IAuthenticationProvider Build()
+    {
+        var provider = new CompositeAuthenticationProvider();
+        provider.AddProvider(_oauthProvider);
+        provider.AddProvider(_xboxProvider);
+        provider.AddProvider(_jeProvider);
+        return provider;
     }
 }

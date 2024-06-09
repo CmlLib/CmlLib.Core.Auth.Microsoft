@@ -2,6 +2,7 @@ using XboxAuthNet.Game.SessionStorages;
 using XboxAuthNet.Game.Authenticators;
 using XboxAuthNet.Game.XboxAuth;
 using CmlLib.Core.Auth.Microsoft.Sessions;
+using XboxAuthNet.Game;
 
 namespace CmlLib.Core.Auth.Microsoft.Authenticators;
 
@@ -71,6 +72,14 @@ public class JEAuthenticatorBuilder
     
     public IAuthenticator GameOwnershipChecker() =>
         new JEGameOwnershipChecker(TokenSource);
+
+    public IAuthenticator SessionCleaner() 
+    {
+        var collection = new AuthenticatorCollection();
+        collection.AddSessionCleaner(JETokenSource.Default);
+        collection.AddSessionCleaner(JEProfileSource.Default);
+        return collection;
+    }
 
     public IAuthenticator Build()
     {
