@@ -27,15 +27,14 @@
 	<!-- package refernces-->
 	<ItemGroup>
 		<ProjectReference Include="..\XboxAuthNet.Game\XboxAuthNet.Game.csproj" />
-		<PackageReference Include="Microsoft.Identity.Client" Version="4.52.0" />
-		<PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="2.28.0" />
+		<PackageReference Include="Microsoft.Identity.Client" Version="4.61.3" />
+		<PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.61.3" />
 	</ItemGroup>
 	
 	<!-- private assets-->
 	<ItemGroup>
 		<PackageReference Include="ConfigureAwait.Fody" Version="3.3.2" PrivateAssets="All" />
-		<PackageReference Include="TunnelVisionLabs.ReferenceAssemblyAnnotator"
-			Version="1.0.0-alpha.160" PrivateAssets="all" />
+		<PackageReference Include="TunnelVisionLabs.ReferenceAssemblyAnnotator" Version="1.0.0-alpha.160" PrivateAssets="all" />
 		<PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[5.0.0]" />
 	</ItemGroup>
 
