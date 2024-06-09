@@ -2,30 +2,25 @@
 using CmlLib.Core.Auth.Microsoft;
 using CmlLib.Core.Auth.Microsoft.Sessions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Client;
+using System.Runtime.InteropServices;
 using System.Text.Json;
-using XboxAuthNet.Game;
 using XboxAuthNet.Game.Accounts;
 using XboxAuthNet.Game.Msal;
+using XboxAuthNet.Game.Msal.OAuth;
 using XboxAuthNet.Game.SessionStorages;
 using XboxAuthNet.XboxLive;
 
 // logger
-var loggerFactory = LoggerFactory.Create(config => 
+var loggerFactory = LoggerFactory.Create(config =>
 {
     config.ClearProviders();
     config.AddSimpleConsole();
-    config.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Debug);
+    config.SetMinimumLevel(LogLevel.Debug);
 });
 var logger = loggerFactory.CreateLogger("CmlLib.Core");
 
 // initialize MSAL
-bool useMsal = true;
-IPublicClientApplication? app = null;
-if (useMsal)
-    app = await MsalClientHelper.BuildApplicationWithCache("499c8d36-be2a-4231-9ebd-ef291b7bb64c");
-IPublicClientApplication getApp() =>
-    app ?? throw new InvalidOperationException("MSAL was not initialized yet. Set useMsal = true;");
+var app = await MsalClientHelper.BuildApplicationWithCache("499c8d36-be2a-4231-9ebd-ef291b7bb64c");
 
 // initialize loginHandler
 var loginHandler = new JELoginHandlerBuilder()
@@ -42,13 +37,17 @@ while (true)
     var number = 1;
     foreach (var account in accounts)
     {
-        if (account is not JEGameAccount jeAccount)
-            continue;
-        
-        Console.WriteLine($"[{number}] {account.Identifier}");
-        Console.WriteLine($"    LastAccess: {jeAccount.LastAccess}");
-        Console.WriteLine($"    Username: {jeAccount.Profile?.Username}");
-        Console.WriteLine($"    UUID: {jeAccount.Profile?.UUID}");
+        if (account is JEGameAccount jeAccount)
+        {
+            Console.WriteLine($"[{number}] {account.Identifier}");
+            Console.WriteLine($"    LastAccess: {jeAccount.LastAccess}");
+            Console.WriteLine($"    Username: {jeAccount.Profile?.Username}");
+            Console.WriteLine($"    UUID: {jeAccount.Profile?.UUID}");
+        }
+        else
+        {
+            Console.WriteLine($"[{number}] {account.Identifier} (NOT JEGameAccount)");
+        }
         number++;
     }
 
@@ -65,15 +64,24 @@ while (true)
     // authentication mode
     Console.WriteLine(
         "Select Authentication mode: \n" +
+        "\n" +
+        "<OAuth, WINDOWS only>\n" +
         "[1] Default\n" +
-        "[2] Interactive (OAuth)\n" +
-        "[3] Silent (OAuth)\n" +
-        "[4] Interactive (Msal)\n" +
-        "[5] Silent (Msal)\n" +
-        "[6] DeviceCode (Msal)\n" +
-        "[7] Signout without OAuth signout page\n" +
-        "[8] Signout with OAuth signout page\n" +
-        "[9] Show token informations");
+        "[2] Interactive\n" +
+        "[3] Silent\n" +
+        "[4] CodeFlow + XboxSisuAuth\n" +
+        "\n" +
+        "<MSAL, Universal>\n" +
+        "[5] Interactive\n" +
+        "[6] Silent\n" +
+        "[7] DeviceCode\n" +
+        "\n" +
+        "<Signout>\n" +
+        "[8] Remove Account\n" +
+        "[9] Signout (OAuth, WINDOWS only)\n" +
+        "\n" +
+        "<Debug>\n" +
+        "[10] Show token informations");
     Console.Write("\n\nNumber: ");
     var selectedAuthMode = int.Parse(Console.ReadLine() ?? "1");
 
@@ -83,38 +91,49 @@ while (true)
     switch (selectedAuthMode)
     {
         case 1: // default
+            checkWindows();
             session = await loginHandler.Authenticate(selectedAccount);
             break;
         case 2: // interactive (OAuth)
+            checkWindows();
             session = await loginHandler.AuthenticateInteractively(selectedAccount);
             break;
         case 3: // silent (OAuth)
+            checkWindows();
             session = await loginHandler.AuthenticateSilently(selectedAccount);
             break;
-        case 4: // Interactive (Msal)
+        case 4: // CodeFlow + XboxSisuAuth
+            {
+                checkWindows();
+                var authenticator = loginHandler.CreateAuthenticator(selectedAccount, default);
+                authenticator.AddMicrosoftOAuthForJE(oauth => oauth.CodeFlow());
+                authenticator.AddXboxAuthForJE(xbox => xbox.Sisu(XboxGameTitles.MinecraftJava));
+                authenticator.AddJEAuthenticator();
+                session = await authenticator.ExecuteForLauncherAsync();
+                break;
+            }
+        case 5: // Interactive (Msal)
             {
                 var authenticator = loginHandler.CreateAuthenticatorWithNewAccount();
-                authenticator.AddMsalOAuth(getApp(), msal => msal.Interactive());
+                authenticator.AddMsalOAuth(app, msal => msal.Interactive());
                 authenticator.AddXboxAuthForJE(xbox => xbox.Basic());
                 authenticator.AddForceJEAuthenticator();
                 session = await authenticator.ExecuteForLauncherAsync();
                 break;
             }
-
-        case 5: // Silent (Msal)
+        case 6: // Silent (Msal)
             {
-                var authenticator = loginHandler.CreateAuthenticatorWithDefaultAccount();
-                authenticator.AddMsalOAuth(getApp(), msal => msal.Silent());
+                var authenticator = loginHandler.CreateAuthenticator(selectedAccount, default);
+                authenticator.AddMsalOAuth(app, msal => msal.Silent());
                 authenticator.AddXboxAuthForJE(xbox => xbox.Basic());
                 authenticator.AddJEAuthenticator();
                 session = await authenticator.ExecuteForLauncherAsync();
                 break;
             }
-
-        case 6: // DeviceCode (Msal)
+        case 7: // DeviceCode (Msal)
             {
                 var authenticator = loginHandler.CreateAuthenticatorWithNewAccount();
-                authenticator.AddMsalOAuth(getApp(), msal => msal.DeviceCode(code =>
+                authenticator.AddMsalOAuth(app, msal => msal.DeviceCode(code =>
                 {
                     Console.WriteLine(code.Message);
                     return Task.CompletedTask;
@@ -124,17 +143,18 @@ while (true)
                 session = await authenticator.ExecuteForLauncherAsync();
                 break;
             }
-        case 7: // Signout without OAuth signout page 
+        case 8: // Remove account
             {
                 await loginHandler.Signout(selectedAccount);
                 continue;
             }
-        case 8: // Signout with OAuth signout page
+        case 9: // Signout with OAuth signout page
             {
+                checkWindows();
                 await loginHandler.SignoutWithBrowser(selectedAccount);
                 continue;
             }
-        case 9: // Show entire session
+        case 10: // Show entire session
             {
                 var ss = selectedAccount.SessionStorage;
                 if (ss is JsonSessionStorage jsonSessionStorage)
@@ -148,7 +168,7 @@ while (true)
                 }
                 continue;
             }
-        case 10: // hidden menu for testing
+        case 20: // hidden menu for testing
             {
                 var authenticator = loginHandler.CreateAuthenticator(selectedAccount, default);
                 authenticator.AddForceMicrosoftOAuthForJE(oauth => oauth.CodeFlow());
@@ -168,4 +188,18 @@ while (true)
         $"Username: {session.Username}\n" +
         $"UUID: {session.UUID}");
     Console.WriteLine("Done");
+}
+
+void checkWindows()
+{
+#if WINDOWS
+    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        return;    
+#endif
+
+    Console.ForegroundColor = ConsoleColor.Yellow;
+    Console.WriteLine("This authentication mode is only available on Windows. The TargetFramework in the csproj file must be set to the Windows version. (e.g. net8-windows)");
+    Console.WriteLine("Press Enter to continue:");
+    Console.ReadLine();
+    Console.ResetColor();
 }
