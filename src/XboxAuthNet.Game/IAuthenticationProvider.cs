@@ -4,9 +4,10 @@ namespace XboxAuthNet.Game;
 
 public interface IAuthenticationProvider
 {
-    IAuthenticator CreateSilentAuthenticator();
-    ISessionValidator CreateSessionValidatorForInteractiveAuthenticator();
-    IAuthenticator CreateInteractiveAuthenticator();
-    ISessionValidator CreateSessionValidatorForSilentAuthenticator();
+    IAuthenticator Authenticate();
+    ISessionValidator CreateSessionValidator();
+    IAuthenticator AuthenticateSilently();
+    IAuthenticator AuthenticateInteractively();
+    IAuthenticator ClearSession();
     IAuthenticator Signout();
 }

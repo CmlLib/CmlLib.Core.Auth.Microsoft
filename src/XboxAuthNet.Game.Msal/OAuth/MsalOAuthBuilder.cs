@@ -82,6 +82,14 @@ public class MsalOAuthBuilder
     public IAuthenticator DeviceCode(Func<DeviceCodeResult, Task> deviceResultCallback) =>
         new MsalDeviceCodeOAuth(createParameters(false), deviceResultCallback);
 
+    public IAuthenticator ClearSession()
+    {
+        var authenticator = new AuthenticatorCollection();
+        authenticator.AddAuthenticatorWithoutValidator(new SessionCleaner<string>(LoginHintSource));
+        authenticator.AddAuthenticatorWithoutValidator(new SessionCleaner<MicrosoftOAuthResponse>(SessionSource));
+        return authenticator;
+    }
+
     public IAuthenticator FromResult(AuthenticationResult result) =>
         new StaticSessionAuthenticator<MicrosoftOAuthResponse>(
             MsalClientHelper.ToMicrosoftOAuthResponse(result), 

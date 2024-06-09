@@ -17,51 +17,52 @@ public abstract class XboxAuthenticationProviderBase : IAuthenticationProvider
         Builder = builder;
     }
 
-    public IAuthenticator CreateInteractiveAuthenticator() => CreateAuthenticator();
-    public IAuthenticator CreateSilentAuthenticator() => CreateAuthenticator();
-    public ISessionValidator CreateSessionValidatorForInteractiveAuthenticator() => StaticValidator.Invalid;
-    public ISessionValidator CreateSessionValidatorForSilentAuthenticator() => Builder.Validator();
-    public IAuthenticator Signout() => Builder.ClearSession();
-
     protected abstract IAuthenticator CreateAuthenticator();
+
+    public IAuthenticator Authenticate() => CreateAuthenticator();
+    public IAuthenticator AuthenticateSilently() => CreateAuthenticator();
+    public IAuthenticator AuthenticateInteractively() => CreateAuthenticator();
+    public ISessionValidator CreateSessionValidator() => Builder.Validator();
+    public IAuthenticator ClearSession() => Builder.ClearSession();
+    public IAuthenticator Signout() => Builder.ClearSession();
 }
 
-public class BasicXbox : XboxAuthenticationProviderBase
+public class BasicXboxProvider : XboxAuthenticationProviderBase
 {
-    public BasicXbox(string relyingParty) : base(relyingParty)
+    public BasicXboxProvider(string relyingParty) : base(relyingParty)
     {
     }
 
-    public BasicXbox(XboxAuthBuilder builder) : base(builder)
+    public BasicXboxProvider(XboxAuthBuilder builder) : base(builder)
     {
     }
 
     protected override IAuthenticator CreateAuthenticator() => Builder.Basic();
 }
 
-public class FullXbox : XboxAuthenticationProviderBase
+public class FullXboxProvider : XboxAuthenticationProviderBase
 {
-    public FullXbox(string relyingParty) : base(relyingParty)
+    public FullXboxProvider(string relyingParty) : base(relyingParty)
     {
     }
 
-    public FullXbox(XboxAuthBuilder builder) : base(builder)
+    public FullXboxProvider(XboxAuthBuilder builder) : base(builder)
     {
     }
 
     protected override IAuthenticator CreateAuthenticator() => Builder.Full();
 }
 
-public class SisuXbox : XboxAuthenticationProviderBase
+public class SisuXboxProvider : XboxAuthenticationProviderBase
 {
     private readonly string _clientId;
 
-    public SisuXbox(string relyingParty, string clientId) : base(relyingParty)
+    public SisuXboxProvider(string relyingParty, string clientId) : base(relyingParty)
     {
         _clientId = clientId;
     }
 
-    public SisuXbox(XboxAuthBuilder builder, string clientId) : base(builder)
+    public SisuXboxProvider(XboxAuthBuilder builder, string clientId) : base(builder)
     {
         _clientId = clientId;
     }

@@ -2,7 +2,6 @@ using XboxAuthNet.XboxLive;
 using XboxAuthNet.Game;
 using XboxAuthNet.Game.Accounts;
 using XboxAuthNet.Game.OAuth;
-using CmlLib.Core.Auth.Microsoft.Authenticators;
 
 namespace CmlLib.Core.Auth.Microsoft;
 
@@ -14,11 +13,17 @@ public class JELoginHandler : XboxGameLoginHandler
 
     public readonly static string RelyingParty = "rp://api.minecraftservices.com/";
 
+    private readonly IAuthenticationProvider _defaultOAuthProvider;
+    private readonly IAuthenticationProvider _defaultXboxAuthProvider;
+
     public JELoginHandler(
-        LoginHandlerParameters parameters) :
+        LoginHandlerParameters parameters,
+        IAuthenticationProvider defaultOAuthProvider,
+        IAuthenticationProvider defaultXboxAuthProvider) :
         base(parameters)
     {
-
+        _defaultOAuthProvider = defaultOAuthProvider;
+        _defaultXboxAuthProvider = defaultXboxAuthProvider;
     }
 
     public Task<MSession> Authenticate(CancellationToken cancellationToken = default)
@@ -32,8 +37,18 @@ public class JELoginHandler : XboxGameLoginHandler
         CancellationToken cancellationToken = default)
     {
         var authenticator = CreateAuthenticator(account, cancellationToken);
-        authenticator.AddMicrosoftOAuthForJE(oauth => oauth.CodeFlow());
-        authenticator.AddXboxAuthForJE(xbox => xbox.Basic());
+
+        // OAuth
+        authenticator.AddAuthenticator(
+            _defaultOAuthProvider.CreateSessionValidator(),
+            _defaultOAuthProvider.Authenticate());
+
+        // XboxAuth
+        authenticator.AddAuthenticator(
+            _defaultXboxAuthProvider.CreateSessionValidator(),
+            _defaultXboxAuthProvider.Authenticate());
+
+        // JEAuth
         authenticator.AddJEAuthenticator();
         return await authenticator.ExecuteForLauncherAsync();
     }
@@ -47,10 +62,17 @@ public class JELoginHandler : XboxGameLoginHandler
         CancellationToken cancellationToken = default)
     {
         var authenticator = CreateAuthenticator(account, cancellationToken);
-        authenticator.AddForceMicrosoftOAuthForJE(oauth => oauth.Interactive());
-        authenticator.AddXboxAuthForJE(xbox => xbox.Basic());
-        authenticator.AddForceJEAuthenticator();
 
+        // OAuth
+        authenticator.AddAuthenticatorWithoutValidator(
+            _defaultOAuthProvider.AuthenticateInteractively());
+
+        // XboxAuth
+        authenticator.AddAuthenticatorWithoutValidator(
+            _defaultXboxAuthProvider.AuthenticateInteractively());
+
+        // JEAuth
+        authenticator.AddForceJEAuthenticator();
         return await authenticator.ExecuteForLauncherAsync();
     }
 
@@ -63,10 +85,17 @@ public class JELoginHandler : XboxGameLoginHandler
         CancellationToken cancellationToken = default)
     {
         var authenticator = CreateAuthenticator(account, cancellationToken);
-        authenticator.AddMicrosoftOAuthForJE(oauth => oauth.Silent());
-        authenticator.AddXboxAuthForJE(xbox => xbox.Basic());
-        authenticator.AddJEAuthenticator();
 
+        // OAuth
+        authenticator.AddAuthenticatorWithoutValidator(
+            _defaultOAuthProvider.AuthenticateSilently());
+
+        // XboxAuth
+        authenticator.AddAuthenticatorWithoutValidator(
+            _defaultXboxAuthProvider.AuthenticateSilently());
+
+        // JEAuth
+        authenticator.AddJEAuthenticator();
         return await authenticator.ExecuteForLauncherAsync();
     }
 
@@ -78,8 +107,16 @@ public class JELoginHandler : XboxGameLoginHandler
         CancellationToken cancellationToken = default)
     {
         var authenticator = CreateAuthenticator(account, cancellationToken);
-        authenticator.AddMicrosoftOAuthSignout(DefaultMicrosoftOAuthClientInfo);
-        authenticator.AddXboxAuthSignout();
+
+        // OAuth
+        authenticator.AddAuthenticatorWithoutValidator(
+            _defaultOAuthProvider.ClearSession());
+
+        // XboxAuth
+        authenticator.AddAuthenticatorWithoutValidator(
+            _defaultXboxAuthProvider.ClearSession());
+
+        // JEAuth
         authenticator.AddJESignout();
         await authenticator.ExecuteAsync();
     }
@@ -92,42 +129,17 @@ public class JELoginHandler : XboxGameLoginHandler
         CancellationToken cancellationToken = default)
     {
         var authenticator = CreateAuthenticator(account, cancellationToken);
-        authenticator.AddMicrosoftOAuthBrowserSignout(DefaultMicrosoftOAuthClientInfo);
-        authenticator.AddXboxAuthSignout();
+
+        // OAuth
+        authenticator.AddAuthenticatorWithoutValidator(
+            _defaultOAuthProvider.Signout());
+
+        // XboxAuth
+        authenticator.AddAuthenticatorWithoutValidator(
+            _defaultXboxAuthProvider.Signout());
+
+        // JEAuth
         authenticator.AddJESignout();
         await authenticator.ExecuteAsync();
-    }
-
-    public IAuthenticationProvider CreateProvider(Action<JEProviderBuilder> builderInvoker, IXboxGameAccount account)
-    {
-        var builder = new JEProviderBuilder();
-        builderInvoker(builder);
-        return builder.Build();
-    }
-}
-
-public class JEProviderBuilder
-{
-    IAuthenticationProvider _oauthProvider;
-    IAuthenticationProvider _xboxProvider;
-    IAuthenticationProvider _jeProvider;
-
-    public void SetMicrosoftOAuth()
-    {
-
-    }
-
-    public void SetXboxAuth()
-    {
-
-    }
-
-    public IAuthenticationProvider Build()
-    {
-        var provider = new CompositeAuthenticationProvider();
-        provider.AddProvider(_oauthProvider);
-        provider.AddProvider(_xboxProvider);
-        provider.AddProvider(_jeProvider);
-        return provider;
     }
 }

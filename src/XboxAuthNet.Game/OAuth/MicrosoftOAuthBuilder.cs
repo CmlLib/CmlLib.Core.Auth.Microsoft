@@ -108,9 +108,6 @@ public class MicrosoftOAuthBuilder
         return authenticator;
     }
 
-    public IAuthenticator ClearSession() =>
-        new SessionCleaner<MicrosoftOAuthResponse>(SessionSource);
-
     public IAuthenticator FromMicrosoftOAuthResponse(MicrosoftOAuthResponse response) => 
         new StaticSessionAuthenticator<MicrosoftOAuthResponse>(response, SessionSource);
 }

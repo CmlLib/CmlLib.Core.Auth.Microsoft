@@ -17,9 +17,10 @@ public class JEAuthenticationProvider : IAuthenticationProvider
         _builder = builder;
     }
 
-    public IAuthenticator CreateInteractiveAuthenticator() => _builder.Build();
-    public ISessionValidator CreateSessionValidatorForInteractiveAuthenticator() => StaticValidator.Invalid;
-    public ISessionValidator CreateSessionValidatorForSilentAuthenticator() => _builder.TokenValidator();
-    public IAuthenticator CreateSilentAuthenticator() => _builder.Build();
+    public IAuthenticator Authenticate() => _builder.Build();
+    public IAuthenticator AuthenticateInteractively() => _builder.Build();
+    public IAuthenticator AuthenticateSilently() => _builder.Build();
+    public IAuthenticator ClearSession() => _builder.SessionCleaner();
+    public ISessionValidator CreateSessionValidator() => _builder.TokenValidator();
     public IAuthenticator Signout() => _builder.SessionCleaner();
 }
