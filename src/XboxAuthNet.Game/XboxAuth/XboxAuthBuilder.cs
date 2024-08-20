@@ -129,7 +129,6 @@ public class XboxAuthBuilder
         var collection = new AuthenticatorCollection();
         collection.AddAuthenticatorWithoutValidator(UserTokenAuth());
         collection.AddAuthenticatorWithoutValidator(XstsTokenAuth(relyingParty));
-        collection.AddAuthenticator(XuiClaimsValidator(), XuiClaimsAuth());
         return collection;
     }
 
@@ -143,7 +142,6 @@ public class XboxAuthBuilder
         collection.AddAuthenticatorWithoutValidator(UserTokenAuth());
         collection.AddAuthenticatorWithoutValidator(DeviceTokenAuth());
         collection.AddAuthenticatorWithoutValidator(XstsTokenAuth(relyingParty));
-        collection.AddAuthenticator(XuiClaimsValidator(), XuiClaimsAuth());
         return collection;
     }
 
@@ -162,7 +160,6 @@ public class XboxAuthBuilder
             RequestSigner,
             OAuthSessionSource,
             SessionSource));
-        collection.AddAuthenticatorWithoutValidator(XuiClaimsAuth());
         return collection;
     }
 
