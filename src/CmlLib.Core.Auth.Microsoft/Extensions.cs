@@ -38,16 +38,20 @@ public static class Extensions
             return builderInvoker(builder);
         });
 
-    public static void AddJEAuthenticator(this ICompositeAuthenticator self) =>
-        self.AddJEAuthenticator(builder => builder.Build());
+    public static void AddJEAuthenticator(this ICompositeAuthenticator @this)
+    {
+        var builder = new JEAuthenticatorBuilder();
+        @this.AddAuthenticator(builder.TokenValidator(), builder.TokenAuthenticator());
+        @this.AddAuthenticator(builder.ProfileValidator(), builder.ProfileAuthenticator());
+    }
 
     public static void AddJEAuthenticator(
         this ICompositeAuthenticator self,
-        Func<JEAuthenticatorBuilder, IAuthenticator> builderInvoker)
+        Func<JEAuthenticatorBuilder, IAuthenticator> authenticatorBuilder)
     {
         var builder = new JEAuthenticatorBuilder();
-        var authenticator = builderInvoker.Invoke(builder);
-        self.AddAuthenticator(builder.TokenValidator(), authenticator);
+        var authenticator = authenticatorBuilder.Invoke(builder);
+        self.AddAuthenticator(builder.TokenAndProfileValidator(), authenticator);
     }
 
     public static void AddForceJEAuthenticator(this ICompositeAuthenticator self) =>

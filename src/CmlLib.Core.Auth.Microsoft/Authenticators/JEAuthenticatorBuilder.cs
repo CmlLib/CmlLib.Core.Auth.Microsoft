@@ -64,6 +64,13 @@ public class JEAuthenticatorBuilder
     public ISessionValidator TokenValidator() =>
         new JETokenValidator(TokenSource);
 
+    public ISessionValidator TokenAndProfileValidator() =>
+        new SessionValidatorCollection() 
+        {
+            new JETokenValidator(TokenSource),
+            new JEProfileValidator(ProfileSource)
+        };
+
     public IAuthenticator TokenAuthenticator() =>
         new JETokenAuthenticator(XboxSessionSource, TokenSource);
 
