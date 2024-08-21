@@ -6,7 +6,7 @@ public class FallbackAuthenticator : CompositeAuthenticatorBase
 
     public FallbackAuthenticator() : this(new[] { typeof(Exception) })
     {
-
+        
     }
 
     public FallbackAuthenticator(Type[] exceptions)

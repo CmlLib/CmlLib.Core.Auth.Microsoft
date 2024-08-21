@@ -13,6 +13,7 @@ public class XboxAuthBuilder
     public string DeviceType { get; set; } = XboxDeviceTypes.Win32;
     public string DeviceVersion { get; set; } = "0.0.0";
     public string TokenPrefix { get; set; } = XboxAuthConstants.XboxTokenPrefix;
+    public bool UseXuiClaimsAuth { get; set; } = true;
 
     private ISessionSource<MicrosoftOAuthResponse>? _oauthSessionSource;
     public ISessionSource<MicrosoftOAuthResponse> OAuthSessionSource
@@ -87,6 +88,12 @@ public class XboxAuthBuilder
         return this;
     }
 
+    public XboxAuthBuilder WithXuiClaimsAuth(bool use)
+    {
+        UseXuiClaimsAuth = use;
+        return this;
+    }
+
     public ISessionValidator Validator() =>
         new XboxSessionValidator(SessionSource);
 
@@ -129,6 +136,8 @@ public class XboxAuthBuilder
         var collection = new AuthenticatorCollection();
         collection.AddAuthenticatorWithoutValidator(UserTokenAuth());
         collection.AddAuthenticatorWithoutValidator(XstsTokenAuth(relyingParty));
+        if (UseXuiClaimsAuth)
+            collection.AddAuthenticatorWithoutValidator(XuiClaimsAuth());
         return collection;
     }
 
@@ -142,6 +151,8 @@ public class XboxAuthBuilder
         collection.AddAuthenticatorWithoutValidator(UserTokenAuth());
         collection.AddAuthenticatorWithoutValidator(DeviceTokenAuth());
         collection.AddAuthenticatorWithoutValidator(XstsTokenAuth(relyingParty));
+        if (UseXuiClaimsAuth)
+            collection.AddAuthenticatorWithoutValidator(XuiClaimsAuth());
         return collection;
     }
 
@@ -160,6 +171,8 @@ public class XboxAuthBuilder
             RequestSigner,
             OAuthSessionSource,
             SessionSource));
+        if (UseXuiClaimsAuth)
+            collection.AddAuthenticatorWithoutValidator(XuiClaimsAuth());
         return collection;
     }
 
