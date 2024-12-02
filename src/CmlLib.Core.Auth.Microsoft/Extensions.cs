@@ -42,7 +42,7 @@ public static class Extensions
     {
         var builder = new JEAuthenticatorBuilder();
         @this.AddAuthenticator(builder.TokenValidator(), builder.TokenAuthenticator());
-        @this.AddAuthenticator(builder.ProfileValidator(), builder.ProfileAuthenticator());
+        @this.AddAuthenticator(StaticValidator.Invalid, builder.ProfileAuthenticator());
     }
 
     public static void AddJEAuthenticator(
