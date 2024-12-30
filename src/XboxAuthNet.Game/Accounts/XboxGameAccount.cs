@@ -36,14 +36,7 @@ public class XboxGameAccount : IXboxGameAccount
         if (other is not XboxGameAccount account)
             return 1;
 
-        if (Equals(other))
-            return LastAccess.CompareTo(account.LastAccess);
-        else
-        {
-            var thisIdentifier = Identifier ?? "";
-            var otherIdentifier = account.Identifier ?? "";
-            return thisIdentifier.CompareTo(otherIdentifier);
-        }
+        return LastAccess.CompareTo(account.LastAccess);
     }
 
     public override bool Equals(object? obj)

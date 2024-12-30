@@ -14,14 +14,14 @@ public class XboxGameAccountCollection : ICollection<IXboxGameAccount>
     {
         // 1) Ignore accounts which has empty Identifier
         // 2) Remove duplicated accounts which has same Identifier
-        // 2-1) If two accounts has same identifier, remove olds and take the most recent one
+        // 2-1) If two accounts has same identifier, remove old ones and take the most recent one
         // 3) Order by the most recently accessed account
 
         return _accounts
             .Where(account => !string.IsNullOrEmpty(account.Identifier))
             .GroupBy(account => account.Identifier)
             .Select(group => group.OrderByDescending(_ => _).First())
-            .OrderBy(_ => _);
+            .OrderByDescending(_ => _);
     }
 
     public IXboxGameAccount GetAccount(string identifier)

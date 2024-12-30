@@ -93,10 +93,10 @@ public class XboxGameAccountCollectionTest
     [Test]
     public void TestEnumerate()
     {
-        var account1 = TestAccount.Create("a", DateTime.MaxValue);
-        var account2 = TestAccount.Create("a", DateTime.MinValue);
-        var account3 = TestAccount.Create("b", DateTime.MinValue);
-        var account4 = TestAccount.Create("b", DateTime.MaxValue);
+        var account1 = TestAccount.Create("z", DateTime.MinValue.AddDays(8));
+        var account2 = TestAccount.Create("z", DateTime.MinValue.AddDays(1));
+        var account3 = TestAccount.Create("a", DateTime.MinValue.AddDays(3));
+        var account4 = TestAccount.Create("a", DateTime.MinValue.AddDays(6));
         var collection = new XboxGameAccountCollection()
         {
             account1, account2, account3, account4
@@ -105,7 +105,8 @@ public class XboxGameAccountCollectionTest
         IXboxGameAccount[] enumerated = collection.ToArray();
         Assert.That(enumerated, Is.EqualTo(new IXboxGameAccount[]
         {
-            account1, account4
+            account1, // account1 and account2 have a same identifier, choose more recent one
+            account4 // accounts are ordered by access time with descending order
         }));
     }
 }
