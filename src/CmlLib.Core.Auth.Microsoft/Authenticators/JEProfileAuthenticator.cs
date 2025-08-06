@@ -41,18 +41,14 @@ public class JEProfileAuthenticator : SessionAuthenticator<JEProfile>
         };
         req.Headers.Add("Authorization", "Bearer " + token);
 
-        var res = await httpClient.SendAsync(req);
+        var res = await httpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
         var resBody = await res.Content.ReadAsStringAsync();
 
         try
         {
             res.EnsureSuccessStatusCode();
-            var profile = JsonSerializer.Deserialize<JEProfile>(resBody);
-
-            if (profile == null)
-                throw new JsonException("The response was null.");
-
-            return profile;
+            using var json = JsonDocument.Parse(resBody);
+            return JEProfile.ParseFromJson(json.RootElement);
         }
         catch (Exception ex)
         {

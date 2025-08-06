@@ -43,6 +43,30 @@ while (true)
             Console.WriteLine($"    LastAccess: {jeAccount.LastAccess}");
             Console.WriteLine($"    Username: {jeAccount.Profile?.Username}");
             Console.WriteLine($"    UUID: {jeAccount.Profile?.UUID}");
+
+            var skins = jeAccount.Profile?.Skins ?? [];
+            var skinIndex = 0;
+            foreach (var skin in skins)
+            {
+                Console.WriteLine($"    Skins[{skinIndex}]");
+                Console.WriteLine($"        Id: {skin.Id}");
+                Console.WriteLine($"        State: {skin.State}");
+                Console.WriteLine($"        TextureKey: {skin.TextureKey}");
+                Console.WriteLine($"        Url: {skin.Url}");
+                skinIndex++;
+            }
+
+            var capes = jeAccount.Profile?.Capes ?? [];
+            var capeIndex = 0;
+            foreach (var cape in capes)
+            {
+                Console.WriteLine($"    Capes[{capeIndex}]");
+                Console.WriteLine($"        Id: {cape.Id}");
+                Console.WriteLine($"        State: {cape.State}");
+                Console.WriteLine($"        Alias: {cape.Alias}");
+                Console.WriteLine($"        Url: {cape.Url}");
+                skinIndex++;
+            }
         }
         else
         {
@@ -59,6 +83,7 @@ while (true)
         selectedAccount = loginHandler.AccountManager.NewAccount();
     else
         selectedAccount = accounts.ElementAt(selectedAccountNumber - 1);
+
     Console.WriteLine();
 
     // authentication mode
