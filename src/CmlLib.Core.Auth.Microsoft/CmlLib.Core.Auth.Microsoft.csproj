@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>Library</OutputType>
-        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <TargetFramework>netstandard2.0</TargetFramework>
         <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <LangVersion>12.0</LangVersion>
