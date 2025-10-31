@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using XboxAuthNet.Game.Accounts.JsonStorage;
 using XboxAuthNet.Game.SessionStorages;
 
 namespace XboxAuthNet.Game.Accounts;
@@ -12,10 +13,11 @@ public class JsonXboxGameAccountManager : IXboxGameAccountManager
         DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
     };
 
-    private readonly string _filePath;
-    private Func<ISessionStorage, IXboxGameAccount> _converter;
+    private readonly IJsonStorage _jsonStorage;
+    private readonly Func<ISessionStorage, IXboxGameAccount> _converter;
     private readonly JsonSerializerOptions? _jsonOptions;
-    private XboxGameAccountCollection _accounts = new();
+    private readonly XboxGameAccountCollection _accounts = new();
+
     private bool isLoaded = false;
 
     public JsonXboxGameAccountManager(string filePath) : 
@@ -29,7 +31,17 @@ public class JsonXboxGameAccountManager : IXboxGameAccountManager
         Func<ISessionStorage, IXboxGameAccount> converter,
         JsonSerializerOptions? jsonOptions)
     {
-        this._filePath = filePath;
+        this._jsonStorage = new JsonFileStorage(filePath);
+        this._converter = converter;
+        this._jsonOptions = jsonOptions;
+    }
+
+    public JsonXboxGameAccountManager(
+        IJsonStorage storage,
+        Func<ISessionStorage, IXboxGameAccount> converter,
+        JsonSerializerOptions? jsonOptions)
+    {
+        this._jsonStorage = storage;
         this._converter = converter;
         this._jsonOptions = jsonOptions;
     }
@@ -38,7 +50,7 @@ public class JsonXboxGameAccountManager : IXboxGameAccountManager
     {
         if (!isLoaded)
         {
-            var node = readAsJson();
+            var node = _jsonStorage.ReadAsJsonNode();
             loadFromJson(node);
             isLoaded = true;
         }
@@ -52,22 +64,6 @@ public class JsonXboxGameAccountManager : IXboxGameAccountManager
         foreach (var account in accounts)
         {
             _accounts.Add(account);
-        }
-    }
-
-    private JsonNode? readAsJson()
-    {
-        if (!File.Exists(_filePath))
-            return null;
-
-        try
-        {
-            using var fs = File.OpenRead(_filePath);
-            return JsonNode.Parse(fs);
-        }
-        catch (JsonException)
-        {
-            return null;
         }
     }
 
@@ -116,15 +112,7 @@ public class JsonXboxGameAccountManager : IXboxGameAccountManager
     public void SaveAccounts()
     {
         var json = serializeToJson();
-
-        var dirPath = Path.GetDirectoryName(_filePath);
-        if (!string.IsNullOrEmpty(dirPath))
-            Directory.CreateDirectory(dirPath);
-
-        using var fs = File.Create(_filePath);
-        using var writer = new Utf8JsonWriter(fs);
-        json.WriteTo(writer, _jsonOptions);
-
+        _jsonStorage.Write(json, _jsonOptions);
         loadFromJson(json); // reload
     }
 
