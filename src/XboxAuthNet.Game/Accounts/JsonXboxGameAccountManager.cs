@@ -7,7 +7,7 @@ namespace XboxAuthNet.Game.Accounts;
 
 public class JsonXboxGameAccountManager : IXboxGameAccountManager
 {
-    public static readonly JsonSerializerOptions DefaultSerializerOption = new JsonSerializerOptions
+    public static readonly JsonSerializerOptions DefaultSerializerOption = new()
     {
         WriteIndented = false,
         DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
@@ -16,9 +16,9 @@ public class JsonXboxGameAccountManager : IXboxGameAccountManager
     private readonly IJsonStorage _jsonStorage;
     private readonly Func<ISessionStorage, IXboxGameAccount> _converter;
     private readonly JsonSerializerOptions? _jsonOptions;
-    private readonly XboxGameAccountCollection _accounts = new();
+    private readonly List<IXboxGameAccount> _accounts = [];
 
-    private bool isLoaded = false;
+    private bool isLoaded;
 
     public JsonXboxGameAccountManager(string filePath) : 
         this(filePath, XboxGameAccount.FromSessionStorage, DefaultSerializerOption)
@@ -54,7 +54,8 @@ public class JsonXboxGameAccountManager : IXboxGameAccountManager
             loadFromJson(node);
             isLoaded = true;
         }
-        return _accounts;
+
+        return XboxGameAccountCollection.FromAccounts(_accounts);
     }
 
     private void loadFromJson(JsonNode? node)
@@ -99,13 +100,13 @@ public class JsonXboxGameAccountManager : IXboxGameAccountManager
     {
         var sessionStorage = JsonSessionStorage.CreateEmpty(_jsonOptions);
         var account = convertSessionStorageToAccount(sessionStorage);
-        GetAccounts().Add(account);
+        _accounts.Add(account);
         return account;
     }
 
     public void ClearAccounts()
     {
-        GetAccounts().Clear();
+        _accounts.Clear();
         SaveAccounts();
     }
 

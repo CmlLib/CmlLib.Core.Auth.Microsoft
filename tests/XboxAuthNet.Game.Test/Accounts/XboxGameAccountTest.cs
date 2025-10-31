@@ -7,149 +7,68 @@ namespace XboxAuthNet.Game.Test;
 [TestFixture]
 public class XboxGameAccountTest
 {
-    public static XboxGameAccount NullIdentifier = TestAccount.CreateNull();
-    public static XboxGameAccount EmptyIdentifier = TestAccount.Create("");
-
-    public static XboxGameAccount FirstAccount = TestAccount.Create("a");
-    public static XboxGameAccount SecondAccount = TestAccount.Create("b");
-    public static XboxGameAccount ThirdAccount = TestAccount.Create("c");
-
-    public static XboxGameAccount FirstSameAccount = TestAccount.Create("d", DateTime.MinValue);
-    public static XboxGameAccount SecondSameAccount = TestAccount.Create("d", DateTime.MinValue.AddSeconds(10));
-    public static XboxGameAccount ThirdSameAccount = TestAccount.Create("d", DateTime.MinValue.AddSeconds(20));
-
-    public static XboxGameAccount[] TestCase1 = new[]
+    [Test]
+    public void compare_account_and_null_left()
     {
-        NullIdentifier, EmptyIdentifier, FirstAccount, FirstSameAccount
-    };
-
-    public static XboxGameAccount[] TestCase2 = new[]
-    {
-        NullIdentifier, EmptyIdentifier,
-        FirstAccount, SecondAccount, ThirdAccount,
-        FirstSameAccount, SecondSameAccount, ThirdSameAccount
-    };
-
-    public static XboxGameAccount[] NullOrEmptyAccounts = new[]
-    {
-        NullIdentifier, EmptyIdentifier
-    };
-
-    public static XboxGameAccount[] AccountsExceptNullOrEmpty = 
-        TestCase2.Except(NullOrEmptyAccounts).ToArray();
+        var a = TestAccount.Create("a");
+        Assert.AreEqual(1, a.CompareTo(null));
+    }
 
     [Test]
-    public void TestEqualOne()
+    public void compare_only_last_access()
     {
-        foreach (var t in TestCase1)
+        var left = TestAccount.Create("a", DateTime.MinValue);
+        var right = TestAccount.Create("a", DateTime.MaxValue);
+
+        // left > right
+        Assert.AreEqual(1, left.CompareTo(right));
+        Assert.AreEqual(-1, right.CompareTo(left));
+    }
+
+    [Test]
+    public void compare_only_identifier()
+    {
+        var left = TestAccount.Create("a", DateTime.MinValue);
+        var right = TestAccount.Create("b", DateTime.MinValue);
+
+        // left < right
+        Assert.AreEqual(-1, left.CompareTo(right));
+        Assert.AreEqual(1, right.CompareTo(left));
+    }
+
+    [Test]
+    public void compare_last_access_and_identifier()
+    {
+        var left = TestAccount.Create("a", DateTime.MinValue);
+        var right = TestAccount.Create("b", DateTime.MaxValue);
+
+        // left > right
+        Assert.AreEqual(1, left.CompareTo(right));
+        Assert.AreEqual(-1, right.CompareTo(left));
+    }
+
+    [Test]
+    public void test_sort()
+    {
+        TestAccount? a0 = null;
+        var a1 = TestAccount.Create("a", DateTime.MinValue.AddDays(1));
+        var a2 = TestAccount.Create("b", DateTime.MinValue.AddDays(1));
+        var a3 = TestAccount.Create("",  DateTime.MinValue.AddDays(0));
+        var a4 = TestAccount.Create("a", DateTime.MinValue.AddDays(0));
+        var a5 = TestAccount.Create("b", DateTime.MinValue.AddDays(0));
+        var a6 = new object();
+
+        var actual = new object?[] 
         {
-            TestEqualOne(t);
-        }
-    }
+            a6, a3, a0, a1, a4, a2, a5
+        };
+        Array.Sort(actual);
 
-    public void TestEqualOne(XboxGameAccount a)
-    {
-        Assert.That(a.CompareTo(a), Is.Zero);
-    }
-
-    [Test]
-    public void TestEqualTwo()
-    {
-        foreach (var t in TestCase1)
+        var expected = new object?[]
         {
-            TestEqualTwo(t, t);
-        }
-    }
+            a0, a1, a2, a3, a4, a5, a6
+        };
 
-    public void TestEqualTwo(XboxGameAccount a, XboxGameAccount b)
-    {
-        Assert.That(a.CompareTo(b), Is.Zero);
-        Assert.That(b.CompareTo(b), Is.Zero);
-    }
-
-    [Test]
-    public void TestEqualThree()
-    {
-        foreach (var t in TestCase1)
-        {
-            TestEqualThree(t, t, t);
-        }
-    }
-
-    public void TestEqualThree(XboxGameAccount a, XboxGameAccount b, XboxGameAccount c)
-    {
-        Assert.That(a.CompareTo(b), Is.Zero);
-        Assert.That(b.CompareTo(c), Is.Zero);
-        Assert.That(a.CompareTo(c), Is.Zero);
-    }
-
-    [Test]
-    public void TestNotEqualTwo()
-    {
-        foreach (var a in TestCase2)
-            foreach (var b in TestCase2)
-            {
-                // If a.CompareTo(b) returns a value other than zero,
-                var x = a.CompareTo(b);
-                if (x != 0)
-                {
-                    // then b.CompareTo(b) is required to return a value of the opposite sign
-                    var y = b.CompareTo(a);
-                    Assert.False(isSameSign(x, y));
-                }
-            }
-    }
-
-    [Test]
-    public void TestNotEqualThree()
-    {
-        foreach (var a in TestCase2)
-            foreach (var b in TestCase2)
-                foreach (var c in TestCase2)
-                {
-                    // If a.CommpareTo(b) returns a value x that is not equal to zero,
-                    // and b.CompareTo(c) returns a value y of the same sign as x,
-                    var x = a.CompareTo(b);
-                    var y = b.CompareTo(c);
-                    if (x != 0 && isSameSign(x, y))
-                    {
-                        // then a.CompareTo(c) is required to return a value of the same sign
-                        // as x and y
-                        var z = a.CompareTo(c);
-                        Assert.True(isSameSign(y, z));
-                    }
-                }
-    }
-
-    [Test]
-    public void TestLess()
-    {
-        int length = AccountsExceptNullOrEmpty.Length;
-        for (int i = 0; i < length; i++)
-        {
-            for (int j = i + 1; j < length; j++)
-            {
-                Assert.That(
-                    AccountsExceptNullOrEmpty[i], 
-                    Is.LessThan(AccountsExceptNullOrEmpty[j]));
-            }
-        }
-    }
-
-    [Test]
-    public void TestWithNullOrEmpty()
-    {
-        foreach (var nullOrEmptyAccount in NullOrEmptyAccounts)
-        {
-            foreach (var account in AccountsExceptNullOrEmpty)
-            {
-                Assert.That(nullOrEmptyAccount, Is.LessThan(account));
-            }
-        }
-    }
-
-    private bool isSameSign(int a, int b)
-    {
-        return a * b > 0;
+        CollectionAssert.AreEqual(expected, actual);
     }
 }

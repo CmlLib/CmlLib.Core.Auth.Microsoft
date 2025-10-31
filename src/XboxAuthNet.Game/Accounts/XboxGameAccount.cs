@@ -29,14 +29,30 @@ public class XboxGameAccount : IXboxGameAccount
 
     public int CompareTo(object? other)
     {
-        // -1: this instance precedes other
-        //  0: same position
-        //  1: this instance follows other or other is not a valid object
+        // this < other: -1
+        // this == other: 0
+        // this > other: 1
 
-        if (other is not XboxGameAccount account)
+        // IMPORTANT: non-null is greater than null
+        // if not, Array.Sort will not work as expected
+        if (other is null)
             return 1;
 
-        return LastAccess.CompareTo(account.LastAccess);
+        if (other is not XboxGameAccount account)
+            return -1;
+
+        // last access is the highest priority
+        var lastAccessCompare = -LastAccess.CompareTo(account.LastAccess);
+        if (lastAccessCompare != 0)
+        {
+            return lastAccessCompare;
+        }
+
+        // if last access is the same, compare identifier
+        // alphabetically
+        var thisIdentifier = Identifier ?? "";
+        var otherIdentifier = account.Identifier ?? "";
+        return thisIdentifier.CompareTo(otherIdentifier);
     }
 
     public override bool Equals(object? obj)

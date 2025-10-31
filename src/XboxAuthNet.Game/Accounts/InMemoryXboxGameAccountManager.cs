@@ -4,17 +4,16 @@ namespace XboxAuthNet.Game.Accounts;
 
 public class InMemoryXboxGameAccountManager : IXboxGameAccountManager
 {
-    private Func<ISessionStorage, IXboxGameAccount> _converter;
+    private readonly Func<ISessionStorage, IXboxGameAccount> _converter;
 
     public InMemoryXboxGameAccountManager(Func<ISessionStorage, IXboxGameAccount> converter)
     {
         _converter = converter;
-        Accounts = new XboxGameAccountCollection();
     }
 
-    public XboxGameAccountCollection Accounts { get; private set; }
+    public List<IXboxGameAccount> Accounts { get; } = [];
 
-    public XboxGameAccountCollection GetAccounts() => Accounts;
+    public XboxGameAccountCollection GetAccounts() => XboxGameAccountCollection.FromAccounts(Accounts);
 
     public IXboxGameAccount GetDefaultAccount()
     {
