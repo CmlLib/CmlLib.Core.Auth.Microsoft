@@ -1,7 +1,7 @@
 ﻿using CmlLib.Core.Auth.Microsoft.Sessions;
 using System.Text.Json;
 
-namespace CmlLib.Core.Auth.Microsoft.Tests;
+namespace CmlLib.Core.Auth.Microsoft.Test;
 
 public class JEProfileSerializerTests
 {
