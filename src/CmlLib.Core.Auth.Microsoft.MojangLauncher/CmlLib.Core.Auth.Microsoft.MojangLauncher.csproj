@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\CmlLib.Core.Auth.Microsoft\CmlLib.Core.Auth.Microsoft.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>12</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="9.0.8" />
+  </ItemGroup>
+</Project>
