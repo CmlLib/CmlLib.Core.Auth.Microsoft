@@ -1,0 +1,52 @@
+{
+    "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json",
+    "metadata": [
+      {
+        "src": [
+          {
+            "src": ".",
+            "files": [
+              "src/CmlLib.Core.Auth.Microsoft/CmlLib.Core.Auth.Microsoft.csproj",
+              "src/CmlLib.Core.Auth.Microsoft.MojangLauncher/CmlLib.Core.Auth.Microsoft.MojangLauncher.csproj",
+              "src/CmlLib.Core.Bedrock.Auth/CmlLib.Core.Bedrock.Auth.csproj",
+              "src/XboxAuthNet.Game/XboxAuthNet.Game.csproj",
+              "src/XboxAuthNet.Game.Msal/XboxAuthNet.Game.Msal.csproj",
+              "src/XboxAuthNet.Game.WindowsSecurity/XboxAuthNet.Game.WindowsSecurity.csproj"
+            ]
+          }
+        ],
+        "dest": "api",
+        "outputFormat": "markdown"
+      }
+    ],
+    "build": {
+      "content": [
+        {
+          "files": [
+            "**/*.{md,yml}"
+          ],
+          "exclude": [
+            "_site/**"
+          ]
+        }
+      ],
+      "resource": [
+        {
+          "files": [
+            "images/**"
+          ]
+        }
+      ],
+      "output": "_site",
+      "template": [
+        "default",
+        "modern"
+      ],
+      "globalMetadata": {
+        "_appName": "CmlLib.Core.Auth.Microsoft",
+        "_appTitle": "CmlLib.Core.Auth.Microsoft",
+        "_enableSearch": true,
+        "pdf": false
+      }
+    }
+  }
