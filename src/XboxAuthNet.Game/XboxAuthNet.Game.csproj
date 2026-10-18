@@ -31,8 +31,7 @@
     <!-- package refernces-->
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
-        <PackageReference Include="XboxAuthNet" Version="3.0.4" Condition="'$(XboxAuthNetSourceProject)' == ''" />
-        <ProjectReference Include="$(XboxAuthNetSourceProject)" Condition="'$(XboxAuthNetSourceProject)' != ''" />
+        <PackageReference Include="XboxAuthNet" Version="3.0.4" />
     </ItemGroup>
 
     <ItemGroup>
