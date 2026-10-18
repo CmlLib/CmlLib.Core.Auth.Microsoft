@@ -1,7 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
+using XboxAuthNet.Game.Serialization;
 
 namespace XboxAuthNet.Game.Jwt
 {
@@ -52,8 +54,14 @@ namespace XboxAuthNet.Game.Jwt
         /// <exception cref="FormatException">invalid jwt</exception>
         public static T? DecodePayload<T>(string jwt) where T : class
         {
+            var typeInfo = (JsonTypeInfo<T>)XboxGameJson.DefaultOptions.GetTypeInfo(typeof(T));
+            return DecodePayload(jwt, typeInfo);
+        }
+
+        public static T? DecodePayload<T>(string jwt, JsonTypeInfo<T> typeInfo) where T : class
+        {
             var payload = DecodePayloadString(jwt);
-            return JsonSerializer.Deserialize<T>(payload);
+            return JsonSerializer.Deserialize(payload, typeInfo);
         }
     }
 }

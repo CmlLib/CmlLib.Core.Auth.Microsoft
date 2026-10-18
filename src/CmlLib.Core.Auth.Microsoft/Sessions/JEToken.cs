@@ -1,3 +1,4 @@
+using CmlLib.Core.Auth.Microsoft.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using XboxAuthNet.Game.Jwt;
@@ -35,7 +36,7 @@ public class JEToken
         if (string.IsNullOrEmpty(this.AccessToken))
             throw new InvalidOperationException("this.AccessToken was empty.");
 
-        return JwtDecoder.DecodePayload<MojangXboxAccessTokenPayload>(this.AccessToken!);
+        return JwtDecoder.DecodePayload(this.AccessToken!, MicrosoftAuthJsonContext.Default.MojangXboxAccessTokenPayload);
     }
 
     /// <summary>

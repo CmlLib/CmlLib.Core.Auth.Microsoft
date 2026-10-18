@@ -1,4 +1,8 @@
-﻿using XboxAuthNet.Game;
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
+using CmlLib.Core.Auth.Microsoft.Serialization;
+using XboxAuthNet.Game.Serialization;
+using XboxAuthNet.Game;
 using XboxAuthNet.Game.Accounts;
 using CmlLib.Core.Auth.Microsoft.Sessions;
 using System.Threading.Tasks.Sources;
@@ -55,7 +59,12 @@ public class JELoginHandlerBuilder :
         return new JsonXboxGameAccountManager(
             filePath, 
             JEGameAccount.FromSessionStorage, 
-            JsonXboxGameAccountManager.DefaultSerializerOption);
+            new JsonSerializerOptions(JsonXboxGameAccountManager.DefaultSerializerOption)
+            {
+                TypeInfoResolver = JsonTypeInfoResolver.Combine(
+                    MicrosoftAuthJsonContext.Default,
+                    XboxGameJsonContext.Default)
+            });
     }
 
     public JELoginHandler Build()

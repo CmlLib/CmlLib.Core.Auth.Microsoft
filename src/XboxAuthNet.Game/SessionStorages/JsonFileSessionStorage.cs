@@ -1,4 +1,5 @@
 using System.Text.Json;
+using XboxAuthNet.Game.Serialization;
 using System.Text.Json.Nodes;
 
 namespace XboxAuthNet.Game.SessionStorages
@@ -12,7 +13,7 @@ namespace XboxAuthNet.Game.SessionStorages
     private JsonSessionStorage? _innerStorage;
     public IEnumerable<string> Keys => _innerStorage?.Keys ?? Enumerable.Empty<string>();
 
-    public JsonFileSessionStorage(string filePath) : this(filePath, JsonSerializerOptions.Default) {}
+    public JsonFileSessionStorage(string filePath) : this(filePath, XboxGameJson.DefaultOptions) {}
 
     public JsonFileSessionStorage(string filePath, JsonSerializerOptions jsonSerializerOptions)
     {

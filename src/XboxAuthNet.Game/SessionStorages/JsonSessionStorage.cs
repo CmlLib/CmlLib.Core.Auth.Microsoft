@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
+using XboxAuthNet.Game.Serialization;
 using System.Text.Json.Nodes;
 
 namespace XboxAuthNet.Game.SessionStorages;
@@ -14,13 +16,13 @@ public class JsonSessionStorage : ISessionStorage
     private readonly KeyModeStorage _keyModeStorage = new();
     private readonly InMemorySessionStorage _cache = new();
     private readonly JsonObject _jsonObject;
-    private readonly JsonSerializerOptions? _jsonOptions;
+    private readonly JsonSerializerOptions _jsonOptions;
 
     public IEnumerable<string> Keys => _keys;
 
     public JsonSessionStorage(JsonObject json, JsonSerializerOptions? jsonSerializerOptions = default)
     {
-        this._jsonOptions = jsonSerializerOptions;
+        this._jsonOptions = XboxGameJson.CreateOptions(jsonSerializerOptions);
         this._jsonObject = json;
 
         foreach (var kv in json)
@@ -73,7 +75,7 @@ public class JsonSessionStorage : ISessionStorage
     {
         if (_jsonObject.ContainsKey(key))
         {
-            var jsonValue = _jsonObject[key].Deserialize<T>(_jsonOptions);
+            var jsonValue = _jsonObject[key].Deserialize((JsonTypeInfo<T>)_jsonOptions.GetTypeInfo(typeof(T)));
             if (jsonValue == null)
             {
                 value = default!;
@@ -149,7 +151,7 @@ public class JsonSessionStorage : ISessionStorage
             var result = TryGetValue<object>(key, out var value);
             if (!result)
                 continue;
-            var node = JsonSerializer.SerializeToNode(value, _jsonOptions);
+            var node = JsonSerializer.SerializeToNode(value, (JsonTypeInfo<object>)_jsonOptions.GetTypeInfo(typeof(object)));
             json.Add(key, node);
         }
         return json;

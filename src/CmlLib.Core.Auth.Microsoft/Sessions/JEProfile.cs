@@ -1,4 +1,5 @@
 using System.Text.Json;
+using CmlLib.Core.Auth.Microsoft.Serialization;
 using System.Text.Json.Serialization;
 
 namespace CmlLib.Core.Auth.Microsoft.Sessions;
@@ -33,7 +34,7 @@ public class JEProfile
             profile.Skins = root
                 .GetProperty("skins")
                 .EnumerateArray()
-                .Select(arr => arr.Deserialize<JEProfileSkin>())
+                .Select(arr => arr.Deserialize(MicrosoftAuthJsonContext.Default.JEProfileSkin))
                 .Where(skin => skin != null)
                 .ToList()!;
         }
@@ -48,7 +49,7 @@ public class JEProfile
             profile.Capes = root
                 .GetProperty("capes")
                 .EnumerateArray()
-                .Select(arr => arr.Deserialize<JEProfileCape>())
+                .Select(arr => arr.Deserialize(MicrosoftAuthJsonContext.Default.JEProfileCape))
                 .Where(cape => cape != null)
                 .ToList()!;
         }
