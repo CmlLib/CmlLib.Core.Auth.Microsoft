@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using NUnit.Framework;
 using XboxAuthNet.Game.SessionStorages;
 using System.Text.Json.Nodes;
@@ -20,12 +20,12 @@ public class JsonSessionStorageTests
     [SetUp]
     public void Setup()
     {
-        sessionStorage = JsonSessionStorage.CreateEmpty();
+        sessionStorage = JsonSessionStorage.CreateEmpty(TestJsonContext.Default.Options);
     }
 
     private ISessionStorage createEmptyStorage()
     {
-        return JsonSessionStorage.CreateEmpty();
+        return JsonSessionStorage.CreateEmpty(TestJsonContext.Default.Options);
     }
 
 
@@ -142,7 +142,7 @@ public class JsonSessionStorageTests
             json.Add(kv.Item1, JsonSerializer.SerializeToNode(kv.Item2));
         }
 
-        var sessionStorage = new JsonSessionStorage(json);
+        var sessionStorage = new JsonSessionStorage(json, TestJsonContext.Default.Options);
         testItems(testData, sessionStorage);
     }
 
@@ -154,7 +154,7 @@ public class JsonSessionStorageTests
         json.Add("double", Math.PI);
         json.Add("object", JsonSerializer.SerializeToNode(mockObject));
 
-        var sessionStorage = new JsonSessionStorage(json);
+        var sessionStorage = new JsonSessionStorage(json, TestJsonContext.Default.Options);
 
         sessionStorage.Set("int", 1);
         sessionStorage.Set("string", "hello");

@@ -22,7 +22,7 @@ public class JsonFileSessionStorageTests
     {
         if (string.IsNullOrEmpty(filePath))
             throw new InvalidOperationException();
-        return new JsonFileSessionStorage(filePath);
+        return new JsonFileSessionStorage(filePath, TestJsonContext.Default.Options);
     }
 
     [Test]

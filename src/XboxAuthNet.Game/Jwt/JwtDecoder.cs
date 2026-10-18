@@ -58,7 +58,6 @@ namespace XboxAuthNet.Game.Jwt
             return DecodePayload(jwt, typeInfo);
         }
 
-        /// <summary>호출자가 제공한 생성 메타데이터로 JWT 페이로드를 복원한다.</summary>
         public static T? DecodePayload<T>(string jwt, JsonTypeInfo<T> typeInfo) where T : class
         {
             var payload = DecodePayloadString(jwt);
