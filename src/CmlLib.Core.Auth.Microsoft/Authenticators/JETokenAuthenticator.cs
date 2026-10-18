@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using CmlLib.Core.Auth.Microsoft.Serialization;
 using CmlLib.Core.Auth.Microsoft.Sessions;
 using XboxAuthNet.Game.Authenticators;
 using XboxAuthNet.Game.SessionStorages;
@@ -47,7 +48,7 @@ public class JETokenAuthenticator : SessionAuthenticator<JEToken>
         try
         {
             res.EnsureSuccessStatusCode();
-            var resObj = JsonSerializer.Deserialize<JEToken>(resBody);
+            var resObj = JsonSerializer.Deserialize(resBody, MicrosoftAuthJsonContext.Default.JEToken);
 
             if (resObj == null && res.IsSuccessStatusCode)
                 throw new JEAuthException($"{(int)res.StatusCode}: {res.ReasonPhrase}");

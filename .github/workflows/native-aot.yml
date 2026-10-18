@@ -1,0 +1,44 @@
+name: Native AOT
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  native-aot:
+    runs-on: windows-latest
+    env:
+      XboxAuthNetSourceProject: ${{ github.workspace }}/xboxauth/src/XboxAuthNet.csproj
+    defaults:
+      run:
+        working-directory: auth
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: auth
+      - uses: actions/checkout@v4
+        with:
+          repository: AlphaBs/XboxAuthNet
+          ref: 62816c9ed2cff770f951da0f24ffb1a39089b115
+          path: xboxauth
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: 전체 대상 프레임워크 빌드
+        run: dotnet build src/CmlLib.Core.Auth.Microsoft -c Release
+      - name: 게임 인증 기존 테스트
+        run: dotnet test tests/XboxAuthNet.Game.Test -c Release
+      - name: Minecraft 인증 기존 테스트
+        run: dotnet test tests/CmlLib.Core.Auth.Microsoft.Test -c Release
+      - name: JSON 리플렉션 없는 저장·인증 검증
+        run: dotnet run --project smoke/NativeAotSmoke -c Release
+      - name: JIT 사용자 정의 모델 호환성
+        run: dotnet run --project smoke/NativeAotSmoke -c Release -p:PublishAot=false -p:JsonSerializerIsReflectionEnabledByDefault=true
+      - name: Native AOT 게시
+        run: dotnet publish smoke/NativeAotSmoke -c Release -r win-x64 -o artifacts/native-smoke
+      - name: Native AOT 실행
+        run: ./artifacts/native-smoke/NativeAotSmoke.exe

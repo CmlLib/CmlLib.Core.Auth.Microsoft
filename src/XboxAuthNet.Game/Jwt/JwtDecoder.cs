@@ -1,7 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
+using XboxAuthNet.Game.Serialization;
 
 namespace XboxAuthNet.Game.Jwt
 {
@@ -52,8 +54,15 @@ namespace XboxAuthNet.Game.Jwt
         /// <exception cref="FormatException">invalid jwt</exception>
         public static T? DecodePayload<T>(string jwt) where T : class
         {
+            var typeInfo = (JsonTypeInfo<T>)XboxGameJson.DefaultOptions.GetTypeInfo(typeof(T));
+            return DecodePayload(jwt, typeInfo);
+        }
+
+        /// <summary>호출자가 제공한 생성 메타데이터로 JWT 페이로드를 복원한다.</summary>
+        public static T? DecodePayload<T>(string jwt, JsonTypeInfo<T> typeInfo) where T : class
+        {
             var payload = DecodePayloadString(jwt);
-            return JsonSerializer.Deserialize<T>(payload);
+            return JsonSerializer.Deserialize(payload, typeInfo);
         }
     }
 }
