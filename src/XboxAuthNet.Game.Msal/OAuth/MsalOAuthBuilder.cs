@@ -30,7 +30,6 @@ public class MsalOAuthBuilder
 
     private ISessionSource<string>? _homeAccountIdSource;
 
-    /// <summary>MSAL 캐시 계정 식별자의 저장 위치를 지정한다.</summary>
     public ISessionSource<string> HomeAccountIdSource
     {
         get => _homeAccountIdSource ??= MsalHomeAccountIdSource.Default;
