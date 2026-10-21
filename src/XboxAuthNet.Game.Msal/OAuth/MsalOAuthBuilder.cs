@@ -28,6 +28,15 @@ public class MsalOAuthBuilder
         set => _loginHintSource = value;
     }
 
+    private ISessionSource<string>? _homeAccountIdSource;
+
+    /// <summary>MSAL 캐시 계정 식별자의 저장 위치를 지정한다.</summary>
+    public ISessionSource<string> HomeAccountIdSource
+    {
+        get => _homeAccountIdSource ??= MsalHomeAccountIdSource.Default;
+        set => _homeAccountIdSource = value;
+    }
+
     public ISessionValidator LoginHintValidator(bool throwWhenInvalid = false) =>
         new MicrosoftOAuthLoginHintValidator(throwWhenInvalid, LoginHintSource);
 
@@ -86,19 +95,21 @@ public class MsalOAuthBuilder
     {
         var authenticator = new AuthenticatorCollection();
         authenticator.AddAuthenticatorWithoutValidator(new SessionCleaner<string>(LoginHintSource));
+        authenticator.AddAuthenticatorWithoutValidator(new SessionCleaner<string>(HomeAccountIdSource));
         authenticator.AddAuthenticatorWithoutValidator(new SessionCleaner<MicrosoftOAuthResponse>(SessionSource));
         return authenticator;
     }
 
     public IAuthenticator FromResult(AuthenticationResult result) =>
-        new StaticSessionAuthenticator<MicrosoftOAuthResponse>(
-            MsalClientHelper.ToMicrosoftOAuthResponse(result), 
-            SessionSource);
+        new MsalResultOAuth(createParameters(false), result);
 
     private MsalOAuthParameters createParameters(bool loginHint) => new(
         app: _app,
         scopes: Scopes,
         loginHintSource: LoginHintSource,
         throwWhenEmptyLoginHint: loginHint,
-        sessionSource: SessionSource);
+        sessionSource: SessionSource)
+    {
+        HomeAccountIdSource = HomeAccountIdSource
+    };
 }
