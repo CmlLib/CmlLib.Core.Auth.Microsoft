@@ -15,10 +15,13 @@ public abstract class MsalOAuth : SessionAuthenticator<MicrosoftOAuthResponse>
 
     protected override async ValueTask<MicrosoftOAuthResponse?> Authenticate(AuthenticateContext context)
     {
+        context.CancellationToken.ThrowIfCancellationRequested();
         var result = await AuthenticateWithMsal(context, _parameters);
+        context.CancellationToken.ThrowIfCancellationRequested();
 
-        var loginHint = result.Account.Username;
+        var loginHint = result.Account?.Username;
         _parameters.LoginHintSource.Set(context.SessionStorage, loginHint);
+        _parameters.HomeAccountIdSource.Set(context.SessionStorage, result.Account?.HomeAccountId?.Identifier);
         _parameters.SessionSource.SetKeyMode(context.SessionStorage, SessionStorages.SessionStorageKeyMode.NoStore);
 
         return MsalClientHelper.ToMicrosoftOAuthResponse(result);

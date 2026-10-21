@@ -1,4 +1,5 @@
 using Microsoft.Identity.Client;
+using XboxAuthNet.Game.Msal.OAuth;
 using XboxAuthNet.OAuth;
 using XboxAuthNet.Game.SessionStorages;
 
@@ -20,4 +21,6 @@ public class MsalOAuthParameters
     public ISessionSource<MicrosoftOAuthResponse> SessionSource;
     public ISessionSource<string> LoginHintSource { get; }
     public bool ThrowWhenEmptyLoginHint { get; }
+
+    public ISessionSource<string> HomeAccountIdSource { get; set; } = MsalHomeAccountIdSource.Default;
 }
