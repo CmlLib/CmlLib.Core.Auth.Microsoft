@@ -27,9 +27,8 @@ public class ProtectedJsonFileStorage : IJsonStorage
         }
         catch (Exception exception) when (exception is CryptographicException || exception is JsonException)
         {
-            // 재로그인을 허용하되 복구 가능한 원본은 덮어쓰지 않고 보존한다.
-            var backupPath = _filePath + ".corrupt." + Guid.NewGuid().ToString("N");
-            File.Move(_filePath, backupPath);
+            // 사용할 수 없는 계정 파일을 삭제해 재로그인을 허용한다.
+            File.Delete(_filePath);
             return null;
         }
     }
