@@ -25,8 +25,11 @@ public class ProtectedJsonFileStorage : IJsonStorage
             var decrypted = ProtectedData.Unprotect(encrypted, null, DataProtectionScope.CurrentUser);
             return JsonNode.Parse(decrypted);
         }
-        catch (JsonException)
+        catch (Exception exception) when (exception is CryptographicException || exception is JsonException)
         {
+            // 재로그인을 허용하되 복구 가능한 원본은 덮어쓰지 않고 보존한다.
+            var backupPath = _filePath + ".corrupt." + Guid.NewGuid().ToString("N");
+            File.Move(_filePath, backupPath);
             return null;
         }
     }
@@ -40,6 +43,25 @@ public class ProtectedJsonFileStorage : IJsonStorage
         var dirPath = Path.GetDirectoryName(_filePath);
         if (!string.IsNullOrEmpty(dirPath))
             Directory.CreateDirectory(dirPath);
-        File.WriteAllBytes(_filePath, encrypted);
+
+        // 같은 볼륨에서 교체해야 저장 실패 시 기존 암호문을 보존할 수 있다.
+        var temporaryPath = _filePath + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            using (var stream = new FileStream(temporaryPath, FileMode.CreateNew, FileAccess.Write))
+            {
+                stream.Write(encrypted, 0, encrypted.Length);
+                stream.Flush(flushToDisk: true);
+            }
+
+            if (File.Exists(_filePath))
+                File.Replace(temporaryPath, _filePath, null);
+            else
+                File.Move(temporaryPath, _filePath);
+        }
+        finally
+        {
+            File.Delete(temporaryPath);
+        }
     }
 }
