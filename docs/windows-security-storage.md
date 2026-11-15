@@ -25,15 +25,19 @@ WindowsSecurity 코드 리뷰에서 기존 파일 직접 덮어쓰기로 인한 
 
 사용자는 기존 `cml_accounts.json`을 Windows 암호화 저장소로 옮기는 헬퍼를 요청했다. 최초 요청의 `cml_sesisons.json`은 오타이며 구버전 단일 세션 형식 변환은 필요하지 않다고 확인했다.
 
-`ProtectedJsonFileStorage.TryMigrateFromJson(jsonFilePath)`을 추가했다. 대상 경로는 생성자에 지정하며, 기존 계정별 JSON 객체와 알 수 없는 필드를 그대로 암호화한다. 같은 원본·대상 경로는 거부하고, 원본이 없거나 대상 파일이 이미 존재하면 false를 반환한다. 대상 파일의 정상 여부를 검사하거나 기존 파일을 삭제·덮어쓰지 않는다.
+`ProtectedJsonFileStorageMigration.TryMigrate(jsonFilePath, protectedFilePath)`를 별도 파일에 추가했다. 원본과 대상 경로를 지정하며, 기존 계정별 JSON 객체와 알 수 없는 필드를 그대로 암호화한다. 같은 원본·대상 경로는 거부하고, 원본이 없거나 대상 파일이 이미 존재하면 false를 반환한다. 대상 파일의 정상 여부를 검사하거나 기존 파일을 삭제·덮어쓰지 않는다.
 
 JSON이 객체가 아니거나 파싱·암호화·파일 작업이 실패하면 오류를 전달하고 원본을 유지한다. 암호화 임시 파일의 기록과 flush가 끝난 뒤 덮어쓰지 않는 이동으로 대상을 생성하고, 그 후에만 평문 원본을 삭제한다. 검사 이후 다른 프로세스가 대상을 생성하면 이동은 실패하고 원본은 유지된다. 원본 삭제에 실패하면 암호화 대상은 남고 예외를 전달한다. 이 경우 다음 호출은 대상 존재로 건너뛰므로 평문 파일 삭제 문제를 별도로 해결해야 한다.
 
 기존 WindowsSecurityTest 예제에서 기본 폴더의 `cml_accounts.json`을 `cml_accounts_ws.bin`으로 전환한 뒤 같은 저장소로 계정 관리자를 구성한다. 마이그레이션은 계정 파일을 다른 프로세스가 쓰지 않는 앱 시작 단계에서 호출한다. 새로운 테스트 프로젝트나 워크플로는 추가하지 않는다.
 
 ```csharp
+ProtectedJsonFileStorageMigration.TryMigrate(accountsJsonPath, encryptedPath);
 var storage = new ProtectedJsonFileStorage(encryptedPath);
-storage.TryMigrateFromJson(accountsJsonPath);
 ```
 
 마이그레이션 추가 후 Release 빌드가 통과했다. 저장소 밖의 임시 실행 프로그램으로 원본·부모 디렉터리 미존재, 기존 대상과 원본 보존, 동일 경로 거부, 잘못된 JSON·null·배열 거부, Linux의 DPAPI 미지원 시 원본 보존과 임시 파일 미생성을 포함한 11개 조건을 확인했다. Windows에서 성공하는 암호화 전환은 실행 검증하지 못했다.
+
+사용자가 마이그레이션 헬퍼를 별도 파일로 분리하도록 요청했다. `ProtectedJsonFileStorageMigration.cs`의 정적 헬퍼로 옮기고 기존 예제도 변경했다. 저장소 클래스에는 암호화 파일 읽기·쓰기만 남기고, 마이그레이션에서는 내부의 덮어쓰기 없는 저장 기능을 재사용한다.
+
+분리 후 Release 빌드와 동일한 임시 프로그램의 Linux 안전성 검사 11개가 다시 통과했다.

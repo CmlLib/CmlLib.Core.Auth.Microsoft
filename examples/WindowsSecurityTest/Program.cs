@@ -8,7 +8,7 @@ using XboxAuthNet.Game.WindowsSecurity;
 var directoryPath = MinecraftPath.GetOSDefaultPath();
 var path = Path.Combine(directoryPath, "cml_accounts_ws.bin");
 var storage = new ProtectedJsonFileStorage(path);
-storage.TryMigrateFromJson(Path.Combine(directoryPath, "cml_accounts.json"));
+ProtectedJsonFileStorageMigration.TryMigrate(Path.Combine(directoryPath, "cml_accounts.json"), path);
 var loginHandler = new JELoginHandlerBuilder()
     .WithAccountManager(
         new JsonXboxGameAccountManager(
