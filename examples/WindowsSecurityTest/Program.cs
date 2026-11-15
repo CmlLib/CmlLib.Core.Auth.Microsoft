@@ -5,11 +5,14 @@ using CmlLib.Core.Auth.Microsoft.Sessions;
 using XboxAuthNet.Game.Accounts;
 using XboxAuthNet.Game.WindowsSecurity;
 
-var path = Path.Combine(MinecraftPath.GetOSDefaultPath(), "cml_accounts_ws.bin");
+var directoryPath = MinecraftPath.GetOSDefaultPath();
+var path = Path.Combine(directoryPath, "cml_accounts_ws.bin");
+var storage = new ProtectedJsonFileStorage(path);
+storage.TryMigrateFromJson(Path.Combine(directoryPath, "cml_accounts.json"));
 var loginHandler = new JELoginHandlerBuilder()
     .WithAccountManager(
         new JsonXboxGameAccountManager(
-            new ProtectedJsonFileStorage(path),
+            storage,
             JEGameAccount.FromSessionStorage,
             null))
     .Build();
