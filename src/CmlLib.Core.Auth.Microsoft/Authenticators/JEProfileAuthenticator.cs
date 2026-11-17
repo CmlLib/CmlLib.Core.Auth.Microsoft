@@ -29,6 +29,7 @@ public class JEProfileAuthenticator : SessionAuthenticator<JEProfile>
         if (string.IsNullOrEmpty(profile.Username))
             throw new JEAuthException("The Mojang server returned empty username.");
 
+        profile.LastRefreshedAt = DateTimeOffset.UtcNow;
         return profile;
     }
 
