@@ -30,6 +30,10 @@ public class JEProfileRefreshTests
             var account = Assert.IsType<JEGameAccount>(Assert.Single(login.AccountManager.GetAccounts()));
             Assert.Null(Assert.IsType<JEProfile>(account.Profile).LastRefreshedAt);
 
+            login.AccountManager.SaveAccounts();
+            Assert.DoesNotContain("\"lastRefreshedAt\"", await File.ReadAllTextAsync(accountFile));
+            account = Assert.IsType<JEGameAccount>(Assert.Single(login.AccountManager.GetAccounts()));
+
             var beforeRefresh = DateTimeOffset.UtcNow;
             await RefreshProfileAsync(login, account);
             var afterRefresh = DateTimeOffset.UtcNow;
