@@ -18,6 +18,10 @@ public class JEProfile
     [JsonPropertyName("capes")]
     public IReadOnlyCollection<JEProfileCape> Capes { get; set; } = [];
 
+    /// <summary>이 프로필을 Minecraft 서버에서 마지막으로 성공적으로 조회한 UTC 시각. 기록이 없으면 null이다.</summary>
+    [JsonPropertyName("lastRefreshedAt")]
+    public DateTimeOffset? LastRefreshedAt { get; set; }
+
     public static JEProfile ParseFromJson(JsonElement root)
     {
         var profile = new JEProfile();
