@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace CmlLib.Core.Auth.Microsoft;
@@ -7,6 +8,11 @@ public class JEAuthException : Exception
     public JEAuthException(string? message) : base(message)
     {
 
+    }
+
+    internal JEAuthException(string? message, int statusCode) : base(message)
+    {
+        StatusCode = statusCode;
     }
 
     public JEAuthException(string? error, string? errorType, string? errorMessage, int statusCode) : base(CreateMessageFromError(error, errorType, errorMessage)) =>
@@ -21,6 +27,9 @@ public class JEAuthException : Exception
     public string? ErrorType { get; private set; }
     public string? Error { get; private set; }
     public string? ErrorMessage { get; private set; }
+
+    /// <summary>서버가 응답한 재시도 대기 시간 또는 재시도 가능 시각이다.</summary>
+    public RetryConditionHeaderValue? RetryAfter { get; internal set; }
 
     private static string CreateMessageFromError(string? error, string? errorType, string? errorMessage)
     {
@@ -41,6 +50,8 @@ public class JEAuthException : Exception
         {
             using var doc = JsonDocument.Parse(responseBody);
             var root = doc.RootElement;
+            if (root.ValueKind != JsonValueKind.Object)
+                throw new FormatException();
 
             string? error = null;
             string? errorType = null;

@@ -6,18 +6,21 @@ internal static class ExceptionHelper
 {
     public static Exception CreateException(Exception ex, string resBody, HttpResponseMessage res)
     {
-        if (ex is JsonException || ex is HttpRequestException)
-        {
-            try
-            {
-                return JEAuthException.FromResponseBody(resBody, (int)res.StatusCode);
-            }
-            catch (FormatException)
-            {
-                return new JEAuthException($"{(int)res.StatusCode}: {res.ReasonPhrase}");
-            }
-        }
-        else
+        if (ex is not (JsonException or HttpRequestException))
             return ex;
+
+        var statusCode = (int)res.StatusCode;
+        JEAuthException authException;
+        try
+        {
+            authException = JEAuthException.FromResponseBody(resBody, statusCode);
+        }
+        catch (FormatException)
+        {
+            authException = new JEAuthException($"{statusCode}: {res.ReasonPhrase}", statusCode);
+        }
+
+        authException.RetryAfter = res.Headers.RetryAfter;
+        return authException;
     }
 }
