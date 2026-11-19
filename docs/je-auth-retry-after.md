@@ -9,3 +9,5 @@ Minecraft Java 프로필 조회와 토큰 발급에서 발생한 `JEAuthExceptio
 이 변경은 `CmlLib.Core.Auth.Microsoft` 3.5.1에 포함한다. 기존 패키지 의존성을 유지하고, GitHub 릴리스에 해당 `.nupkg`를 첨부한다.
 
 3.5.1로 프로필 조회를 재현한 결과, 빈 본문의 HTTP 429 응답에서 `RetryAfter`는 보존되지만 `StatusCode`는 0이었다. 후속 수정에서는 본문이 비어 있거나 Minecraft 오류 형식에 맞지 않아도 `JEAuthException.StatusCode`에 실제 HTTP 상태 코드를 담는다. 이를 통해 런처가 헤더가 없는 응답에서도 `StatusCode == 429`로 판단할 수 있다.
+
+JSON 파싱의 `JsonException`과 객체가 아닌 JSON에서 속성을 조회할 때 발생하는 `InvalidOperationException`은 같은 `catch`에서 `FormatException`으로 처리한다.

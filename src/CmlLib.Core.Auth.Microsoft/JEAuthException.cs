@@ -50,8 +50,6 @@ public class JEAuthException : Exception
         {
             using var doc = JsonDocument.Parse(responseBody);
             var root = doc.RootElement;
-            if (root.ValueKind != JsonValueKind.Object)
-                throw new FormatException();
 
             string? error = null;
             string? errorType = null;
@@ -72,7 +70,7 @@ public class JEAuthException : Exception
 
             return new JEAuthException(error, errorType, errorMessage, statusCode);
         }
-        catch (JsonException)
+        catch (Exception ex) when (ex is JsonException or InvalidOperationException)
         {
             throw new FormatException();
         }
