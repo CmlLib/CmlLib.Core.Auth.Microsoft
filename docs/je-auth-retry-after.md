@@ -10,4 +10,4 @@ Minecraft Java 프로필 조회와 토큰 발급에서 발생한 `JEAuthExceptio
 
 3.5.1로 프로필 조회를 재현한 결과, 빈 본문의 HTTP 429 응답에서 `RetryAfter`는 보존되지만 `StatusCode`는 0이었다. 후속 수정에서는 본문이 비어 있거나 Minecraft 오류 형식에 맞지 않아도 `JEAuthException.StatusCode`에 실제 HTTP 상태 코드를 담는다. 이를 통해 런처가 헤더가 없는 응답에서도 `StatusCode == 429`로 판단할 수 있다.
 
-JSON 파싱의 `JsonException`과 속성 조회 또는 문자열 변환에서 발생하는 `InvalidOperationException`은 같은 `catch`에서 `FormatException`으로 처리한다. 누락된 속성과 JSON의 `null`은 허용하고, 문자열이어야 할 속성에 숫자 같은 값이 오면 본문 전체를 형식 오류로 처리한다. 오류 본문에는 비어 있지 않은 `error` 또는 `errorType`이 필요하다.
+JSON 파싱의 `JsonException`과 객체가 아닌 JSON에서 속성을 조회할 때 발생하는 `InvalidOperationException`은 같은 `catch`에서 `FormatException`으로 처리한다. 필드는 기존대로 각각 검사한다. 예를 들어 `error`가 숫자여도 문자열인 `errorType`을 읽을 수 있다. 필드별 검사를 없애면 정상인 다른 필드까지 버려지므로 기존 검사를 유지한다.

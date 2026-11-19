@@ -55,11 +55,14 @@ public class JEAuthException : Exception
             string? errorType = null;
             string? errorMessage = null;
 
-            if (root.TryGetProperty("error", out var errorProp))
+            if (root.TryGetProperty("error", out var errorProp) &&
+                errorProp.ValueKind == JsonValueKind.String)
                 error = errorProp.GetString();
-            if (root.TryGetProperty("errorType", out var errorTypeProp))
+            if (root.TryGetProperty("errorType", out var errorTypeProp) &&
+                errorTypeProp.ValueKind == JsonValueKind.String)
                 errorType = errorTypeProp.GetString();
-            if (root.TryGetProperty("errorMessage", out var errorMessageProp))
+            if (root.TryGetProperty("errorMessage", out var errorMessageProp) &&
+                errorMessageProp.ValueKind == JsonValueKind.String)
                 errorMessage = errorMessageProp.GetString();
 
             if (string.IsNullOrEmpty(error) && string.IsNullOrEmpty(errorType))
