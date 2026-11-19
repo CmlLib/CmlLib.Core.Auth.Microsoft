@@ -16,7 +16,10 @@ public class JEProfileAuthenticatorTests
     [InlineData("0", "")]
     [InlineData(null, "")]
     [InlineData("invalid", "")]
-    public async Task ProfileRateLimitPreservesRetryAfter(string? retryAfter, string body)
+    [InlineData("60", "<html>Too Many Requests</html>")]
+    [InlineData(null, "null")]
+    [InlineData(null, "{}")]
+    public async Task ProfileRateLimitPreservesStatusAndRetryAfter(string? retryAfter, string body)
     {
         using var httpClient = new HttpClient(new RateLimitedProfileHandler(retryAfter, body));
         var context = new AuthenticateContext(
@@ -30,6 +33,7 @@ public class JEProfileAuthenticatorTests
         var error = await Assert.ThrowsAsync<JEAuthException>(async () => await authenticator.ExecuteAsync(context));
 
         RetryConditionHeaderValue.TryParse(retryAfter, out var expectedRetryAfter);
+        Assert.Equal((int)HttpStatusCode.TooManyRequests, error.StatusCode);
         Assert.Equal(expectedRetryAfter, error.RetryAfter);
     }
 

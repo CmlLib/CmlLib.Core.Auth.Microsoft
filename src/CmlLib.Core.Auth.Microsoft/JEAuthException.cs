@@ -10,6 +10,11 @@ public class JEAuthException : Exception
 
     }
 
+    internal JEAuthException(string? message, int statusCode) : base(message)
+    {
+        StatusCode = statusCode;
+    }
+
     public JEAuthException(string? error, string? errorType, string? errorMessage, int statusCode) : base(CreateMessageFromError(error, errorType, errorMessage)) =>
         (Error, ErrorType, ErrorMessage, StatusCode) = (error, errorType, errorMessage, statusCode);
 
@@ -45,6 +50,8 @@ public class JEAuthException : Exception
         {
             using var doc = JsonDocument.Parse(responseBody);
             var root = doc.RootElement;
+            if (root.ValueKind != JsonValueKind.Object)
+                throw new FormatException();
 
             string? error = null;
             string? errorType = null;
