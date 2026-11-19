@@ -8,14 +8,15 @@ internal static class ExceptionHelper
     {
         if (ex is JsonException || ex is HttpRequestException)
         {
+            var statusCode = (int)res.StatusCode;
             JEAuthException authException;
             try
             {
-                authException = JEAuthException.FromResponseBody(resBody, (int)res.StatusCode);
+                authException = JEAuthException.FromResponseBody(resBody, statusCode);
             }
             catch (FormatException)
             {
-                authException = new JEAuthException($"{(int)res.StatusCode}: {res.ReasonPhrase}");
+                authException = new JEAuthException($"{statusCode}: {res.ReasonPhrase}", statusCode);
             }
 
             authException.RetryAfter = res.Headers.RetryAfter;
