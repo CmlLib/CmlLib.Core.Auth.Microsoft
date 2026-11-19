@@ -11,7 +11,9 @@ namespace CmlLib.Core.Auth.Microsoft.Test;
 public class JEProfileAuthenticatorTests
 {
     [Theory]
-    [InlineData("60", "{\"error\":\"TooManyRequests\"}")]
+    [InlineData("60", "{\"error\":\"TooManyRequests\"}", "TooManyRequests")]
+    [InlineData(null, "{\"error\":null,\"errorType\":\"TooManyRequests\"}", "TooManyRequests")]
+    [InlineData("60", "{\"error\":\"TooManyRequests\",\"errorMessage\":5}")]
     [InlineData("Wed, 21 Oct 2026 07:28:00 GMT", "")]
     [InlineData("0", "")]
     [InlineData(null, "")]
@@ -19,7 +21,10 @@ public class JEProfileAuthenticatorTests
     [InlineData("60", "<html>Too Many Requests</html>")]
     [InlineData(null, "null")]
     [InlineData(null, "{}")]
-    public async Task ProfileRateLimitPreservesStatusAndRetryAfter(string? retryAfter, string body)
+    public async Task ProfileRateLimitPreservesStatusAndRetryAfter(
+        string? retryAfter,
+        string body,
+        string? expectedErrorCode = null)
     {
         using var httpClient = new HttpClient(new RateLimitedProfileHandler(retryAfter, body));
         var context = new AuthenticateContext(
@@ -35,6 +40,7 @@ public class JEProfileAuthenticatorTests
         RetryConditionHeaderValue.TryParse(retryAfter, out var expectedRetryAfter);
         Assert.Equal((int)HttpStatusCode.TooManyRequests, error.StatusCode);
         Assert.Equal(expectedRetryAfter, error.RetryAfter);
+        Assert.Equal(expectedErrorCode, error.Error ?? error.ErrorType);
     }
 
     private sealed class RateLimitedProfileHandler(string? retryAfter, string body) : HttpMessageHandler
